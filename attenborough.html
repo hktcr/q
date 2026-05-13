@@ -298,8 +298,10 @@ const questions = [
 
     // === API HELPERS ===
     async function setGlobalQ(qIndex) {
-        const state = JSON.stringify({ q: qIndex, p: teacherPlaying });
-        await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/syncState/${encodeURIComponent(state)}`, { method: 'POST', headers: { 'Content-Length': '0' } });
+        try {
+            const stateStr = qIndex + "_" + (teacherPlaying ? "true" : "false");
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/syncState/${stateStr}`, { method: 'POST', mode: 'cors' });
+        } catch(e) { console.error(e); }
     }
 
     async function getGlobalQ() {
@@ -307,8 +309,14 @@ const questions = [
             const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState`);
             const text = await res.text();
             if(!text || text.includes('not found')) return { q: -1, p: false };
-            const state = JSON.parse(decodeURIComponent(text.replace(/"/g, ''))); // keyvalue sometimes adds extra quotes
-            return state;
+            
+            // Expected format: "2_true"
+            const raw = text.replace(/"/g, '').trim();
+            const parts = raw.split('_');
+            if(parts.length === 2) {
+                return { q: parseInt(parts[0]), p: parts[1] === 'true' };
+            }
+            return { q: parseInt(raw) || -1, p: false };
         } catch(e) { return { q: -1, p: false }; }
     }
 
