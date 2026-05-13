@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: A Life on Our Planet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #0a0f0a;
+            --surface: rgba(30, 41, 59, 0.6);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --correct: #10b981;
+            --incorrect: #ef4444;
+            --gold: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* === BACKGROUND === */
+        .bg-layer {
+            position: fixed; inset: 0; z-index: 0;
+            background: url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1920&q=80') center/cover no-repeat;
+        }
+        .bg-layer::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(160deg, rgba(5,10,5,0.92) 0%, rgba(10,20,15,0.82) 100%);
+        }
+
+        /* === LAYOUT === */
+        .app {
+            position: relative; z-index: 1;
+            height: 100vh; display: flex;
+            flex-direction: column; align-items: center;
+            justify-content: center; padding: 1.5rem;
+        }
+
+        /* === PROGRESS BAR === */
+        .progress-bar-wrap {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: 6px; background: rgba(255,255,255,0.08); z-index: 10;
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--primary), #34d399);
+            border-radius: 0 3px 3px 0;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* === STEP INDICATOR === */
+        .step-indicator {
+            position: fixed; top: 1.5rem; right: 2rem;
+            font-size: 1rem; font-weight: 700;
+            color: var(--text-muted); z-index: 10;
+            letter-spacing: 1px;
+        }
+        .step-indicator .current { color: var(--primary); font-size: 1.4rem; }
+
+        /* === CARD === */
+        .card {
+            width: 100%; max-width: 720px;
+            background: rgba(10, 15, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: clamp(2rem, 5vw, 3.5rem);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            transform: translateX(0); opacity: 1;
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.35s ease;
+        }
+        .card.exit-left  { transform: translateX(-120px); opacity: 0; }
+        .card.enter-right { transform: translateX(120px); opacity: 0; }
+
+        /* === QUESTION === */
+        .q-number {
+            font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 3px; color: var(--primary);
+            font-weight: 800; margin-bottom: 0.75rem;
+        }
+        .q-text {
+            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+            font-weight: 600; line-height: 1.55;
+            margin-bottom: 2rem;
+        }
+
+        /* === OPTIONS === */
+        .options { display: flex; flex-direction: column; gap: 0.85rem; }
+
+        .opt {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1.1rem 1.4rem;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 14px; cursor: pointer;
+            font-size: clamp(1rem, 1.8vw, 1.15rem);
+            line-height: 1.45;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .opt:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+        .opt.selected { border-color: var(--primary); background: rgba(16,185,129,0.1); }
+
+        .opt .letter {
+            flex-shrink: 0; width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s ease;
+        }
+        .opt.selected .letter {
+            background: var(--primary); color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* Feedback states */
+        .opt.correct-opt {
+            border-color: var(--correct) !important;
+            background: rgba(16,185,129,0.15) !important;
+        }
+        .opt.correct-opt .letter {
+            background: var(--correct) !important; color: #fff !important;
+        }
+        .opt.wrong-opt {
+            border-color: var(--incorrect) !important;
+            background: rgba(239,68,68,0.12) !important;
+            opacity: 0.85;
+        }
+        .opt.wrong-opt .letter {
+            background: var(--incorrect) !important; color: #fff !important;
+        }
+        .opt.dimmed { opacity: 0.4; }
+
+        /* === FEEDBACK === */
+        .feedback {
+            margin-top: 1.5rem; padding: 1.2rem 1.5rem;
+            border-radius: 14px; font-size: 1rem;
+            line-height: 1.5; display: none;
+            border-left: 4px solid;
+            animation: fadeSlideUp 0.4s ease-out;
+        }
+        .feedback.show { display: block; }
+        .feedback.ok  { background: rgba(16,185,129,0.1); border-color: var(--correct); color: #a7f3d0; }
+        .feedback.nok { background: rgba(239,68,68,0.1);  border-color: var(--incorrect); color: #fca5a5; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === NEXT BUTTON === */
+        .next-btn {
+            display: none; margin-top: 2rem;
+            width: 100%; padding: 1.1rem;
+            font-family: inherit; font-size: 1.1rem; font-weight: 700;
+            color: #fff; background: var(--primary);
+            border: none; border-radius: 14px; cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all 0.25s ease;
+            animation: fadeSlideUp 0.4s ease-out;
+        }
+        .next-btn:hover { background: #059669; transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--primary-glow); }
+        .next-btn.show { display: block; }
+
+        /* === RESULTS SCREEN === */
+        .results { text-align: center; }
+        .results .emoji { font-size: 4rem; margin-bottom: 1rem; }
+        .results h2 {
+            font-size: clamp(2rem, 5vw, 3rem); font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+        .results .score-line {
+            font-size: 1.3rem; color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+        .results .score-line strong { color: var(--primary); font-size: 1.6rem; }
+
+        .result-row {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.9rem 1.2rem; border-radius: 12px;
+            margin-bottom: 0.6rem; font-size: 1rem;
+            text-align: left;
+        }
+        .result-row.ok  { background: rgba(16,185,129,0.1); }
+        .result-row.nok { background: rgba(239,68,68,0.08); }
+        .result-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+        .retry-btn {
+            margin-top: 2rem; padding: 1rem 3rem;
+            font-family: inherit; font-size: 1.1rem; font-weight: 700;
+            color: var(--primary); background: transparent;
+            border: 2px solid var(--primary); border-radius: 14px;
+            cursor: pointer; transition: all 0.25s ease;
+        }
+        .retry-btn:hover { background: var(--primary); color: #fff; }
+
+        /* === INTRO SCREEN === */
+        .intro { text-align: center; }
+        .intro .badge {
+            display: inline-block; font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 3px;
+            color: var(--primary); font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        .intro h1 {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 900; line-height: 1.15;
+            margin-bottom: 0.75rem;
+        }
+        .intro .sub {
+            font-size: 1.15rem; color: var(--text-muted);
+            margin-bottom: 2.5rem; line-height: 1.5;
+        }
+        .intro .meta {
+            display: flex; justify-content: center; gap: 2rem;
+            margin-bottom: 2.5rem; flex-wrap: wrap;
+        }
+        .intro .meta-item {
+            font-size: 0.9rem; color: var(--text-muted);
+        }
+        .intro .meta-item strong { color: var(--text); }
+        .start-btn {
+            padding: 1.1rem 4rem;
+            font-family: inherit; font-size: 1.2rem; font-weight: 700;
+            color: #fff; background: var(--primary);
+            border: none; border-radius: 14px; cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .start-btn:hover { background: #059669; transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--primary-glow); }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+
+    <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <div class="step-indicator" id="stepIndicator" style="display:none;">
+        <span class="current" id="stepCurrent">1</span> / <span id="stepTotal">6</span>
+    </div>
+
+    <div class="app">
+        <div class="card" id="card">
+            <!-- Filled by JS -->
+        </div>
+    </div>
+
+    <script>
+    const APP_KEY = "HakanLessonLabSync2026";
+    const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+
+    const questions = [
+        {
+            num: 1,
+            text: "Vad kallar David Attenborough den extremt stabila tidsperiod (de senaste 10 000 åren) som gjort det möjligt för mänskligheten att utveckla jordbruk och civilisation?",
+            options: [
+                { letter: "A", text: "Antropocen" },
+                { letter: "B", text: "Holocen" },
+                { letter: "C", text: "Krita" },
+                { letter: "D", text: "Jura" }
+            ],
+            correct: "B",
+            feedbackOk: "Helt rätt! Holocen är den stabila period David kallar vår \"Garden of Eden\" — 10 000 år utan mer än 1°C temperatursvängning.",
+            feedbackNok: "Rätt svar: <strong>Holocen</strong>. Det är denna stabila 10 000-årsperiod som David kallar vår \"Garden of Eden\"."
+        },
+        {
+            num: 2,
+            text: "I filmen besöker David regnskogen på Borneo. Varför är orangutanger så livsviktiga för hela regnskogens ekosystem?",
+            options: [
+                { letter: "A", text: "De äter skadedjur som annars förstör träden." },
+                { letter: "B", text: "De bygger enorma bon som skyddar marken." },
+                { letter: "C", text: "De sprider frön när de rör sig genom skogen — utan dem kan många trädarter inte föröka sig." },
+                { letter: "D", text: "De jagar mindre rovdjur och håller balansen." }
+            ],
+            correct: "C",
+            feedbackOk: "Precis! Orangutangmammor lägger 10 år på att lära sina ungar vilka frukter de kan äta. De är regnskogens trädgårdsmästare.",
+            feedbackNok: "Rätt svar: <strong>C</strong>. Orangutangerna sprider frön och är helt avgörande för att regnskogens trädmångfald ska kunna föröka sig."
+        },
+        {
+            num: 3,
+            text: "Vad har hänt med stora delar av Borneos regnskog sedan David besökte den på 1950-talet?",
+            options: [
+                { letter: "A", text: "Den har omvandlats till stora naturreservat." },
+                { letter: "B", text: "Den har frusit på grund av klimatförändringar." },
+                { letter: "C", text: "Den har huggits ner och ersatts av artfattiga oljepalmplantager (monokultur)." },
+                { letter: "D", text: "Djuren har ätit upp skogen." }
+            ],
+            correct: "C",
+            feedbackOk: "Korrekt! En biologiskt unik skog har bytts ut mot en monokultur — rader av oljepalmer som saknar nästan all biologisk mångfald.",
+            feedbackNok: "Rätt svar: <strong>C</strong>. Hälften av Borneos regnskog har huggits ner och ersatts av oljepalmplantager — en artfattig monokultur."
+        },
+        {
+            num: 4,
+            text: "Vad händer med näringscykeln i havet när stora industrifiskeflottor fiskar ut alla stora rovfiskar?",
+            options: [
+                { letter: "A", text: "Näringscykeln stannar av — näringsämnen sjunker ner i djupet istället för att stanna kvar i solbelyst ytvatten, och haven utarmas." },
+                { letter: "B", text: "Mindre fiskar får mer plats och hela havet blir mer levande." },
+                { letter: "C", text: "Ingenting — rovfiskarna spelar ingen roll för havet i stort." },
+                { letter: "D", text: "Det blir lättare för koraller att växa." }
+            ],
+            correct: "A",
+            feedbackOk: "Exakt! Rovdjuren fungerar som \"näringspumpar\" — utan dem försvinner näringen ner i mörkret och de produktiva hot spots-områdena krymper.",
+            feedbackNok: "Rätt svar: <strong>A</strong>. De stora rovdjuren behövs för att hålla kvar näringsämnen i de ljusa zonerna där plankton kan använda dem."
+        },
+        {
+            num: 5,
+            text: "Vi undersökte en torkad korall i klassrummet. Vad är \"korallblekning\" (som David bevittnade 1998) ett tecken på?",
+            options: [
+                { letter: "A", text: "Att korallen rengör sig själv för att växa snabbare." },
+                { letter: "B", text: "Att fiskarna har ätit upp algerna på korallens yta." },
+                { letter: "C", text: "Att det är för mycket salt i havsvattnet." },
+                { letter: "D", text: "Att havsvattnet blivit för varmt — korallen stöter bort de livsviktiga algerna den lever i symbios med." }
+            ],
+            correct: "D",
+            feedbackOk: "Helt rätt! Zooxanthellerna (algerna) ger korallen både färg och energi. När vattnet blir för varmt bryts symbiosen och kvar blir bara det vita kalkskelettet.",
+            feedbackNok: "Rätt svar: <strong>D</strong>. När vattnet blir för varmt dör symbiosen mellan korallen och dess alger (zooxantheller), och kvar blir bara det vita \"skelettet\"."
+        },
+        {
+            num: 6,
+            text: "När vi tittade på polerna på Google Earth pratade vi om albedo-effekten. Vad innebär minskad is för jordens temperatur?",
+            options: [
+                { letter: "A", text: "Vit is reflekterar solljus, mörkt havsvatten absorberar det. Mindre is → mer absorption → snabbare uppvärmning → ännu mindre is (ond cirkel)." },
+                { letter: "B", text: "Mörkt havsvatten reflekterar bort solljuset bättre, så haven kyler jorden." },
+                { letter: "C", text: "Smältvattnet är iskallt och kyler ner hela jorden som en gigantisk AC." },
+                { letter: "D", text: "Det påverkar bara djuren på plats, inte det globala klimatsystemet." }
+            ],
+            correct: "A",
+            feedbackOk: "Precis! Detta är en positiv feedback-loop: uppvärmning → mindre is → mer värmeabsorption → mer uppvärmning. En ond cirkel.",
+            feedbackNok: "Rätt svar: <strong>A</strong>. Detta kallas en positiv feedback-loop — uppvärmning leder till mindre is, som absorberar mer solenergi, vilket ger ännu mer uppvärmning."
+        }
+    ];
+
+    let currentQ = -1; 
+    let answers = {};
+    let isSyncMode = false;
+    let syncInterval = null;
+
+    const card = document.getElementById('card');
+    const progressBar = document.getElementById('progressBar');
+    const stepIndicator = document.getElementById('stepIndicator');
+    const stepCurrent = document.getElementById('stepCurrent');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTeacher = urlParams.get('mode') === 'teacher';
+
+    // === API HELPERS ===
+    async function setGlobalQ(qIndex) {
+        await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/activeQ/${qIndex}`, { method: 'POST', headers: { 'Content-Length': '0' } });
+    }
+    async function getGlobalQ() {
+        try {
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/activeQ`);
+            const text = await res.text();
+            return parseInt(text.replace(/"/g, ''));
+        } catch (e) {
+            return -1;
+        }
+    }
+
+    // === INIT ===
+    if (isTeacher) {
+        renderTeacherPanel();
+    } else {
+        renderIntro();
+    }
+
+    function renderIntro() {
+        stepIndicator.style.display = 'none';
+        progressBar.style.width = '0%';
+        card.innerHTML = `
+            <div class="intro">
+                <div class="badge">Ekologi & Klimat</div>
+                <h1>A Life on Our Planet</h1>
+                <p class="sub">Frågor om filmens första del och det vi diskuterat om koraller, ekosystem och klimat.</p>
+                <div class="meta" style="flex-direction: column; align-items: center; gap: 1rem;">
+                    <button class="start-btn" onclick="startSyncMode()">🔗 Gå med i Lärar-Synk (Live)</button>
+                    <button class="retry-btn" style="margin-top:0;" onclick="startSoloMode()">Öva i egen takt</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function startSoloMode() {
+        isSyncMode = false;
+        currentQ = 0;
+        answers = {};
+        showQuestion(0);
+    }
+
+    async function startSyncMode() {
+        isSyncMode = true;
+        currentQ = -1;
+        answers = {};
+        
+        card.innerHTML = `
+            <div class="intro">
+                <div class="emoji" style="font-size:4rem; margin-bottom:1rem;">🍿</div>
+                <h2>Väntar på Håkan...</h2>
+                <p class="sub">Luta dig tillbaka och titta på filmen. Frågorna kommer att dyka upp här automatiskt när det är dags!</p>
+            </div>
+        `;
+
+        // Start polling
+        syncInterval = setInterval(async () => {
+            const globalQ = await getGlobalQ();
+            if (globalQ > currentQ && globalQ < questions.length) {
+                currentQ = globalQ;
+                showQuestion(currentQ);
+            } else if (globalQ === questions.length && currentQ !== questions.length) {
+                currentQ = questions.length;
+                showResults();
+            } else if (globalQ === -1 && currentQ !== -1) {
+                // Teacher reset the quiz
+                currentQ = -1;
+                answers = {};
+                card.innerHTML = `
+                    <div class="intro">
+                        <div class="emoji" style="font-size:4rem; margin-bottom:1rem;">🍿</div>
+                        <h2>Väntar på Håkan...</h2>
+                        <p class="sub">Quizet har återställts. Frågorna dyker upp här snart!</p>
+                    </div>
+                `;
+            }
+        }, 3000);
+    }
+
+    function showQuestion(idx) {
+        stepIndicator.style.display = 'block';
+        stepCurrent.textContent = idx + 1;
+        progressBar.style.width = ((idx) / questions.length * 100) + '%';
+
+        const q = questions[idx];
+        card.classList.add('exit-left');
+
+        setTimeout(() => {
+            card.classList.remove('exit-left');
+            card.classList.add('enter-right');
+
+            card.innerHTML = `
+                <div class="q-number">Fråga ${q.num} av ${questions.length}</div>
+                <div class="q-text">${q.text}</div>
+                <div class="options" id="opts">
+                    ${q.options.map(o => `
+                        <div class="opt" data-val="${o.letter}" onclick="selectOption(this, '${o.letter}')">
+                            <span class="letter">${o.letter}</span>
+                            <span>${o.text}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="fb"></div>
+                ${!isSyncMode ? `
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+                        ${idx < questions.length - 1 ? 'Nästa Fråga →' : 'Visa Resultat →'}
+                    </button>
+                ` : `
+                    <div id="syncWaitMsg" style="display:none; text-align:center; margin-top:2rem; color:var(--text-muted); font-weight:600;">
+                        Svar registrerat! ⏳ Väntar på att filmen ska fortsätta...
+                    </div>
+                `}
+            `;
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    card.classList.remove('enter-right');
+                });
+            });
+        }, 350);
+    }
+
+    function selectOption(el, val) {
+        if (answers[currentQ] !== undefined) return;
+
+        answers[currentQ] = val;
+        const q = questions[currentQ];
+        const isCorrect = val === q.correct;
+
+        document.querySelectorAll('.opt').forEach(o => {
+            const v = o.dataset.val;
+            o.style.cursor = 'default';
+            if (v === q.correct) {
+                o.classList.add('correct-opt');
+            } else if (v === val && !isCorrect) {
+                o.classList.add('wrong-opt');
+            } else {
+                o.classList.add('dimmed');
+            }
+        });
+
+        const fb = document.getElementById('fb');
+        fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
+        fb.innerHTML = isCorrect ? '✓ ' + q.feedbackOk : '✗ ' + q.feedbackNok;
+
+        if (!isSyncMode) {
+            document.getElementById('nextBtn').classList.add('show');
+        } else {
+            document.getElementById('syncWaitMsg').style.display = 'block';
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQ < questions.length - 1) {
+            currentQ++;
+            showQuestion(currentQ);
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        if(syncInterval) clearInterval(syncInterval);
+        progressBar.style.width = '100%';
+        stepIndicator.style.display = 'none';
+
+        let score = 0;
+        questions.forEach((q, i) => {
+            if (answers[i] === q.correct) score++;
+        });
+
+        let emoji, title;
+        if (score === questions.length) { emoji = '🌟'; title = 'Full pott! Strålande!'; }
+        else if (score >= 4)            { emoji = '💚'; title = 'Bra jobbat!'; }
+        else if (score >= 2)            { emoji = '🌱'; title = 'En bra start!'; }
+        else                            { emoji = '📖'; title = 'Dags att repetera!'; }
+
+        card.classList.add('exit-left');
+        setTimeout(() => {
+            card.classList.remove('exit-left');
+            card.classList.add('enter-right');
+
+            card.innerHTML = `
+                <div class="results">
+                    <div class="emoji">${emoji}</div>
+                    <h2>${title}</h2>
+                    <p class="score-line">Du fick <strong>${score}</strong> av ${questions.length} rätt</p>
+                    ${questions.map((q, i) => {
+                        const ok = answers[i] === q.correct;
+                        return `<div class="result-row ${ok ? 'ok' : 'nok'}">
+                            <span class="result-icon">${ok ? '✓' : '✗'}</span>
+                            <span>Fråga ${q.num}: ${ok ? 'Rätt!' : 'Fel — rätt svar: ' + q.correct}</span>
+                        </div>`;
+                    }).join('')}
+                    ${!isSyncMode ? `<button class="retry-btn" onclick="retry()">Försök igen</button>` : ''}
+                </div>
+            `;
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    card.classList.remove('enter-right');
+                });
+            });
+        }, 350);
+    }
+
+    function retry() {
+        currentQ = -1;
+        answers = {};
+        renderIntro();
+    }
+
+    // === TEACHER PANEL ===
+    let teacherTime = 0; // in seconds
+    let teacherPlaying = false;
+    let teacherTimer = null;
+
+    // Estimated timestamps for the questions (in seconds)
+    const qTimestamps = [
+        8 * 60,   // Q1: Holocen (~08:00)
+        18 * 60,  // Q2: Orangutanger (~18:00)
+        22 * 60,  // Q3: Monokultur (~22:00)
+        29 * 60,  // Q4: Havet (~29:00)
+        34 * 60,  // Q5: Korallblekning (~34:00)
+        42 * 60   // Q6: Albedo (~42:00)
+    ];
+
+    async function renderTeacherPanel() {
+        stepIndicator.style.display = 'none';
+        progressBar.style.display = 'none';
+        
+        await setGlobalQ(-1); // Reset on load
+
+        card.innerHTML = `
+            <div class="intro" style="text-align:left;">
+                <div class="badge">Lärarpanel</div>
+                <h1 style="color:var(--primary); text-align:left; font-size:2rem;">🎬 Timeline-Synk</h1>
+                <p class="sub" style="text-align:left; margin-bottom:1rem; font-size:1rem;">
+                    Klicka på Play när filmen rullar. Systemet låser automatiskt upp frågorna vid rätt tidsstämpel. Du kan justera tiden manuellt om ni pausat.
+                </p>
+
+                <div style="background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:14px; margin-bottom:2rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <div style="font-size:2.5rem; font-weight:900; font-variant-numeric: tabular-nums;" id="timeDisplay">00:00</div>
+                        <div>
+                            <button id="playBtn" onclick="togglePlay()" style="background:var(--primary); color:#fff; border:none; padding:0.8rem 1.5rem; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1.1rem;">▶️ Play</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:1rem; align-items:center;">
+                        <input type="range" id="timeSlider" min="0" max="2700" value="0" style="flex-grow:1; cursor:pointer;" oninput="sliderMove(this.value)">
+                        <button onclick="adjustTime(-30)" style="background:rgba(255,255,255,0.1); border:none; color:#fff; padding:0.5rem; border-radius:6px; cursor:pointer;">-30s</button>
+                        <button onclick="adjustTime(30)" style="background:rgba(255,255,255,0.1); border:none; color:#fff; padding:0.5rem; border-radius:6px; cursor:pointer;">+30s</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom:1rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">Automatiska Triggers</h3>
+                <div class="options" id="teacherOpts">
+                    ${questions.map((q, i) => `
+                        <div class="opt" id="t-opt-${i}" style="opacity:0.6; pointer-events:none;">
+                            <span class="letter">${formatTime(qTimestamps[i])}</span>
+                            <span>${q.num}. ${q.text.substring(0, 35)}...</span>
+                        </div>
+                    `).join('')}
+                    <div class="opt" onclick="pushQuestion(${questions.length})" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center;">
+                        <span>🏁 Tvinga Avslut (Visa Resultat för alla)</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function formatTime(sec) {
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = (sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function updateTimeDisplay() {
+        document.getElementById('timeDisplay').textContent = formatTime(teacherTime);
+        document.getElementById('timeSlider').value = teacherTime;
+
+        // Check triggers
+        let activeIndex = -1;
+        for (let i = 0; i < qTimestamps.length; i++) {
+            if (teacherTime >= qTimestamps[i]) {
+                activeIndex = i;
+            }
+        }
+
+        // Visual update
+        for (let i = 0; i < questions.length; i++) {
+            const el = document.getElementById(`t-opt-${i}`);
+            if (i <= activeIndex) {
+                el.style.opacity = '1';
+                el.style.borderColor = 'var(--primary)';
+                el.style.background = 'rgba(16,185,129,0.1)';
+            } else {
+                el.style.opacity = '0.4';
+                el.style.borderColor = 'rgba(255,255,255,0.08)';
+                el.style.background = 'transparent';
+            }
+        }
+
+        // Push to server if changed
+        if (window._lastPushedIndex !== activeIndex) {
+            pushQuestion(activeIndex);
+            window._lastPushedIndex = activeIndex;
+        }
+    }
+
+    window.togglePlay = function() {
+        teacherPlaying = !teacherPlaying;
+        const btn = document.getElementById('playBtn');
+        if (teacherPlaying) {
+            btn.innerHTML = '⏸️ Paus';
+            btn.style.background = 'rgba(255,255,255,0.2)';
+            teacherTimer = setInterval(() => {
+                teacherTime++;
+                updateTimeDisplay();
+            }, 1000);
+        } else {
+            btn.innerHTML = '▶️ Play';
+            btn.style.background = 'var(--primary)';
+            clearInterval(teacherTimer);
+        }
+    };
+
+    window.sliderMove = function(val) {
+        teacherTime = parseInt(val);
+        updateTimeDisplay();
+    };
+
+    window.adjustTime = function(delta) {
+        teacherTime = Math.max(0, teacherTime + delta);
+        updateTimeDisplay();
+    };
+
+    window.pushQuestion = async function(idx) {
+        await setGlobalQ(idx);
+    };
+
+    // Keyboard support for solo mode
+    document.addEventListener('keydown', e => {
+        if (currentQ < 0 || isSyncMode || isTeacher) return;
+        const map = { 'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D', '1': 'A', '2': 'B', '3': 'C', '4': 'D' };
+        const val = map[e.key.toLowerCase()];
+        if (val && answers[currentQ] === undefined) {
+            const opt = document.querySelector(`.opt[data-val="${val}"]`);
+            if (opt) selectOption(opt, val);
+        }
+        if ((e.key === 'Enter' || e.key === ' ') && answers[currentQ] !== undefined) {
+            e.preventDefault();
+            nextQuestion();
+        }
+    });
+    </script>
+</body>
+</html>
