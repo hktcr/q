@@ -261,89 +261,27 @@
     </div>
 
     <script>
+
     const APP_KEY = "HakanLessonLabSync2026";
     const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
 
-    const questions = [
-        {
-            num: 1,
-            text: "Vad kallar David Attenborough den extremt stabila tidsperiod (de senaste 10 000 åren) som gjort det möjligt för mänskligheten att utveckla jordbruk och civilisation?",
-            options: [
-                { letter: "A", text: "Antropocen" },
-                { letter: "B", text: "Holocen" },
-                { letter: "C", text: "Krita" },
-                { letter: "D", text: "Jura" }
-            ],
-            correct: "B",
-            feedbackOk: "Helt rätt! Holocen är den stabila period David kallar vår \"Garden of Eden\" — 10 000 år utan mer än 1°C temperatursvängning.",
-            feedbackNok: "Rätt svar: <strong>Holocen</strong>. Det är denna stabila 10 000-årsperiod som David kallar vår \"Garden of Eden\"."
-        },
-        {
-            num: 2,
-            text: "I filmen besöker David regnskogen på Borneo. Varför är orangutanger så livsviktiga för hela regnskogens ekosystem?",
-            options: [
-                { letter: "A", text: "De äter skadedjur som annars förstör träden." },
-                { letter: "B", text: "De bygger enorma bon som skyddar marken." },
-                { letter: "C", text: "De sprider frön när de rör sig genom skogen — utan dem kan många trädarter inte föröka sig." },
-                { letter: "D", text: "De jagar mindre rovdjur och håller balansen." }
-            ],
-            correct: "C",
-            feedbackOk: "Precis! Orangutangmammor lägger 10 år på att lära sina ungar vilka frukter de kan äta. De är regnskogens trädgårdsmästare.",
-            feedbackNok: "Rätt svar: <strong>C</strong>. Orangutangerna sprider frön och är helt avgörande för att regnskogens trädmångfald ska kunna föröka sig."
-        },
-        {
-            num: 3,
-            text: "Vad har hänt med stora delar av Borneos regnskog sedan David besökte den på 1950-talet?",
-            options: [
-                { letter: "A", text: "Den har omvandlats till stora naturreservat." },
-                { letter: "B", text: "Den har frusit på grund av klimatförändringar." },
-                { letter: "C", text: "Den har huggits ner och ersatts av artfattiga oljepalmplantager (monokultur)." },
-                { letter: "D", text: "Djuren har ätit upp skogen." }
-            ],
-            correct: "C",
-            feedbackOk: "Korrekt! En biologiskt unik skog har bytts ut mot en monokultur — rader av oljepalmer som saknar nästan all biologisk mångfald.",
-            feedbackNok: "Rätt svar: <strong>C</strong>. Hälften av Borneos regnskog har huggits ner och ersatts av oljepalmplantager — en artfattig monokultur."
-        },
-        {
-            num: 4,
-            text: "Vad händer med näringscykeln i havet när stora industrifiskeflottor fiskar ut alla stora rovfiskar?",
-            options: [
-                { letter: "A", text: "Näringscykeln stannar av — näringsämnen sjunker ner i djupet istället för att stanna kvar i solbelyst ytvatten, och haven utarmas." },
-                { letter: "B", text: "Mindre fiskar får mer plats och hela havet blir mer levande." },
-                { letter: "C", text: "Ingenting — rovfiskarna spelar ingen roll för havet i stort." },
-                { letter: "D", text: "Det blir lättare för koraller att växa." }
-            ],
-            correct: "A",
-            feedbackOk: "Exakt! Rovdjuren fungerar som \"näringspumpar\" — utan dem försvinner näringen ner i mörkret och de produktiva hot spots-områdena krymper.",
-            feedbackNok: "Rätt svar: <strong>A</strong>. De stora rovdjuren behövs för att hålla kvar näringsämnen i de ljusa zonerna där plankton kan använda dem."
-        },
-        {
-            num: 5,
-            text: "Vi undersökte en torkad korall i klassrummet. Vad är \"korallblekning\" (som David bevittnade 1998) ett tecken på?",
-            options: [
-                { letter: "A", text: "Att korallen rengör sig själv för att växa snabbare." },
-                { letter: "B", text: "Att fiskarna har ätit upp algerna på korallens yta." },
-                { letter: "C", text: "Att det är för mycket salt i havsvattnet." },
-                { letter: "D", text: "Att havsvattnet blivit för varmt — korallen stöter bort de livsviktiga algerna den lever i symbios med." }
-            ],
-            correct: "D",
-            feedbackOk: "Helt rätt! Zooxanthellerna (algerna) ger korallen både färg och energi. När vattnet blir för varmt bryts symbiosen och kvar blir bara det vita kalkskelettet.",
-            feedbackNok: "Rätt svar: <strong>D</strong>. När vattnet blir för varmt dör symbiosen mellan korallen och dess alger (zooxantheller), och kvar blir bara det vita \"skelettet\"."
-        },
-        {
-            num: 6,
-            text: "När vi tittade på polerna på Google Earth pratade vi om albedo-effekten. Vad innebär minskad is för jordens temperatur?",
-            options: [
-                { letter: "A", text: "Vit is reflekterar solljus, mörkt havsvatten absorberar det. Mindre is → mer absorption → snabbare uppvärmning → ännu mindre is (ond cirkel)." },
-                { letter: "B", text: "Mörkt havsvatten reflekterar bort solljuset bättre, så haven kyler jorden." },
-                { letter: "C", text: "Smältvattnet är iskallt och kyler ner hela jorden som en gigantisk AC." },
-                { letter: "D", text: "Det påverkar bara djuren på plats, inte det globala klimatsystemet." }
-            ],
-            correct: "A",
-            feedbackOk: "Precis! Detta är en positiv feedback-loop: uppvärmning → mindre is → mer värmeabsorption → mer uppvärmning. En ond cirkel.",
-            feedbackNok: "Rätt svar: <strong>A</strong>. Detta kallas en positiv feedback-loop — uppvärmning leder till mindre is, som absorberar mer solenergi, vilket ger ännu mer uppvärmning."
-        }
-    ];
+const questions = [
+    { num: 1, text: "Tjernobylolyckan 1986 är startpunkten i filmen. Vad illustrerar ruinerna av Pripyat enligt David Attenborough?", options: [{letter: "A", text: "Ett fruktansvärt misstag av människan, men också att naturen långsamt tar tillbaka platsen."}, {letter: "B", text: "Att kärnkraft är det enda hållbara energislaget."}, {letter: "C", text: "Att radioaktivitet dödar allt liv permanent."}, {letter: "D", text: "Ett meteoritnedslag som orsakade ett lokalt utdöende."}], correct: "A", feedbackOk: "Helt rätt! Tjernobyl visar hur naturen återhämtar sig när människan försvinner.", feedbackNok: "Rätt svar: <strong>A</strong>. Naturen återvänder." },
+    { num: 2, text: "Vad kallar David den stabila tidsperiod (10 000 år) som gjort jordbruk och civilisation möjligt?", options: [{letter: "A", text: "Antropocen"}, {letter: "B", text: "Holocen"}, {letter: "C", text: "Krita"}, {letter: "D", text: "Jura"}], correct: "B", feedbackOk: "Helt rätt! Holocen är vår \"Garden of Eden\".", feedbackNok: "Rätt svar: <strong>Holocen</strong>." },
+    { num: 3, text: "Massutdöenden har inträffat fem gånger tidigare i jordens historia. Vad har ofta varit inblandat?", options: [{letter: "A", text: "Rovdjur åt upp alla växtätare."}, {letter: "B", text: "Minskning i insektsantal."}, {letter: "C", text: "Drastiska förändringar av koldioxidhalten i atmosfären."}, {letter: "D", text: "För mycket is på jorden."}], correct: "C", feedbackOk: "Rätt! Plötsliga koldioxidförändringar t.ex. från vulkanism är ofta orsaken.", feedbackNok: "Rätt svar: <strong>C</strong>." },
+    { num: 4, text: "När David började resa runt världen kändes naturen oändlig och orörd. Vad var egentligen sant?", options: [{letter: "A", text: "Den var och är fortfarande oändlig."}, {letter: "B", text: "Människan höll redan på att omforma hela planeten i hög takt."}, {letter: "C", text: "Bara haven förändrades."}, {letter: "D", text: "Naturen trängde undan oss."}], correct: "B", feedbackOk: "Rätt! Människan expanderade redan okontrollerat.", feedbackNok: "Rätt svar: <strong>B</strong>." },
+    { num: 5, text: "Serengeti är känt för enorma hjordar av växtätare. Hur påverkar de grässlätterna?", options: [{letter: "A", text: "De äter upp allt och gör det till öken."}, {letter: "B", text: "De gödslar marken och håller ekosystemet produktivt."}, {letter: "C", text: "De skrämmer bort alla rovdjur."}, {letter: "D", text: "De trampar sönder alla rötter."}], correct: "B", feedbackOk: "Korrekt! De är vitala för att hålla marken rik.", feedbackNok: "Rätt svar: <strong>B</strong>." },
+    { num: 6, text: "Varför är orangutanger så livsviktiga för regnskogens ekosystem på Borneo?", options: [{letter: "A", text: "De äter skadedjur."}, {letter: "B", text: "De bygger bon som skyddar marken."}, {letter: "C", text: "De sprider frön så att skogen kan föröka sig."}, {letter: "D", text: "De jagar andra djur."}], correct: "C", feedbackOk: "Helt rätt! De är regnskogens trädgårdsmästare.", feedbackNok: "Rätt svar: <strong>C</strong>." },
+    { num: 7, text: "Vad har hänt med stora delar av Borneos regnskog sedan 1950-talet?", options: [{letter: "A", text: "Den blev reservat."}, {letter: "B", text: "Den frös ihjäl."}, {letter: "C", text: "Hälften höggs ner för artfattiga oljepalmplantager."}, {letter: "D", text: "Djuren åt upp den."}], correct: "C", feedbackOk: "Rätt! Monokultur av palmer har ersatt mångfalden.", feedbackNok: "Rätt svar: <strong>C</strong>." },
+    { num: 8, text: "Hur stor andel av massan av alla däggdjur på jorden utgörs idag av VILDA djur?", options: [{letter: "A", text: "50%"}, {letter: "B", text: "30%"}, {letter: "C", text: "15%"}, {letter: "D", text: "Endast 4%"}], correct: "D", feedbackOk: "Korrekt. Vi och våra tamdjur utgör 96% av alla däggdjur i vikt.", feedbackNok: "Rätt svar: <strong>D (4%)</strong>." },
+    { num: 9, text: "Vad händer med näringscykeln i havet när vi fiskar ut alla stora rovfiskar?", options: [{letter: "A", text: "Näringen sjunker till djupet och går förlorad för ytan."}, {letter: "B", text: "Det blir mer levande."}, {letter: "C", text: "Det spelar ingen roll."}, {letter: "D", text: "Mer koraller växer."}], correct: "A", feedbackOk: "Precis. Rovdjur pumpar upp näringen igen.", feedbackNok: "Rätt svar: <strong>A</strong>." },
+    { num: 10, text: "Hur stor andel av de STORA fiskarna i världshaven har industrifisket tagit bort?", options: [{letter: "A", text: "20%"}, {letter: "B", text: "90%"}, {letter: "C", text: "50%"}, {letter: "D", text: "5%"}], correct: "B", feedbackOk: "Helt rätt. 90% är ett hisnande, tragiskt nummer.", feedbackNok: "Rätt svar: <strong>B (90%)</strong>." },
+    { num: 11, text: "Vad är \"korallblekning\" ett tecken på?", options: [{letter: "A", text: "Korallen tvättar sig."}, {letter: "B", text: "Fiskar har ätit upp algerna."}, {letter: "C", text: "Salthalten ökar."}, {letter: "D", text: "Att vattnet är för varmt och korallen stöter bort algerna (zooxanthellerna)."}], correct: "D", feedbackOk: "Rätt! Symbiosen dör och skelettet blir synligt.", feedbackNok: "Rätt svar: <strong>D</strong>." },
+    { num: 12, text: "Skogshuggning skapar ett dubbelt problem för klimatet. Hur?", options: [{letter: "A", text: "Koldioxid från maskiner + syre från träd."}, {letter: "B", text: "Människor bygger städer."}, {letter: "C", text: "Trädens lagrade kol frigörs, samtidigt som vi förlorar kolsänkorna som renar luften."}, {letter: "D", text: "Mer ljus och vind på marken."}], correct: "C", feedbackOk: "Korrekt! Vi eldar upp koldioxiden och förstör filtret samtidigt.", feedbackNok: "Rätt svar: <strong>C</strong>." },
+    { num: 13, text: "Isarna i Arktis minskar drastiskt. Varför är de så viktiga för planeten?", options: [{letter: "A", text: "De fungerar som speglar som reflekterar solenergi (albedo) och kyler planeten."}, {letter: "B", text: "Isbjörnarna dör."}, {letter: "C", text: "De håller havet salt."}, {letter: "D", text: "De ger sötvatten."}], correct: "A", feedbackOk: "Helt rätt, albedo-effekten kyler jorden.", feedbackNok: "Rätt svar: <strong>A</strong>." },
+    { num: 14, text: "Vad innebär minskad albedo-effekt (positiv feedback loop)?", options: [{letter: "A", text: "Mindre is → mer sol absorberas i mörkt vatten → snabbare uppvärmning → ond cirkel."}, {letter: "B", text: "Mörkt vatten kyler ner havet."}, {letter: "C", text: "Kallt vatten kyler jorden."}, {letter: "D", text: "Ingen global effekt."}], correct: "A", feedbackOk: "Exakt. Det accelererar uppvärmningen.", feedbackNok: "Rätt svar: <strong>A</strong>." },
+    { num: 15, text: "Om vi fortsätter på inslagen väg går vi genom en serie envägsdörrar. Vad leder det till?", options: [{letter: "A", text: "Svalare jord."}, {letter: "B", text: "Vi förlorar Holocen, triggar 6:e massutdöendet och stora delar av jorden blir obeboelig."}, {letter: "C", text: "Nya roliga ekosystem."}, {letter: "D", text: "Vi flyttar till havet."}], correct: "B", feedbackOk: "Rätt. Det handlar om vår egen civilisations överlevnad.", feedbackNok: "Rätt svar: <strong>B</strong>." }
+];
 
     let currentQ = -1; 
     let answers = {};
@@ -360,28 +298,82 @@
 
     // === API HELPERS ===
     async function setGlobalQ(qIndex) {
-        await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/activeQ/${qIndex}`, { method: 'POST', headers: { 'Content-Length': '0' } });
-    }
-    async function getGlobalQ() {
-        try {
-            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/activeQ`);
-            const text = await res.text();
-            return parseInt(text.replace(/"/g, ''));
-        } catch (e) {
-            return -1;
-        }
+        const state = JSON.stringify({ q: qIndex, p: teacherPlaying });
+        await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/syncState/${encodeURIComponent(state)}`, { method: 'POST', headers: { 'Content-Length': '0' } });
     }
 
-    // === INIT ===
-    if (isTeacher) {
-        renderTeacherPanel();
-    } else {
-        renderIntro();
+    async function getGlobalQ() {
+        try {
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState`);
+            const text = await res.text();
+            if(!text || text.includes('not found')) return { q: -1, p: false };
+            const state = JSON.parse(decodeURIComponent(text.replace(/"/g, ''))); // keyvalue sometimes adds extra quotes
+            return state;
+        } catch(e) { return { q: -1, p: false }; }
+    }
+
+    async function startSyncMode() {
+        isSyncMode = true;
+        currentQ = -1;
+        answers = {};
+        
+        card.innerHTML = `
+            <div class="intro">
+                <div class="badge">Live-Synk Aktiv</div>
+                <div class="emoji" id="studentIntroEmoji" style="font-size:4rem; margin:1rem 0;">⏳</div>
+                <h1>Gör dig redo</h1>
+                <p class="sub" id="studentIntroSub">Väntar på att Håkan ska starta filmen...</p>
+            </div>
+        `;
+
+        // Start polling
+        syncInterval = setInterval(async () => {
+            const state = await getGlobalQ();
+            
+            // Handle Play State UI
+            const introSub = document.getElementById('studentIntroSub');
+            if (introSub && currentQ === -1) {
+                if (state.p) {
+                    introSub.innerHTML = '🎬 Filmen är igång! Luta dig tillbaka. Frågorna dyker upp här när det är dags.';
+                    document.getElementById('studentIntroEmoji').innerHTML = '🍿';
+                } else {
+                    introSub.innerHTML = 'Väntar på att Håkan ska starta filmen...';
+                    document.getElementById('studentIntroEmoji').innerHTML = '⏳';
+                }
+            }
+
+            if (state.q === 999) {
+                showResults();
+                return;
+            }
+
+            if (state.q > currentQ && answers[currentQ] !== undefined || (currentQ === -1 && state.q > -1)) {
+                currentQ = state.q;
+                showQuestion(currentQ);
+            } else if (state.q === -1 && currentQ !== -1) {
+                // Reset
+                currentQ = -1;
+                answers = {};
+                card.innerHTML = `
+                    <div class="intro">
+                        <div class="emoji" id="studentIntroEmoji" style="font-size:4rem; margin-bottom:1rem;">⏳</div>
+                        <h2>Väntar på Håkan...</h2>
+                        <p class="sub" id="studentIntroSub">Quizet har återställts.</p>
+                    </div>
+                `;
+            }
+        }, 3000);
     }
 
     function renderIntro() {
         stepIndicator.style.display = 'none';
         progressBar.style.width = '0%';
+
+        if (isTeacher) {
+            renderTeacherPanel();
+            return;
+        }
+
         card.innerHTML = `
             <div class="intro">
                 <div class="badge">Ekologi & Klimat</div>
@@ -400,43 +392,6 @@
         currentQ = 0;
         answers = {};
         showQuestion(0);
-    }
-
-    async function startSyncMode() {
-        isSyncMode = true;
-        currentQ = -1;
-        answers = {};
-        
-        card.innerHTML = `
-            <div class="intro">
-                <div class="emoji" style="font-size:4rem; margin-bottom:1rem;">🍿</div>
-                <h2>Väntar på Håkan...</h2>
-                <p class="sub">Luta dig tillbaka och titta på filmen. Frågorna kommer att dyka upp här automatiskt när det är dags!</p>
-            </div>
-        `;
-
-        // Start polling
-        syncInterval = setInterval(async () => {
-            const globalQ = await getGlobalQ();
-            if (globalQ > currentQ && globalQ < questions.length) {
-                currentQ = globalQ;
-                showQuestion(currentQ);
-            } else if (globalQ === questions.length && currentQ !== questions.length) {
-                currentQ = questions.length;
-                showResults();
-            } else if (globalQ === -1 && currentQ !== -1) {
-                // Teacher reset the quiz
-                currentQ = -1;
-                answers = {};
-                card.innerHTML = `
-                    <div class="intro">
-                        <div class="emoji" style="font-size:4rem; margin-bottom:1rem;">🍿</div>
-                        <h2>Väntar på Håkan...</h2>
-                        <p class="sub">Quizet har återställts. Frågorna dyker upp här snart!</p>
-                    </div>
-                `;
-            }
-        }, 3000);
     }
 
     function showQuestion(idx) {
@@ -526,16 +481,33 @@
         progressBar.style.width = '100%';
         stepIndicator.style.display = 'none';
 
+        let totalPossible = Object.keys(answers).length;
+        if (totalPossible === 0) {
+            card.innerHTML = '<div class="results"><h2>Du svarade inte på några frågor.</h2></div>';
+            return;
+        }
+
         let score = 0;
-        questions.forEach((q, i) => {
-            if (answers[i] === q.correct) score++;
-        });
+        let resultRows = '';
+        
+        for(let i=0; i<questions.length; i++) {
+            if (answers[i] !== undefined) {
+                const q = questions[i];
+                const ok = answers[i] === q.correct;
+                if (ok) score++;
+                resultRows += `<div class="result-row ${ok ? 'ok' : 'nok'}">
+                    <span class="result-icon">${ok ? '✓' : '✗'}</span>
+                    <span>Fråga ${q.num}: ${ok ? 'Rätt!' : 'Fel — rätt svar: ' + q.correct}</span>
+                </div>`;
+            }
+        }
 
         let emoji, title;
-        if (score === questions.length) { emoji = '🌟'; title = 'Full pott! Strålande!'; }
-        else if (score >= 4)            { emoji = '💚'; title = 'Bra jobbat!'; }
-        else if (score >= 2)            { emoji = '🌱'; title = 'En bra start!'; }
-        else                            { emoji = '📖'; title = 'Dags att repetera!'; }
+        const percentage = score / totalPossible;
+        if (percentage === 1)               { emoji = '🌟'; title = 'Full pott! Strålande!'; }
+        else if (percentage >= 0.6)         { emoji = '💚'; title = 'Bra jobbat!'; }
+        else if (percentage >= 0.3)         { emoji = '🌱'; title = 'En bra start!'; }
+        else                                { emoji = '📖'; title = 'Dags att repetera!'; }
 
         card.classList.add('exit-left');
         setTimeout(() => {
@@ -546,14 +518,8 @@
                 <div class="results">
                     <div class="emoji">${emoji}</div>
                     <h2>${title}</h2>
-                    <p class="score-line">Du fick <strong>${score}</strong> av ${questions.length} rätt</p>
-                    ${questions.map((q, i) => {
-                        const ok = answers[i] === q.correct;
-                        return `<div class="result-row ${ok ? 'ok' : 'nok'}">
-                            <span class="result-icon">${ok ? '✓' : '✗'}</span>
-                            <span>Fråga ${q.num}: ${ok ? 'Rätt!' : 'Fel — rätt svar: ' + q.correct}</span>
-                        </div>`;
-                    }).join('')}
+                    <p class="score-line">Du fick <strong>${score}</strong> av ${totalPossible} besvarade frågor rätt</p>
+                    ${resultRows}
                     ${!isSyncMode ? `<button class="retry-btn" onclick="retry()">Försök igen</button>` : ''}
                 </div>
             `;
@@ -577,14 +543,10 @@
     let teacherPlaying = false;
     let teacherTimer = null;
 
-    // Estimated timestamps for the questions (in seconds)
     const qTimestamps = [
-        8 * 60,   // Q1: Holocen (~08:00)
-        18 * 60,  // Q2: Orangutanger (~18:00)
-        22 * 60,  // Q3: Monokultur (~22:00)
-        29 * 60,  // Q4: Havet (~29:00)
-        34 * 60,  // Q5: Korallblekning (~34:00)
-        42 * 60   // Q6: Albedo (~42:00)
+        3 * 60, 6 * 60, 9 * 60, 12 * 60, 15 * 60, 
+        18 * 60, 21 * 60, 24 * 60, 27 * 60, 30 * 60, 
+        33 * 60, 36 * 60, 39 * 60, 42 * 60, 45 * 60
     ];
 
     async function renderTeacherPanel() {
@@ -616,19 +578,22 @@
                 </div>
 
                 <h3 style="margin-bottom:1rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">Automatiska Triggers</h3>
-                <div class="options" id="teacherOpts">
+                <div class="options" id="teacherOpts" style="max-height: 250px; overflow-y: auto; padding-right:1rem;">
                     ${questions.map((q, i) => `
                         <div class="opt" id="t-opt-${i}" style="opacity:0.6; pointer-events:none;">
                             <span class="letter">${formatTime(qTimestamps[i])}</span>
-                            <span>${q.num}. ${q.text.substring(0, 35)}...</span>
+                            <span style="font-size:0.95rem;">${q.num}. ${q.text.substring(0, 35)}...</span>
                         </div>
                     `).join('')}
-                    <div class="opt" onclick="pushQuestion(${questions.length})" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center;">
-                        <span>🏁 Tvinga Avslut (Visa Resultat för alla)</span>
-                    </div>
+                </div>
+                <div class="opt" onclick="pushQuestion(999)" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center;">
+                    <span>🏁 Tvinga Avslut (Visa Resultat för alla)</span>
                 </div>
             </div>
         `;
+        
+        // Render initial view
+        updateTimeDisplay();
     }
 
     function formatTime(sec) {
@@ -638,10 +603,12 @@
     }
 
     function updateTimeDisplay() {
-        document.getElementById('timeDisplay').textContent = formatTime(teacherTime);
+        const display = document.getElementById('timeDisplay');
+        if(!display) return;
+        
+        display.textContent = formatTime(teacherTime);
         document.getElementById('timeSlider').value = teacherTime;
 
-        // Check triggers
         let activeIndex = -1;
         for (let i = 0; i < qTimestamps.length; i++) {
             if (teacherTime >= qTimestamps[i]) {
@@ -649,9 +616,10 @@
             }
         }
 
-        // Visual update
         for (let i = 0; i < questions.length; i++) {
             const el = document.getElementById(`t-opt-${i}`);
+            if(!el) continue;
+            
             if (i <= activeIndex) {
                 el.style.opacity = '1';
                 el.style.borderColor = 'var(--primary)';
@@ -663,7 +631,6 @@
             }
         }
 
-        // Push to server if changed
         if (window._lastPushedIndex !== activeIndex) {
             pushQuestion(activeIndex);
             window._lastPushedIndex = activeIndex;
@@ -685,6 +652,9 @@
             btn.style.background = 'var(--primary)';
             clearInterval(teacherTimer);
         }
+        
+        // Push state update so students see "Filmen är igång"
+        setGlobalQ(window._lastPushedIndex || -1);
     };
 
     window.sliderMove = function(val) {
@@ -715,6 +685,10 @@
             nextQuestion();
         }
     });
-    </script>
+    
+    // START APP
+    renderIntro();
+
+</script>
 </body>
 </html>
