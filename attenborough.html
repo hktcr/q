@@ -662,14 +662,14 @@ const questions = [
                 <div style="display:flex; flex-direction:column; gap:0.8rem; background:rgba(255,255,255,0.02); padding:1.2rem; border-radius:10px; border: 1px solid rgba(255,255,255,0.05); margin-bottom:2rem;">
                     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">Pusha meddelanden som blockerar hela skärmen på elevernas enheter. (Dessa stängs automatiskt när du pushar nästa fråga).</p>
                     <div style="display:flex; gap:0.5rem;">
-                        <button onclick="pushMessage('red', 'VAR TYSTA!')" style="flex:1; background:rgba(239,68,68,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer; font-size:1rem;">🛑 Var Tysta!</button>
-                        <button onclick="pushMessage('blue', 'FOKUSERA PÅ FILMEN')" style="flex:1; background:rgba(59,130,246,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer; font-size:1rem;">👁 Fokusera!</button>
+                        <button id="btnMsgRed" onclick="pushMessage('red', 'VAR TYSTA!')" style="flex:1; background:rgba(239,68,68,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer; font-size:1rem; transition:all 0.2s;">🛑 Var Tysta!</button>
+                        <button id="btnMsgBlue" onclick="pushMessage('blue', 'FOKUSERA PÅ FILMEN')" style="flex:1; background:rgba(59,130,246,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer; font-size:1rem; transition:all 0.2s;">👁 Fokusera!</button>
                     </div>
                     <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
                         <input type="text" id="customMsgInput" placeholder="Skriv eget meddelande..." style="flex:2; padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:#fff; font-size:1rem;">
-                        <button onclick="pushMessage('dark', document.getElementById('customMsgInput').value)" style="flex:1; background:var(--primary); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">Sänd Custom</button>
+                        <button id="btnMsgCustom" onclick="pushMessage('dark', document.getElementById('customMsgInput').value)" style="flex:1; background:var(--primary); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer; transition:all 0.2s;">Sänd Custom</button>
                     </div>
-                    <button onclick="clearMessage()" style="margin-top:0.5rem; background:rgba(255,255,255,0.1); color:#fff; padding:0.6rem; border-radius:8px; border:none; cursor:pointer; font-weight:bold;">❌ Ta ner meddelande (Fortsätt Quiz)</button>
+                    <button id="btnMsgClear" onclick="clearMessage()" style="margin-top:0.5rem; background:rgba(255,255,255,0.1); color:#fff; padding:0.6rem; border-radius:8px; border:none; cursor:pointer; font-weight:bold; opacity:0.5; transition:all 0.2s;">❌ Ta ner meddelande (Fortsätt Quiz)</button>
                 </div>
 
                 <!-- Manual Panel / Question List -->
@@ -734,18 +734,66 @@ const questions = [
         currentMsgText = text;
         document.getElementById('customMsgInput').value = '';
         await setGlobalQ(window._lastPushedIndex !== undefined ? window._lastPushedIndex : -1);
+        updateMsgUI();
     };
 
     window.clearMessage = async function() {
         currentMsgColor = 'none';
         currentMsgText = '';
         await setGlobalQ(window._lastPushedIndex !== undefined ? window._lastPushedIndex : -1);
+        updateMsgUI();
+    };
+
+    window.updateMsgUI = function() {
+        const btnRed = document.getElementById('btnMsgRed');
+        const btnBlue = document.getElementById('btnMsgBlue');
+        const btnCustom = document.getElementById('btnMsgCustom');
+        const btnClear = document.getElementById('btnMsgClear');
+        if (!btnRed) return;
+
+        // Reset all to default styles
+        btnRed.style.opacity = '1';
+        btnRed.style.boxShadow = 'none';
+        btnRed.innerHTML = '🛑 Var Tysta!';
+        
+        btnBlue.style.opacity = '1';
+        btnBlue.style.boxShadow = 'none';
+        btnBlue.innerHTML = '👁 Fokusera!';
+
+        btnCustom.style.opacity = '1';
+        btnCustom.style.boxShadow = 'none';
+        btnCustom.innerHTML = 'Sänd Custom';
+
+        btnClear.style.opacity = '0.5';
+
+        if (currentMsgColor !== 'none') {
+            btnClear.style.opacity = '1';
+            btnClear.style.boxShadow = '0 0 10px rgba(255,255,255,0.2)';
+            
+            if (currentMsgColor === 'red') {
+                btnRed.innerHTML = '🛑 AKTIV: Var Tysta!';
+                btnRed.style.boxShadow = '0 0 15px rgba(239,68,68,0.8)';
+                btnBlue.style.opacity = '0.3';
+                btnCustom.style.opacity = '0.3';
+            } else if (currentMsgColor === 'blue') {
+                btnBlue.innerHTML = '👁 AKTIV: Fokusera!';
+                btnBlue.style.boxShadow = '0 0 15px rgba(59,130,246,0.8)';
+                btnRed.style.opacity = '0.3';
+                btnCustom.style.opacity = '0.3';
+            } else if (currentMsgColor === 'dark') {
+                btnCustom.innerHTML = '✅ AKTIV: Custom';
+                btnCustom.style.boxShadow = '0 0 15px var(--primary)';
+                btnRed.style.opacity = '0.3';
+                btnBlue.style.opacity = '0.3';
+            }
+        }
     };
 
     window.manualPush = async function(idx) {
         // Overrides any existing message
         currentMsgColor = 'none';
         currentMsgText = '';
+        updateMsgUI();
 
         // UI updates for manual mode button
         for (let i = 0; i < questions.length; i++) {
