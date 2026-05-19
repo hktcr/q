@@ -561,7 +561,15 @@ const questions = [
         setTimeout(() => {
             card.classList.remove('exit-left'); card.classList.add('enter-right');
             
-            let contentHTML = `<div class="q-number">Fråga ${q.num} av ${questions.length}</div><div class="q-text">${q.text}</div>`;
+            let instructionText = '';
+            if (q.type === 'multiple-choice') instructionText = "👆 Tryck på det svarsalternativ du tror är rätt.";
+            else if (q.type === 'lucktext') instructionText = "👆 Tryck på det alternativ som passar bäst i luckan.";
+            else if (q.type === 'match') instructionText = "👆 Tryck på ett begrepp och därefter på rätt förklaring för att koppla ihop dem.";
+            else if (q.type === 'categorize') instructionText = "👆 Tryck först på ett ord här nere, och därefter på den ruta du vill placera ordet i.";
+
+            let contentHTML = `<div class="q-number">Fråga ${q.num} av ${questions.length}</div>
+                               <div class="q-text">${q.text}</div>
+                               <div style="font-size:0.9rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:1px; background:rgba(245, 158, 11, 0.1); padding:0.6rem 1rem; border-radius:8px; display:inline-block;">${instructionText}</div>`;
             
             if (q.type === 'multiple-choice' || q.type === 'lucktext') {
                 contentHTML += `<div class="options">
