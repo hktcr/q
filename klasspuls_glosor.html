@@ -285,11 +285,11 @@ const questions = [
             text: "Sortera faktorerna i rätt ekologisk hink!", 
             categories: ["Abiotisk (Icke-levande)", "Biotisk (Levande)"], 
             items: [
-                {label: "Solljus", cat: "Abiotisk (Icke-levande)"},
-                {label: "Temperatur", cat: "Abiotisk (Icke-levande)"},
-                {label: "Rovdjur", cat: "Biotisk (Levande)"},
-                {label: "Bakterier", cat: "Biotisk (Levande)"},
-                {label: "Vind", cat: "Abiotisk (Icke-levande)"}
+                {word: "Solljus", cat: 0},
+                {word: "Temperatur", cat: 0},
+                {word: "Rovdjur", cat: 1},
+                {word: "Bakterier", cat: 1},
+                {word: "Vind", cat: 0}
             ], 
             feedbackOk: "Klockrent! A- betyder 'icke' (abiotisk = icke-levande). Dessa faktorer styr tillsammans ekosystemet (se s. 1-2 i häftet).", 
             feedbackNok: "Minnesregel: Sätt ett A framför så betyder det 'icke'. Abiotisk = Icke-levande. Kolla s. 1 i häftet!" 
@@ -347,10 +347,10 @@ const questions = [
             text: "Kategorisera vilket typ av samspel (symbios) det är!", 
             categories: ["Mutualism (+/+)", "Parasitism (+/-)"], 
             items: [
-                {label: "Mykorrhiza (Svamp+Träd)", cat: "Mutualism (+/+)"},
-                {label: "Tarmbakterier i oss", cat: "Mutualism (+/+)"},
-                {label: "Fästing på en hund", cat: "Parasitism (+/-)"},
-                {label: "Bandmask", cat: "Parasitism (+/-)"}
+                {word: "Mykorrhiza (Svamp+Träd)", cat: 0},
+                {word: "Tarmbakterier i oss", cat: 0},
+                {word: "Fästing på en hund", cat: 1},
+                {word: "Bandmask", cat: 1}
             ], 
             feedbackOk: "Korrekt! Mutualism gynnar båda (ömsesidigt), medan parasiten stjäl energi. Bra minne från genomgången (och anteckningarna)!", 
             feedbackNok: "Ledtråd: En parasit är någon som tar utan att ge (+/-). Mutualism betyder 'ömsesidig' — båda vinner (+/+). Kolla dina egna anteckningar!" 
@@ -375,10 +375,10 @@ const questions = [
             text: "Bioackumulation innebär att miljögifter koncentreras i pyramiden. Sortera var de har LÄGST resp. HÖGST koncentration av gift!", 
             categories: ["Låg gifthalt (Botten)", "Hög gifthalt (Toppen)"], 
             items: [
-                {label: "Isbjörn / Toppkonsument", cat: "Hög gifthalt (Toppen)"},
-                {label: "Växtplankton / Producent", cat: "Låg gifthalt (Botten)"},
-                {label: "Havsörn", cat: "Hög gifthalt (Toppen)"},
-                {label: "Gräs", cat: "Låg gifthalt (Botten)"}
+                {word: "Isbjörn / Toppkonsument", cat: 1},
+                {word: "Växtplankton / Producent", cat: 0},
+                {word: "Havsörn", cat: 1},
+                {word: "Gräs", cat: 0}
             ], 
             feedbackOk: "Mycket bra! Gifter förbränns inte, de lagras i fettet. Därför drabbas rovdjuren längst upp värst. Repetera detta från H.Pod #3 och utdelat papper!", 
             feedbackNok: "Minnesregel: Eftersom rovdjuret måste äta MÅNGA byten, samlas (ackumuleras) alla bytenas gifter i ETT rovdjur. Kolla H.Pod #3!" 
@@ -433,10 +433,10 @@ const questions = [
             text: "The Jenga-Crash! Sortera exemplen efter om de har HÖG eller LÅG biologisk mångfald.", 
             categories: ["Hög Mångfald", "Låg Mångfald"], 
             items: [
-                {label: "En gammelskog med många biotoper", cat: "Hög Mångfald"},
-                {label: "Ett stort korallrev", cat: "Hög Mångfald"},
-                {label: "En veteåker", cat: "Låg Mångfald"},
-                {label: "En asfalterad skolgård", cat: "Låg Mångfald"}
+                {word: "En gammelskog med många biotoper", cat: 0},
+                {word: "Ett stort korallrev", cat: 0},
+                {word: "En veteåker", cat: 1},
+                {word: "En asfalterad skolgård", cat: 1}
             ], 
             feedbackOk: "Korrekt! Hög biologisk mångfald är som ett brett Jenga-torn — det tål mycket stryk (sjukdomar) innan det rasar. Läs om detta på s. 2 i häftet.", 
             feedbackNok: "Tänk Jenga-tornet från lektion 3! Biologisk mångfald betyder MÅNGA OLIKA arter. En veteåker har ju bara EN art. Kolla s. 2 i häftet." 
@@ -763,21 +763,21 @@ const questions = [
                     ${questions.map((q, i) => {
                         let statsHTML = '';
                         if(q.type === 'multiple-choice' || q.type === 'lucktext') {
-                            statsHTML = \`<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
-                                \${q.options.map(o => \`<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">\${o.letter}: <strong id="stat_\${i}_opt_\${o.letter}">0</strong></div>\`).join('')}
-                            </div>\`;
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
+                                ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
+                            </div>`;
                         } else {
-                            statsHTML = \`<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
-                                <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_\${i}_ok">0</strong></div>
-                                <div style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:0.4rem 0.8rem; border-radius:6px;">Fel: <strong id="stat_\${i}_nok">0</strong></div>
-                            </div>\`;
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
+                                <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_${i}_ok">0</strong></div>
+                                <div style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:0.4rem 0.8rem; border-radius:6px;">Fel: <strong id="stat_${i}_nok">0</strong></div>
+                            </div>`;
                         }
 
-                        return \`
+                        return `
                         <div class="opt" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga \${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(\${q.type})</span></span></div>
-                            <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">\${q.text.replace('<span class=\\'blank\\'></span>', '_____')}</div>
-                            \${statsHTML}
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
+                            <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
+                            ${statsHTML}
                             <button id="t-btn-${i}" onclick="manualPush(${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
                         </div>
                     `}).join('')}
