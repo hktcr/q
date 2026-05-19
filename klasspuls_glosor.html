@@ -762,6 +762,22 @@ const questions = [
                 <div style="max-height: 450px; overflow-y: auto; padding-right:1rem; display:flex; flex-direction:column; gap:1rem;">
                     ${questions.map((q, i) => {
                         let statsHTML = '';
+                        let previewHTML = '';
+                        
+                        // Generate Preview of Answers
+                        if(q.type === 'multiple-choice' || q.type === 'lucktext') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                q.options.map(o => `<div style="${o.letter === q.correct ? 'color:#a7f3d0; font-weight:bold;' : ''}">${o.letter === q.correct ? '✅' : '⬜'} ${o.letter}: ${o.text}</div>`).join('') + `</div>`;
+                        } else if(q.type === 'match') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                q.pairs.map(p => `<div>🔗 <strong style="color:#d1d5db;">${p.left}</strong> ➔ ${p.right}</div>`).join('') + `</div>`;
+                        } else if(q.type === 'categorize') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                `<div style="margin-bottom:0.3rem;"><strong style="color:#d1d5db;">Kategorier:</strong> ${q.categories.join(' vs ')}</div>` +
+                                q.items.map(item => `<div>• ${item.word} ➔ <em style="color:#a7f3d0;">${q.categories[item.cat]}</em></div>`).join('') + `</div>`;
+                        }
+
+                        // Generate Live Stats UI
                         if(q.type === 'multiple-choice' || q.type === 'lucktext') {
                             statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
                                 ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
@@ -777,6 +793,7 @@ const questions = [
                         <div class="opt" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
                             <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
+                            ${previewHTML}
                             ${statsHTML}
                             <button id="t-btn-${i}" onclick="manualPush(${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
                         </div>
