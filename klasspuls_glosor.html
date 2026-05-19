@@ -259,12 +259,13 @@
     <script>
     const APP_KEY = "HakanGlosPuls_Ekologi2026_v1"; // Unik synknyckel
     const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+    let currentSessionId = Date.now().toString();
 
     // --- TWO-WAY STATS API ---
     async function sendStat(type) {
         if(isTeacher) return;
         try {
-            await fetch(`https://api.counterapi.dev/v1/${APP_KEY}/Q${currentQ}_${type}/up`);
+            await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${currentQ}_${type}/up`);
         } catch(e) { console.warn("Stat sync failed", e); } // Graceful degradation
     }
 
@@ -397,7 +398,7 @@
     async function setGlobalQ(qIndex) {
         try {
             const msgHex = currentMsgColor === 'none' ? 'none' : strToHex(currentMsgText);
-            const stateStr = qIndex + "_true_" + currentMsgColor + "_" + msgHex;
+            const stateStr = qIndex + "_true_" + currentMsgColor + "_" + msgHex + "_" + currentSessionId;
             await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/syncState/${stateStr}`, { method: 'POST', mode: 'cors' });
         } catch(e) { console.error(e); }
     }
@@ -406,15 +407,18 @@
         try {
             const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState`);
             const text = await res.text();
-            if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '' };
+            if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '', sessionId: '' };
             const parts = text.replace(/"/g, '').trim().split('_');
-            let result = { q: parseInt(parts[0]) || -1, msgColor: 'none', msgText: '' };
+            let result = { q: parseInt(parts[0]) || -1, msgColor: 'none', msgText: '', sessionId: '' };
             if(parts.length >= 4) {
                 result.msgColor = parts[2];
                 if(parts[3] !== 'none') result.msgText = hexToStr(parts[3]);
             }
+            if(parts.length >= 5) {
+                result.sessionId = parts[4];
+            }
             return result;
-        } catch(e) { return { q: -1, msgColor: 'none', msgText: '' }; }
+        } catch(e) { return { q: -1, msgColor: 'none', msgText: '', sessionId: '' }; }
     }
 
     /* --- SYNC MODE --- */
@@ -423,6 +427,8 @@
         card.innerHTML = `<div class="intro"><div class="badge">Live-Synk Aktiv</div><div class="emoji" style="font-size:4rem; margin:1rem 0;">⏳</div><h1>Låst skärm</h1><p class="sub">Väntar på att Håkan ska pusha ut första frågan...</p></div>`;
         syncInterval = setInterval(async () => {
             const state = await getGlobalQ();
+            
+            if (state.sessionId) currentSessionId = state.sessionId;
             
             // Handle Messages
             if (state.msgColor && state.msgColor !== 'none') {
@@ -651,7 +657,17 @@
 
     async function renderTeacherPanel() {
         stepIndicator.style.display = 'none'; progressBar.style.display = 'none';
-        await setGlobalQ(-1); window._lastPushedIndex = -1;
+        
+        if (!window._initializedTeacher) {
+            const state = await getGlobalQ();
+            if(state.sessionId) currentSessionId = state.sessionId;
+            window._initializedTeacher = true;
+            if(state.q !== undefined && state.q > -1) window._lastPushedIndex = state.q;
+            else { await setGlobalQ(-1); window._lastPushedIndex = -1; }
+        } else {
+            await setGlobalQ(-1); window._lastPushedIndex = -1;
+        }
+        
         if(statsInterval) clearInterval(statsInterval);
 
         card.innerHTML = `
@@ -686,10 +702,12 @@
                         <div class="opt" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga \${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(\${q.type})</span></span></div>
                             <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">\${q.text.replace('<span class=\\'blank\\'></span>', '_____')}</div>
-                            \${statsHTML}
-                            <button id="t-btn-\${i}" onclick="manualPush(\${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
+                            <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
+                            ${statsHTML}
+                            <button id="t-btn-${i}" onclick="manualPush(${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
                         </div>
-                    \`}).join('')}
+                    `}).join('')}
                 </div>
                 <div class="opt" onclick="pushQuestion(999)" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center; padding:1.2rem; cursor:pointer;">
                     <span style="font-size:1.1rem; font-weight:bold; color:var(--incorrect);">🏁 Avsluta Lektion (Visa resultat)</span>
@@ -703,18 +721,20 @@
         
         for(let k of keys) {
             try {
-                const res = await fetch(\`https://api.counterapi.dev/v1/\${APP_KEY}/Q\${idx}_\${k}\`);
+                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}`);
                 const data = await res.json();
-                const statEl = document.getElementById(\`stat_\${idx}_\${k}\`);
+                const statEl = document.getElementById(`stat_${idx}_${k}`);
                 if(statEl) statEl.textContent = data.count || 0;
             } catch(e) {}
         }
     }
 
     window.resetLesson = async function() {
-        if(confirm("Nollställ för nästa klass?")) {
+        if(confirm("Nollställ för nästa klass? (Detta raderar även föregående klass statistik!)")) {
             window._lastPushedIndex = -1; currentMsgColor = 'none'; currentMsgText = '';
-            await setGlobalQ(-1); renderTeacherPanel();
+            currentSessionId = Date.now().toString(); // New empty statistics session
+            await setGlobalQ(-1); 
+            renderTeacherPanel();
         }
     };
     window.pushMessage = async function(color, text) {
