@@ -272,7 +272,7 @@
 const questions = [
         { 
             num: 1, 
-            type: "lucktext", 
+            type: "multiple-choice", 
             text: "Ordet ekologi kommer från grekiskans 'Oikos' (hus) och 'logos' (läran om). Ekologi betyder alltså läran om <span class='blank'></span>.", 
             options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Rymden"}],
             correct: "B", 
@@ -334,7 +334,7 @@ const questions = [
         },
         { 
             num: 6, 
-            type: "lucktext", 
+            type: "multiple-choice", 
             text: "Utan <span class='blank'></span> (svampar & bakterier) skulle kretsloppet stanna av. De städar upp döda växter och djur så näringen kan användas igen.", 
             options: [{letter: "A", text: "Toppkonsumenter"}, {letter: "B", text: "Producenter"}, {letter: "C", text: "Nedbrytare"}, {letter: "D", text: "Parasiter"}],
             correct: "C", 
@@ -385,7 +385,7 @@ const questions = [
         },
         { 
             num: 10, 
-            type: "lucktext", 
+            type: "multiple-choice", 
             text: "När cellandning och fotosyntes jobbar ihop går materiens atomer runt i ett evigt <span class='blank'></span>.", 
             options: [{letter: "A", text: "Samhälle"}, {letter: "B", text: "Kretslopp"}, {letter: "C", text: "Ekosystem"}, {letter: "D", text: "Biotop"}],
             correct: "B", 
@@ -420,7 +420,7 @@ const questions = [
         },
         { 
             num: 13, 
-            type: "lucktext", 
+            type: "multiple-choice", 
             text: "Varje nytt steg i en näringskedja (t.ex. från producent till konsument) brukar med ett finare ord kallas för en <span class='blank'></span>.", 
             options: [{letter: "A", text: "Ekologisk nisch"}, {letter: "B", text: "Bioackumulation"}, {letter: "C", text: "Trofinivå"}, {letter: "D", text: "Biotop"}],
             correct: "C", 
@@ -444,7 +444,7 @@ const questions = [
     ,
         { 
             num: 15, 
-            type: "freetext", 
+            type: "lucktext", 
             text: "Den process där växter tillverkar socker och syre med hjälp av solljus, koldioxid och vatten kallas för <span class='blank'></span>.", 
             correctAnswers: ["fotosyntes", "fotosyntesen", "fotosyntes "],
             specificErrors: [
@@ -456,7 +456,7 @@ const questions = [
         },
         { 
             num: 16, 
-            type: "freetext", 
+            type: "lucktext", 
             text: "Alla individer av en och samma art som lever i ett visst område (t.ex. alla harar i en skog) kallas gemensamt för en <span class='blank'></span>.", 
             correctAnswers: ["population", "populationen", "popolation"],
             specificErrors: [
@@ -469,7 +469,7 @@ const questions = [
         },
         { 
             num: 17, 
-            type: "freetext", 
+            type: "lucktext", 
             text: "I naturen äter många djur flera olika saker. När flera näringskedjor flätas samman och korsar varandra kallas det för en <span class='blank'></span>.", 
             correctAnswers: ["näringsväv", "näringsväven", "neringsväv"],
             specificErrors: [
@@ -483,7 +483,7 @@ const questions = [
     ,
         { 
             num: 18, 
-            type: "freetext", 
+            type: "lucktext", 
             text: "De organismer (t.ex. svampar, maskar och bakterier) som lever på döda växter och djur och på så sätt återför näringen till jorden kallas för <span class='blank'></span>.", 
             correctAnswers: ["nedbrytare", "nedbrytarna", "destruenter"],
             specificErrors: [
@@ -522,7 +522,7 @@ const questions = [
         },
         { 
             num: 21, 
-            type: "freetext", 
+            type: "lucktext", 
             text: "Den process som gör att jorden hålls varm tack vare en 'filt' av gaser (t.ex. koldioxid) i atmosfären kallas för <span class='blank'></span>.", 
             correctAnswers: ["växthuseffekten", "växthuseffekt", "den naturliga växthuseffekten"],
             specificErrors: [
@@ -534,7 +534,7 @@ const questions = [
         },
         { 
             num: 22, 
-            type: "lucktext", 
+            type: "multiple-choice", 
             text: "Ett ekosystems förmåga att återhämta sig och motstå störningar (t.ex. en skogsbrand, storm eller sjukdomsutbrott) kallas för ekologisk <span class='blank'></span>.", 
             options: [
                 {letter: "A", text: "Bärkraft"}, 
@@ -675,13 +675,17 @@ const questions = [
             
             let instructionText = '';
             if (q.type === 'multiple-choice') instructionText = "👆 Tryck på det svarsalternativ du tror är rätt.";
-            else if (q.type === 'lucktext') instructionText = "👆 Tryck på det alternativ som passar bäst i luckan.";
-            else if (q.type === 'freetext') instructionText = "⌨️ Skriv in det ord som saknas i luckan och tryck på Svara.";
+            
+            else if (q.type === 'lucktext') instructionText = "⌨️ Skriv in det ord som saknas i luckan och tryck på Svara.";
             else if (q.type === 'match') instructionText = "👆 Tryck på ett begrepp och därefter på rätt förklaring för att koppla ihop dem.";
             else if (q.type === 'categorize') instructionText = "👆 Tryck först på ett ord här nere, och därefter på den ruta du vill placera ordet i.";
 
+            let qTextHTML = q.text;
+            if (q.type === 'lucktext') {
+                qTextHTML = qTextHTML.replace("<span class='blank'></span>", `<input type="text" id="freetextInput" placeholder="skriv här..." style="width:160px; padding:0.2rem 0.5rem; font-size:inherit; text-align:center; border-radius:8px; border:2px dashed rgba(255,255,255,0.4); background:rgba(0,0,0,0.4); color:var(--gold); font-weight:bold; outline:none; display:inline-block; margin:0 0.5rem;" autocomplete="off" onkeydown="if(event.key==='Enter') submitFreetext()">`);
+            }
             let contentHTML = `<div class="q-number">${!isSyncMode ? `Fråga ${idx + 1} av ${questions.length}` : `Fråga ${q.num}`}</div>
-                               <div class="q-text">${q.text}</div>
+                               <div class="q-text" style="line-height:1.6;">${qTextHTML}</div>
                                <div style="font-size:0.9rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:1px; background:rgba(245, 158, 11, 0.1); padding:0.6rem 1rem; border-radius:8px; display:inline-block;">${instructionText}</div>`;
             
             if (q.type === 'multiple-choice' || q.type === 'lucktext') {
@@ -689,10 +693,9 @@ const questions = [
                     ${q.options.map(o => `<div class="opt" onclick="selectMC(this, '${o.letter}')"><span class="letter">${o.letter}</span><span>${o.text}</span></div>`).join('')}
                 </div>`;
             } 
-            else if (q.type === 'freetext') {
-                contentHTML += `<div class="freetext-container" style="display:flex; flex-direction:column; gap:1rem; align-items:center; margin-top:1rem;">
-                    <input type="text" id="freetextInput" placeholder="Skriv ditt ord här..." style="width:100%; max-width:400px; padding:1.2rem; font-size:1.5rem; text-align:center; border-radius:12px; border:2px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.4); color:#fff; font-weight:bold; outline:none;" autocomplete="off" onkeydown="if(event.key==='Enter') submitFreetext()">
-                    <button onclick="submitFreetext()" style="width:100%; max-width:400px; padding:1.2rem; font-size:1.2rem; font-weight:bold; border-radius:12px; background:var(--primary); color:#fff; border:none; cursor:pointer;">Svara / Rätta</button>
+            else if (q.type === 'lucktext') {
+                contentHTML += `<div class="freetext-container" style="display:flex; justify-content:center; margin-top:1.5rem;">
+                    <button onclick="submitFreetext()" style="width:100%; max-width:300px; padding:1.2rem; font-size:1.2rem; font-weight:bold; border-radius:12px; background:var(--primary); color:#fff; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.3);">Svara / Rätta</button>
                 </div>`;
             }
             else if (q.type === 'match') {
@@ -726,7 +729,13 @@ const questions = [
             `;
             
             card.innerHTML = contentHTML;
-            requestAnimationFrame(() => { requestAnimationFrame(() => { card.classList.remove('enter-right'); }); });
+            requestAnimationFrame(() => { 
+                requestAnimationFrame(() => { 
+                    card.classList.remove('enter-right'); 
+                    const inputEl = document.getElementById('freetextInput');
+                    if(inputEl && !isSyncMode) inputEl.focus();
+                }); 
+            });
         }, 300);
     }
 
@@ -734,7 +743,7 @@ const questions = [
         answers[currentQ] = isCorrect;
         const q = questions[currentQ];
         
-        if (q.type !== 'multiple-choice' && q.type !== 'lucktext') {
+        if (q.type !== 'multiple-choice') {
             sendStat(isCorrect ? 'ok' : 'nok');
         }
 
@@ -941,10 +950,9 @@ const questions = [
                     <select id="teacherFilterType" onchange="filterQuestions()" style="padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-size:1rem; outline:none;">
                         <option value="all">Alla typer</option>
                         <option value="multiple-choice">Flerval</option>
-                        <option value="lucktext">Lucktext</option>
                         <option value="match">Matchning</option>
                         <option value="categorize">Kategorisering</option>
-                        <option value="freetext">Fritext</option>
+                        <option value="lucktext">Lucktext (Skriv in)</option>
                     </select>
                 </div>
 
@@ -954,10 +962,10 @@ const questions = [
                         let previewHTML = '';
                         
                         // Generate Preview of Answers
-                        if(q.type === 'multiple-choice' || q.type === 'lucktext') {
+                        if(q.type === 'multiple-choice') {
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
                                 q.options.map(o => `<div style="${o.letter === q.correct ? 'color:#a7f3d0; font-weight:bold;' : ''}">${o.letter === q.correct ? '✅' : '⬜'} ${o.letter}: ${o.text}</div>`).join('') + `</div>`;
-                        } else if(q.type === 'freetext') {
+                        } else if(q.type === 'lucktext') {
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">
                                 <div><strong>✅ Rätt:</strong> ${q.correctAnswers.join(', ')}</div>
                                 ${q.specificErrors.map(e => `<div style="color:#fca5a5; margin-top:0.3rem;"><strong>❌ Vid '${e.trigger.join('/')}':</strong> ${e.feedback}</div>`).join('')}
@@ -1001,7 +1009,7 @@ const questions = [
 
     async function pollStats(idx) {
         const q = questions[idx];
-        const keys = (q.type === 'multiple-choice' || q.type === 'lucktext') ? ['opt_A', 'opt_B', 'opt_C', 'opt_D'] : ['ok', 'nok'];
+        const keys = (q.type === 'multiple-choice') ? ['opt_A', 'opt_B', 'opt_C', 'opt_D'] : ['ok', 'nok'];
         
         for(let k of keys) {
             try {
