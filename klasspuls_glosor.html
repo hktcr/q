@@ -384,10 +384,58 @@ const questions = [
         { 
             num: 10, 
             type: "lucktext", 
-            options: [{letter: "A", text: "Samhälle"}, {letter: "B", text: "Kretslopp"}, {letter: "C", text: "Ekosystem"}, {letter: "D", text: "Biotop"}], 
-            correct: "B", 
-            feedbackOk: "Snyggt jobbat! Energin strömmar (sol till värme), men atomerna går alltid i ett kretslopp.", 
-            feedbackNok: "Rätt svar är Kretslopp. Vi lånar bara naturens byggstenar, sedan lämnas de tillbaka." 
+            text: "När cellandning och fotosyntes jobbar ihop går materiens atomer runt i ett evigt <span class='blank'></span>.", 
+            correct: "kretslopp", 
+            feedbackOk: "Bra! Kolatomerna återvinns om och om igen. Naturen kastar inget. Läs om vattnets och kolets kretslopp på s. 7.", 
+            feedbackNok: "Tänk på ordet för när något återvinns och går runt i en slinga (naturens egen återvinning). Ordet börjar på K. (s. 7 i häftet)." 
+        },
+        { 
+            num: 11, 
+            type: "match", 
+            text: "Vi dök ju ner i 'Symbios' (samliv). Koppla rätt begrepp till förklaringen!", 
+            pairs: [
+                {left: "Mutualism (+/+)", right: "Båda arterna vinner på det (t.ex. lav = alg + svamp)"}, 
+                {left: "Kommensalism (+/0)", right: "Ena vinner, den andra bryr sig inte (t.ex. havstulpan på val)"}, 
+                {left: "Parasitism (+/-)", right: "Ena vinner, den andra skadas (t.ex. fästing på hund)"}
+            ], 
+            feedbackOk: "Grymt! Detta var en fördjupning som ni tränat mycket på. Kommensalism (snålskjuts) är vanligare än man tror. Repetera lektionsanteckningarna!", 
+            feedbackNok: "Minnesregel: Parasit är ju ett välkänt ord (-). Mutual kommer från engelskans 'ömsesidig' (+). Det konstiga ordet Kommensalism betyder då (+/0)." 
+        },
+        { 
+            num: 12, 
+            type: "multiple-choice", 
+            text: "Ni minns NP-uppgiften om Vargen: Vargarna försvinner → Hjortarna ökar → Skogen betas sönder. Vad kallar biologer en sådan kedjereaktion?", 
+            options: [
+                {letter: "A", text: "En kaskadeffekt"}, 
+                {letter: "B", text: "En bioackumulation"}, 
+                {letter: "C", text: "En parasitism"}, 
+                {letter: "D", text: "En ekologisk nisch"}
+            ], 
+            correct: "A", 
+            feedbackOk: "Exakt! 'Kaskad' betyder vattenfall. Precis som ett vattenfall rinner förändringen hela vägen ner från toppen (vargen) till botten (växterna). Snyggt jobbat!", 
+            feedbackNok: "Ledtråd: Leta efter ett ord som låter som 'vattenfall'. Förändringen på toppen rinner ner genom hela systemet som ett dominospel." 
+        },
+        { 
+            num: 13, 
+            type: "lucktext", 
+            text: "Varje nytt steg i en näringskedja (t.ex. från producent till konsument) brukar med ett finare ord kallas för en <span class='blank'></span>.", 
+            correct: "trofinivå", 
+            feedbackOk: "Snyggt! Och för varje ny trofinivå går 90% av energin förlorad som värme (10%-regeln). Läs mer om trofinivåer på s. 8 i häftet.", 
+            feedbackNok: "Ordet börjar på T och handlar om nivån (trappsteget) i näringspyramiden. Du kan läsa om detta på s. 8 i häftet." 
+        },
+        { 
+            num: 14, 
+            type: "categorize", 
+            text: "The Jenga-Crash! Sortera exemplen efter om de har HÖG eller LÅG biologisk mångfald.", 
+            categories: ["Hög Mångfald", "Låg Mångfald"], 
+            items: [
+                {label: "En gammelskog med många biotoper", cat: "Hög Mångfald"},
+                {label: "Ett stort korallrev", cat: "Hög Mångfald"},
+                {label: "En veteåker", cat: "Låg Mångfald"},
+                {label: "En asfalterad skolgård", cat: "Låg Mångfald"}
+            ], 
+            feedbackOk: "Korrekt! Hög biologisk mångfald är som ett brett Jenga-torn — det tål mycket stryk (sjukdomar) innan det rasar. Läs om detta på s. 2 i häftet.", 
+            feedbackNok: "Tänk Jenga-tornet från lektion 3! Biologisk mångfald betyder MÅNGA OLIKA arter. En veteåker har ju bara EN art. Kolla s. 2 i häftet." 
         }
     ];
 
