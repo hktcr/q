@@ -480,7 +480,7 @@ const questions = [
 
     async function getGlobalQ() {
         try {
-            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState`);
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState?t=` + Date.now(), { cache: 'no-store' });
             const text = await res.text();
             if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '', sessionId: '' };
             const parts = text.replace(/"/g, '').trim().split('_');
@@ -516,7 +516,7 @@ const questions = [
 
             if (state.q > highestActivated && state.q !== 999) highestActivated = state.q;
 
-            if ((state.q > currentQ && answers[currentQ] !== undefined) || (currentQ === -1 && state.q > -1)) {
+            if (state.q !== currentQ && state.q > -1 && state.q !== 999) {
                 currentQ = state.q; showQuestion(currentQ);
             } else if (state.q === -1 && currentQ !== -1) {
                 currentQ = -1; highestActivated = -1; answers = {};
