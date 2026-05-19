@@ -688,7 +688,7 @@ const questions = [
                                <div class="q-text" style="line-height:1.6;">${qTextHTML}</div>
                                <div style="font-size:0.9rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:1px; background:rgba(245, 158, 11, 0.1); padding:0.6rem 1rem; border-radius:8px; display:inline-block;">${instructionText}</div>`;
             
-            if (q.type === 'multiple-choice' || q.type === 'lucktext') {
+            if (q.type === 'multiple-choice') {
                 contentHTML += `<div class="options">
                     ${q.options.map(o => `<div class="opt" onclick="selectMC(this, '${o.letter}')"><span class="letter">${o.letter}</span><span>${o.text}</span></div>`).join('')}
                 </div>`;
