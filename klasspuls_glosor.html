@@ -823,7 +823,7 @@ const questions = [
         
         for(let k of keys) {
             try {
-                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}`);
+                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}?t=` + Date.now(), { cache: 'no-store' });
                 const data = await res.json();
                 const statEl = document.getElementById(`stat_${idx}_${k}`);
                 if(statEl) statEl.textContent = data.count || 0;
