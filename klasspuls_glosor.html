@@ -761,9 +761,13 @@ const questions = [
                 </div>
                 
                 <h3 style="margin-top:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">📣 Klassrumsstyrning (Skärmövertagande)</h3>
-                <div style="display:flex; gap:0.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; margin-bottom:2rem;">
-                    <button id="btnMsgRed" onclick="pushMessage('red', 'VAR TYSTA!')" style="flex:1; background:rgba(239,68,68,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">🛑 Var Tysta!</button>
-                    <button id="btnMsgBlue" onclick="pushMessage('blue', 'Titta framåt')" style="flex:1; background:rgba(59,130,246,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">👁 Fokusera</button>
+                <div style="display:flex; flex-direction:column; gap:0.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; margin-bottom:2rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <button id="btnMsgRed" onclick="pushMessageUI('red', 'VAR TYSTA!')" style="flex:1; background:rgba(239,68,68,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">🛑 Var Tysta!</button>
+                        <button id="btnMsgBlue" onclick="pushMessageUI('blue', 'Titta framåt')" style="flex:1; background:rgba(59,130,246,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">👁 Fokusera</button>
+                    </div>
+                    <button id="btnMsgClear" onclick="pushMessageUI('none', '')" style="display:none; width:100%; margin-top:0.5rem; background:transparent; border:2px solid var(--text-muted); color:var(--text); font-weight:bold; padding:0.6rem; border-radius:8px; cursor:pointer;">✖️ Ta ner meddelandet (Återgå till frågan)</button>
+                    <div id="activeMsgStatus" style="display:none; text-align:center; font-size:0.85rem; font-weight:bold; color:var(--gold); margin-top:0.5rem;">⚠️ Låsskärm aktiverad på elevdatorer!</div>
                 </div>
 
                 <h3 style="margin-bottom:1rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">Glosfrågor (${questions.length} st)</h3>
@@ -839,8 +843,22 @@ const questions = [
         currentMsgColor = color; currentMsgText = text;
         await setGlobalQ(window._lastPushedIndex !== undefined ? window._lastPushedIndex : -1);
     };
+    window.pushMessageUI = async function(color, text) {
+        await window.pushMessage(color, text);
+        const clearBtn = document.getElementById('btnMsgClear');
+        const statusTxt = document.getElementById('activeMsgStatus');
+        if(color === 'none') {
+            clearBtn.style.display = 'none';
+            statusTxt.style.display = 'none';
+        } else {
+            clearBtn.style.display = 'block';
+            statusTxt.style.display = 'block';
+        }
+    };
     window.manualPush = async function(idx) {
         currentMsgColor = 'none'; currentMsgText = ''; window._lastPushedIndex = idx;
+        const clearBtn = document.getElementById('btnMsgClear');
+        if(clearBtn) { clearBtn.style.display = 'none'; document.getElementById('activeMsgStatus').style.display = 'none'; }
         for (let i = 0; i < questions.length; i++) {
             const btn = document.getElementById(`t-btn-${i}`);
             if(i < idx) { btn.style.background = 'rgba(255,255,255,0.05)'; btn.style.borderColor = 'rgba(255,255,255,0.1)'; btn.style.color = '#9ca3af'; btn.innerText = '✓ Redan pushad'; }
