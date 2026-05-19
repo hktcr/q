@@ -980,7 +980,7 @@ const questions = [
                         }
 
                         // Generate Live Stats UI
-                        if(q.type === 'multiple-choice' || q.type === 'lucktext') {
+                        if(q.type === 'multiple-choice') {
                             statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
                                 ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
                             </div>`;
