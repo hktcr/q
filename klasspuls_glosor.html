@@ -554,8 +554,14 @@ const questions = [
     let catState = { placements: {} };
 
     function showQuestion(idx) {
-        stepIndicator.style.display = 'block'; stepCurrent.textContent = idx + 1;
-        progressBar.style.width = ((idx) / questions.length * 100) + '%';
+        if (!isSyncMode) {
+            stepIndicator.style.display = 'block'; stepCurrent.textContent = idx + 1;
+            progressBar.style.width = ((idx) / questions.length * 100) + '%';
+        } else {
+            stepIndicator.style.display = 'none';
+            progressBar.style.width = '100%';
+        }
+        
         const q = questions[idx];
         
         card.classList.add('exit-left');
@@ -568,7 +574,7 @@ const questions = [
             else if (q.type === 'match') instructionText = "👆 Tryck på ett begrepp och därefter på rätt förklaring för att koppla ihop dem.";
             else if (q.type === 'categorize') instructionText = "👆 Tryck först på ett ord här nere, och därefter på den ruta du vill placera ordet i.";
 
-            let contentHTML = `<div class="q-number">Fråga ${q.num} av ${questions.length}</div>
+            let contentHTML = `<div class="q-number">${!isSyncMode ? `Fråga ${idx + 1} av ${questions.length}` : `Fråga ${q.num}`}</div>
                                <div class="q-text">${q.text}</div>
                                <div style="font-size:0.9rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:1px; background:rgba(245, 158, 11, 0.1); padding:0.6rem 1rem; border-radius:8px; display:inline-block;">${instructionText}</div>`;
             
