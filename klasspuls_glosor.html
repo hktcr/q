@@ -240,9 +240,11 @@
         .result-row { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.2rem; border-radius: 12px; margin-bottom: 0.6rem; font-size: 1rem; text-align: left; }
         .result-row.ok  { background: rgba(16,185,129,0.1); }
         .result-row.nok { background: rgba(239,68,68,0.08); }
+        #offlineBanner { position: fixed; top: 0; left: 0; right: 0; background: #ef4444; color: #fff; text-align: center; padding: 0.5rem; font-weight: bold; z-index: 9999; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
+    <div id="offlineBanner">📡 Tappat anslutningen! Försöker återansluta...</div>
     <div class="bg-layer"></div>
     <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
     <div class="step-indicator" id="stepIndicator" style="display:none;"><span class="current" id="stepCurrent">1</span> / <span id="stepTotal">10</span></div>
@@ -583,8 +585,10 @@ const questions = [
         } catch(e) { console.error(e); }
     }
 
+    let offlineCount = 0;
     async function getGlobalQ() {
         try {
+            offlineCount = 0; document.getElementById('offlineBanner').style.display = 'none';
             const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState?t=` + Date.now(), { cache: 'no-store' });
             const text = await res.text();
             if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '', sessionId: '' };
@@ -614,9 +618,26 @@ const questions = [
             // Handle Messages
             if (state.msgColor && state.msgColor !== 'none') {
                 msgOverlay.style.display = 'flex';
-                document.getElementById('fullScreenMsgText').textContent = state.msgText;
-                msgOverlay.style.background = state.msgColor === 'red' ? '#ef4444' : (state.msgColor === 'blue' ? '#3b82f6' : '#1f2937');
-            } else { msgOverlay.style.display = 'none'; }
+                if (state.msgText === 'EPA60') {
+                    if (!window._epaInterval) {
+                        window._epaEndTime = Date.now() + 60000;
+                        window._epaInterval = setInterval(() => {
+                            let left = Math.round((window._epaEndTime - Date.now()) / 1000);
+                            if(left <= 0) { left = 0; clearInterval(window._epaInterval); }
+                            document.getElementById('fullScreenMsgText').innerHTML = `🗣️ Diskutera med grannen!<br><br><span style="font-size:5rem; font-weight:900;">${left}</span><br><span style="font-size:1.5rem;">sekunder kvar</span>`;
+                        }, 1000);
+                        document.getElementById('fullScreenMsgText').innerHTML = `🗣️ Diskutera med grannen!<br><br><span style="font-size:5rem; font-weight:900;">60</span><br><span style="font-size:1.5rem;">sekunder kvar</span>`;
+                    }
+                    msgOverlay.style.background = 'rgba(109, 40, 217, 0.95)'; // Purple
+                } else {
+                    if(window._epaInterval) { clearInterval(window._epaInterval); window._epaInterval = null; }
+                    document.getElementById('fullScreenMsgText').textContent = state.msgText;
+                    msgOverlay.style.background = state.msgColor === 'red' ? '#ef4444' : (state.msgColor === 'blue' ? '#3b82f6' : '#1f2937');
+                }
+            } else { 
+                msgOverlay.style.display = 'none'; 
+                if(window._epaInterval) { clearInterval(window._epaInterval); window._epaInterval = null; }
+            }
 
             if (state.q === 999) return showResults();
 
@@ -750,6 +771,9 @@ const questions = [
         const fb = document.getElementById('fb');
         fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
         fb.innerHTML = isCorrect ? '✓ ' + q.feedbackOk : '✗ ' + q.feedbackNok;
+        
+        if (isCorrect && navigator.vibrate) navigator.vibrate([100]);
+        else if (!isCorrect && navigator.vibrate) navigator.vibrate([50, 100, 50]);
         if (!isSyncMode) document.getElementById('nextBtn').classList.add('show');
         else document.getElementById('syncWaitMsg').style.display = 'block';
     }
@@ -788,12 +812,12 @@ const questions = [
         fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
         
         if (isCorrect) {
-            fb.innerHTML = '✓ ' + q.feedbackOk;
-            inputEl.style.borderColor = 'var(--correct)';
+            fb.innerHTML = '✓ ' + q.feedbackOk; if(navigator.vibrate) navigator.vibrate([100]); if(navigator.vibrate) navigator.vibrate([100]);
+            inputEl.style.borderColor = 'var(--correct)'; if(navigator.vibrate) navigator.vibrate([100]);
             inputEl.style.color = 'var(--correct)';
         } else {
-            fb.innerHTML = '✗ ' + (specificFeedback ? specificFeedback : q.feedbackNok);
-            inputEl.style.borderColor = 'var(--incorrect)';
+            fb.innerHTML = '✗ ' + (specificFeedback ? specificFeedback : q.feedbackNok); if(navigator.vibrate) navigator.vibrate([50,100,50]);
+            inputEl.style.borderColor = 'var(--incorrect)'; if(navigator.vibrate) navigator.vibrate([50,100,50]);
             inputEl.style.color = 'var(--incorrect)';
         }
         
@@ -1001,6 +1025,12 @@ const questions = [
                         </div>
                     `}).join('')}
                 </div>
+                
+                <div style="margin-top:2rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+                    <h4 style="color:var(--text-muted); margin-bottom:1rem; text-transform:uppercase; letter-spacing:1px; font-size:0.85rem;">Historik (Denna klass)</h4>
+                    <div id="teacherHistoryList" style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.9rem;"></div>
+                </div>
+
                 <div class="opt" onclick="pushQuestion(999)" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center; padding:1.2rem; cursor:pointer;">
                     <span style="font-size:1.1rem; font-weight:bold; color:var(--incorrect);">🏁 Avsluta Lektion (Visa resultat)</span>
                 </div>
@@ -1029,6 +1059,33 @@ const questions = [
             renderTeacherPanel();
         }
     };
+    
+    let sessionHistory = {};
+    window.saveHistory = function(idx) {
+        if(idx < 0 || !questions[idx]) return;
+        const q = questions[idx];
+        let stats = "";
+        if(q.type === 'multiple-choice') {
+            stats = q.options.map(o => {
+                const el = document.getElementById(`stat_${idx}_opt_${o.letter}`);
+                return o.letter + ": " + (el ? el.innerText : '0');
+            }).join(' | ');
+        } else {
+            const ok = document.getElementById(`stat_${idx}_ok`);
+            const nok = document.getElementById(`stat_${idx}_nok`);
+            stats = "Rätt: " + (ok ? ok.innerText : '0') + " | Fel: " + (nok ? nok.innerText : '0');
+        }
+        sessionHistory[idx] = `<div style="background:rgba(255,255,255,0.03); padding:0.8rem; border-radius:8px; border-left:3px solid var(--primary);">
+            <strong style="color:#fff;">Fråga ${q.num}:</strong> <span style="color:#9ca3af;">${stats}</span>
+        </div>`;
+        renderHistory();
+    };
+    function renderHistory() {
+        const el = document.getElementById('teacherHistoryList');
+        if(!el) return;
+        el.innerHTML = Object.values(sessionHistory).reverse().join('');
+    }
+
     window.pushMessage = async function(color, text) {
         currentMsgColor = color; currentMsgText = text;
         await setGlobalQ(window._lastPushedIndex !== undefined ? window._lastPushedIndex : -1);
@@ -1046,6 +1103,9 @@ const questions = [
         }
     };
     window.manualPush = async function(idx) {
+        if(window._lastPushedIndex !== undefined && window._lastPushedIndex > -1 && window._lastPushedIndex !== idx) {
+            saveHistory(window._lastPushedIndex);
+        }
         currentMsgColor = 'none'; currentMsgText = ''; window._lastPushedIndex = idx;
         const clearBtn = document.getElementById('btnMsgClear');
         if(clearBtn) { clearBtn.style.display = 'none'; document.getElementById('activeMsgStatus').style.display = 'none'; }
