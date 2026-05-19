@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KlassPuls: Ekologi Avstämning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #0a0f0a;
+            --surface: rgba(30, 41, 59, 0.6);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --correct: #10b981;
+            --incorrect: #ef4444;
+            --gold: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* === BACKGROUND === */
+        .bg-layer {
+            position: fixed; inset: 0; z-index: 0;
+            background: url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1920&q=80') center/cover no-repeat;
+        }
+        .bg-layer::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(160deg, rgba(5,10,5,0.92) 0%, rgba(10,20,15,0.82) 100%);
+        }
+
+        /* === LAYOUT === */
+        .app {
+            position: relative; z-index: 1;
+            min-height: 100vh; display: flex;
+            flex-direction: column; align-items: center;
+            justify-content: center; padding: 1.5rem;
+        }
+
+        /* === PROGRESS BAR === */
+        .progress-bar-wrap {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: 6px; background: rgba(255,255,255,0.08); z-index: 10;
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--primary), #34d399);
+            border-radius: 0 3px 3px 0;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* === STEP INDICATOR === */
+        .step-indicator {
+            position: fixed; top: 1.5rem; right: 2rem;
+            font-size: 1rem; font-weight: 700;
+            color: var(--text-muted); z-index: 10;
+            letter-spacing: 1px;
+        }
+        .step-indicator .current { color: var(--primary); font-size: 1.4rem; }
+
+        /* === CARD === */
+        .card {
+            width: 100%; max-width: 760px;
+            background: rgba(10, 15, 10, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: clamp(1.5rem, 4vw, 3.5rem);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            transform: translateX(0); opacity: 1;
+            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+        }
+        .card.exit-left  { transform: translateX(-120px); opacity: 0; }
+        .card.enter-right { transform: translateX(120px); opacity: 0; }
+
+        /* === QUESTION === */
+        .q-number {
+            font-size: 0.85rem; text-transform: uppercase;
+            letter-spacing: 3px; color: var(--primary);
+            font-weight: 800; margin-bottom: 0.75rem;
+        }
+        .q-text {
+            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+            font-weight: 600; line-height: 1.55;
+            margin-bottom: 2rem;
+        }
+        .q-text .blank {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 3px solid var(--primary);
+            margin: 0 5px;
+        }
+
+        /* === OPTIONS (Multiple Choice) === */
+        .options { display: flex; flex-direction: column; gap: 0.85rem; }
+
+        .opt {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1.1rem 1.4rem;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 14px; cursor: pointer;
+            font-size: clamp(1rem, 1.8vw, 1.15rem);
+            line-height: 1.45;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .opt:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+        .opt.selected { border-color: var(--primary); background: rgba(16,185,129,0.1); }
+
+        .opt .letter {
+            flex-shrink: 0; width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .opt.correct-opt { border-color: var(--correct) !important; background: rgba(16,185,129,0.15) !important; }
+        .opt.correct-opt .letter { background: var(--correct) !important; color: #fff !important; }
+        .opt.wrong-opt { border-color: var(--incorrect) !important; background: rgba(239,68,68,0.12) !important; opacity: 0.85; }
+        .opt.wrong-opt .letter { background: var(--incorrect) !important; color: #fff !important; }
+        .opt.dimmed { opacity: 0.4; }
+
+        /* === MATCHING UI === */
+        .match-container {
+            display: flex; gap: 1rem; margin-bottom: 1rem;
+        }
+        @media(max-width: 600px) {
+            .match-container { flex-direction: column; gap: 2rem; }
+        }
+        .match-col { flex: 1; display: flex; flex-direction: column; gap: 0.8rem; }
+        .match-col-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem; text-align: center; }
+        
+        .match-item {
+            padding: 1rem;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px; cursor: pointer;
+            text-align: center; font-weight: 600;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .match-item:hover { background: rgba(255,255,255,0.08); }
+        .match-item.selected { border-color: var(--gold); background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+        .match-item.matched { cursor: default; opacity: 0.6; }
+        
+        /* Match colors */
+        .matched-0 { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.15) !important; color: #93c5fd; }
+        .matched-1 { border-color: #ec4899 !important; background: rgba(236, 72, 153, 0.15) !important; color: #f9a8d4; }
+        .matched-2 { border-color: #8b5cf6 !important; background: rgba(139, 92, 246, 0.15) !important; color: #c4b5fd; }
+        .matched-3 { border-color: #10b981 !important; background: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7; }
+
+        /* === CATEGORIZE UI === */
+        .cat-buckets { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        @media(max-width: 600px) { .cat-buckets { flex-direction: column; } }
+        
+        .bucket {
+            flex: 1; min-height: 120px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 16px; padding: 1rem;
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .bucket-title { font-weight: 700; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .bucket.highlight { border-color: var(--gold); background: rgba(245, 158, 11, 0.05); }
+        
+        .cat-items {
+            display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center;
+            min-height: 60px;
+        }
+        .chip {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 50px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            user-select: none;
+        }
+        .chip:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+        .chip.selected { border-color: var(--gold); background: rgba(245, 158, 11, 0.2); transform: scale(1.05); }
+        
+        .bucket .chip { width: 100%; text-align: center; border-color: rgba(255,255,255,0.05); background: rgba(0,0,0,0.3); }
+
+        /* === FEEDBACK === */
+        .feedback {
+            margin-top: 1.5rem; padding: 1.2rem 1.5rem;
+            border-radius: 14px; font-size: 1rem;
+            line-height: 1.5; display: none;
+            border-left: 4px solid;
+            animation: fadeSlideUp 0.4s ease-out;
+        }
+        .feedback.show { display: block; }
+        .feedback.ok  { background: rgba(16,185,129,0.1); border-color: var(--correct); color: #a7f3d0; }
+        .feedback.nok { background: rgba(239,68,68,0.1);  border-color: var(--incorrect); color: #fca5a5; }
+
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === BUTTONS === */
+        .next-btn, .start-btn {
+            display: none; margin-top: 2rem; width: 100%; padding: 1.1rem;
+            font-family: inherit; font-size: 1.1rem; font-weight: 700;
+            color: #fff; background: var(--primary);
+            border: none; border-radius: 14px; cursor: pointer; letter-spacing: 0.5px;
+            transition: all 0.25s ease; animation: fadeSlideUp 0.4s ease-out;
+        }
+        .next-btn:hover, .start-btn:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 8px 24px var(--primary-glow); }
+        .next-btn.show, .start-btn.show { display: block; }
+
+        .retry-btn {
+            margin-top: 2rem; padding: 1rem 3rem; font-family: inherit; font-size: 1.1rem; font-weight: 700;
+            color: var(--primary); background: transparent;
+            border: 2px solid var(--primary); border-radius: 14px; cursor: pointer; transition: all 0.25s ease;
+        }
+        .retry-btn:hover { background: var(--primary); color: #fff; }
+
+        /* === INTRO & RESULTS === */
+        .intro { text-align: center; }
+        .intro .badge { display: inline-block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 3px; color: var(--primary); font-weight: 800; margin-bottom: 1rem; }
+        .intro h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.15; margin-bottom: 0.75rem; }
+        .intro .sub { font-size: 1.15rem; color: var(--text-muted); margin-bottom: 2.5rem; line-height: 1.5; }
+        
+        .results { text-align: center; }
+        .results .emoji { font-size: 4rem; margin-bottom: 1rem; }
+        .results h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin-bottom: 0.5rem; }
+        .results .score-line { font-size: 1.3rem; color: var(--text-muted); margin-bottom: 2.5rem; }
+        .results .score-line strong { color: var(--primary); font-size: 1.6rem; }
+        .result-row { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.2rem; border-radius: 12px; margin-bottom: 0.6rem; font-size: 1rem; text-align: left; }
+        .result-row.ok  { background: rgba(16,185,129,0.1); }
+        .result-row.nok { background: rgba(239,68,68,0.08); }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+    <div class="step-indicator" id="stepIndicator" style="display:none;"><span class="current" id="stepCurrent">1</span> / <span id="stepTotal">10</span></div>
+
+    <div class="app">
+        <div class="card" id="card"></div>
+    </div>
+
+    <!-- Teacher message overlay -->
+    <div id="fullScreenMsg" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; justify-content:center; align-items:center; flex-direction:column; padding:2rem; text-align:center; transition: background 0.3s ease;">
+        <h1 id="fullScreenMsgText" style="font-size:max(8vw, 3rem); font-weight:900; color:white; text-transform:uppercase; text-shadow: 0 4px 20px rgba(0,0,0,0.5); line-height:1.1; margin:0;"></h1>
+    </div>
+
+    <script>
+    const APP_KEY = "HakanGlosPuls_Ekologi2026_v1"; // Unik synknyckel
+    const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+
+    const questions = [
+        { 
+            num: 1, 
+            type: "lucktext", 
+            text: "Ekologi (oikos + logos) betyder ordagrant 'Läran om <span class='blank'></span>'.", 
+            options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Miljögifterna"}], 
+            correct: "B", 
+            feedbackOk: "Exakt! 'Oikos' är grekiska för hus. Vi studerar hur alla varelser samspelar i vårt gemensamma hem.", 
+            feedbackNok: "Huset (Jorden) är svaret. 'Oikos' är grekiska för hus. Vi studerar hela det gemensamma hemmet, inte bara djuren." 
+        },
+        { 
+            num: 2, 
+            type: "categorize", 
+            text: "Kategorisera faktorerna! Vad är levande och icke-levande i ekosystemet?", 
+            categories: ["Biotiska faktorer", "Abiotiska faktorer"], 
+            items: [{word: "Temperatur", cat: 1}, {word: "Rovdjur", cat: 0}, {word: "Nederbörd", cat: 1}, {word: "Nedbrytare", cat: 0}], 
+            feedbackOk: "Klockrent! 'A-' betyder 'icke', så abiotisk är solljus, regn och grus. Biotiskt är allt som lever.", 
+            feedbackNok: "Tips: 'A-' framför ett ord betyder 'icke'. Abiotisk = Icke-levande (regn, sten, temperatur). Biotisk = Levande djur och växter." 
+        },
+        { 
+            num: 3, 
+            type: "match", 
+            text: "Koppla ihop rätt nivå i ekosystemet med rätt definition!", 
+            pairs: [
+                {left: "Biotop", right: "Naturtypen, t.ex. en lövskog"}, 
+                {left: "Population", right: "Alla individer av EN art i området"}, 
+                {left: "Samhälle", right: "ALLA olika arter som lever där"}
+            ], 
+            feedbackOk: "Snyggt! Biotopen är platsen, populationen är räven, samhället är räven + haren + träden tillsammans.", 
+            feedbackNok: "Repetera detta: Biotop = Platsen/Miljön. Population = Flocken (En art). Samhälle = Hela gänget (Alla arter)." 
+        },
+        { 
+            num: 4, 
+            type: "multiple-choice", 
+            text: "Vad är skillnaden på en Näringskedja och en Näringsväv?", 
+            options: [{letter: "A", text: "Näringskedjan saknar producenter, men väven har dem."}, {letter: "B", text: "Det är två ord för exakt samma sak."}, {letter: "C", text: "En näringsväv är mer komplex och består av flera sammanflätade näringskedjor."}, {letter: "D", text: "Näringsvävar visar bara abiotiska faktorer."}], 
+            correct: "C", 
+            feedbackOk: "Rätt! Verkligheten är nästan alltid en väv. En räv äter ju inte *bara* sork, den äter bär och fåglar också.", 
+            feedbackNok: "Rätt svar är C. En näringsväv är flera kedjor som korsar varandra, eftersom djur ofta har en varierad diet." 
+        },
+        { 
+            num: 5, 
+            type: "match", 
+            text: "Koppla ihop processen med rätt organell (del av cellen)!", 
+            pairs: [
+                {left: "Kloroplast", right: "Här sker Fotosyntesen"}, 
+                {left: "Mitokondrie", right: "Här sker Cellandningen"}, 
+                {left: "Vakuol", right: "Vattenlager & Återvinning"}
+            ], 
+            feedbackOk: "Helt rätt! Kloroplasten är solfångaren, mitokondrien är kraftverket och vakuolen ger växten stadga.", 
+            feedbackNok: "Minnesregel: Klorofyll finns i Kloroplasten (fotosyntes). Mitokondrien är kraftverket som andas." 
+        },
+        { 
+            num: 6, 
+            type: "lucktext", 
+            text: "Svampar, bakterier och daggmaskar kallas för <span class='blank'></span>. De sluter kretsloppet genom att bryta ner dött material.", 
+            options: [{letter: "A", text: "Toppkonsumenter"}, {letter: "B", text: "Nedbrytare"}, {letter: "C", text: "Producenter"}, {letter: "D", text: "Parasiter"}], 
+            correct: "B", 
+            feedbackOk: "Visst är det så! Utan nedbrytarna skulle jorden vara täckt av döda träd och löv. De återför näringen till jorden.", 
+            feedbackNok: "Svaret är Nedbrytare. De är naturens städpatrull som ser till att kretsloppet kan fortsätta." 
+        },
+        { 
+            num: 7, 
+            type: "categorize", 
+            text: "Hur fungerar Symbios? Sortera begreppen rätt!", 
+            categories: ["Tävlar om resurser", "Ett nära samliv mellan arter"], 
+            items: [{word: "Konkurrens", cat: 0}, {word: "Mutualism", cat: 1}, {word: "Parasitism", cat: 1}], 
+            feedbackOk: "Exakt! Symbios betyder samliv - oavsett om det är positivt (mutualism) eller negativt för en (parasitism). Konkurrens är ren tävling.", 
+            feedbackNok: "Symbios = Samliv. Även fästingen som suger blod (parasitism) lever i symbios, även om det är taskigt. Konkurrens är när två arter bråkar om maten." 
+        },
+        { 
+            num: 8, 
+            type: "multiple-choice", 
+            text: "Vad menas med en arts 'Ekologiska Nisch'?", 
+            options: [{letter: "A", text: "Ett litet hål i marken där arten sover."}, {letter: "B", text: "Artens 'yrke' – exakt vad den äter och vilken miljö den kräver."}, {letter: "C", text: "Antalet ungar en art får varje år."}, {letter: "D", text: "När en art byter färg på vintern."}], 
+            correct: "B", 
+            feedbackOk: "Rätt! Om två arter har *exakt* samma ekologiska nisch blir det extrem konkurrens tills en flyttar eller dör ut.", 
+            feedbackNok: "Svaret är B (Artens yrke). Nischen beskriver hur arten passar in i pusslet. Vem den äter, när den jagar och var den bygger bo." 
+        },
+        { 
+            num: 9, 
+            type: "categorize", 
+            text: "Vad händer med miljögifter (t.ex. DDT/PCB) i Näringspyramiden? Sortera halterna!", 
+            categories: ["Låg halt av gift", "Hög halt av gift (Bioackumulation)"], 
+            items: [{word: "Växtplankton", cat: 0}, {word: "Djurplankton", cat: 0}, {word: "Säl", cat: 1}, {word: "Isbjörn", cat: 1}], 
+            feedbackOk: "Bra! Miljögiftet lagras i fettet och anrikas (bioackumuleras). Toppkonsumenten får i sig giftet från ALLA som den har ätit.", 
+            feedbackNok: "Regeln kallas bioackumulation: Giftet anrikas på vägen upp. Den som är högst upp i pyramiden (Isbjörnen) får störst koncentration i kroppen." 
+        },
+        { 
+            num: 10, 
+            type: "lucktext", 
+            text: "Ett <span class='blank'></span> innebär att livsviktiga atomer (som kol och vatten) aldrig försvinner, utan används om och om igen i naturen.", 
+            options: [{letter: "A", text: "Samhälle"}, {letter: "B", text: "Kretslopp"}, {letter: "C", text: "Ekosystem"}, {letter: "D", text: "Biotop"}], 
+            correct: "B", 
+            feedbackOk: "Snyggt jobbat! Energin strömmar (sol till värme), men atomerna går alltid i ett kretslopp.", 
+            feedbackNok: "Rätt svar är Kretslopp. Vi lånar bara naturens byggstenar, sedan lämnas de tillbaka." 
+        }
+    ];
+
+    let currentQ = -1; 
+    let highestActivated = -1;
+    let answers = {};
+    let isSyncMode = false;
+    let syncInterval = null;
+    let currentMsgColor = 'none';
+    let currentMsgText = '';
+
+    const card = document.getElementById('card');
+    const progressBar = document.getElementById('progressBar');
+    const stepIndicator = document.getElementById('stepIndicator');
+    const stepCurrent = document.getElementById('stepCurrent');
+    document.getElementById('stepTotal').textContent = questions.length;
+    const msgOverlay = document.getElementById('fullScreenMsg');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTeacher = urlParams.get('mode') === 'teacher';
+
+    /* --- HEX ENCODING --- */
+    function strToHex(str) { return Array.from(new TextEncoder().encode(str)).map(b => b.toString(16).padStart(2, '0')).join(''); }
+    function hexToStr(hex) {
+        const bytes = new Uint8Array(Math.ceil(hex.length / 2));
+        for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+        return new TextDecoder().decode(bytes);
+    }
+
+    /* --- API --- */
+    async function setGlobalQ(qIndex) {
+        try {
+            const msgHex = currentMsgColor === 'none' ? 'none' : strToHex(currentMsgText);
+            const stateStr = qIndex + "_true_" + currentMsgColor + "_" + msgHex;
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/syncState/${stateStr}`, { method: 'POST', mode: 'cors' });
+        } catch(e) { console.error(e); }
+    }
+
+    async function getGlobalQ() {
+        try {
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState`);
+            const text = await res.text();
+            if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '' };
+            const parts = text.replace(/"/g, '').trim().split('_');
+            let result = { q: parseInt(parts[0]) || -1, msgColor: 'none', msgText: '' };
+            if(parts.length >= 4) {
+                result.msgColor = parts[2];
+                if(parts[3] !== 'none') result.msgText = hexToStr(parts[3]);
+            }
+            return result;
+        } catch(e) { return { q: -1, msgColor: 'none', msgText: '' }; }
+    }
+
+    /* --- SYNC MODE --- */
+    function startSyncMode() {
+        isSyncMode = true; currentQ = -1; highestActivated = -1; answers = {};
+        card.innerHTML = `<div class="intro"><div class="badge">Live-Synk Aktiv</div><div class="emoji" style="font-size:4rem; margin:1rem 0;">⏳</div><h1>Låst skärm</h1><p class="sub">Väntar på att Håkan ska pusha ut första frågan...</p></div>`;
+        syncInterval = setInterval(async () => {
+            const state = await getGlobalQ();
+            
+            // Handle Messages
+            if (state.msgColor && state.msgColor !== 'none') {
+                msgOverlay.style.display = 'flex';
+                document.getElementById('fullScreenMsgText').textContent = state.msgText;
+                msgOverlay.style.background = state.msgColor === 'red' ? '#ef4444' : (state.msgColor === 'blue' ? '#3b82f6' : '#1f2937');
+            } else { msgOverlay.style.display = 'none'; }
+
+            if (state.q === 999) return showResults();
+
+            if (state.q > highestActivated && state.q !== 999) highestActivated = state.q;
+
+            if ((state.q > currentQ && answers[currentQ] !== undefined) || (currentQ === -1 && state.q > -1)) {
+                currentQ = state.q; showQuestion(currentQ);
+            } else if (state.q === -1 && currentQ !== -1) {
+                currentQ = -1; highestActivated = -1; answers = {};
+                card.innerHTML = `<div class="intro"><div class="emoji" style="font-size:4rem; margin-bottom:1rem;">⏳</div><h2>Väntar...</h2><p class="sub">Lektionen har nollställts.</p></div>`;
+            }
+        }, 2000);
+    }
+
+    function renderIntro() {
+        stepIndicator.style.display = 'none'; progressBar.style.width = '0%';
+        if (isTeacher) return renderTeacherPanel();
+        card.innerHTML = `
+            <div class="intro">
+                <div class="badge">Glosförhör: Självdiagnos</div>
+                <h1>KlassPuls: Ekologi</h1>
+                <p class="sub">En "Tap-to-Select"-avstämning på glosorna från de tre första veckorna.</p>
+                <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+                    <button class="start-btn show" style="width:auto; padding: 1rem 2.5rem;" onclick="startSyncMode()">🔗 Gå med i klassrummet</button>
+                    <button class="retry-btn" style="margin-top:0;" onclick="startSoloMode()">Öva ensam</button>
+                </div>
+            </div>`;
+    }
+
+    function startSoloMode() {
+        isSyncMode = false; currentQ = 0; highestActivated = questions.length - 1; answers = {};
+        showQuestion(0);
+    }
+
+    /* --- SHUFFLE ARRAY HELPER --- */
+    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+    /* --- RENDERING ENGINE --- */
+    let matchState = { left: null, completed: {} };
+    let catState = { placements: {} };
+
+    function showQuestion(idx) {
+        stepIndicator.style.display = 'block'; stepCurrent.textContent = idx + 1;
+        progressBar.style.width = ((idx) / questions.length * 100) + '%';
+        const q = questions[idx];
+        
+        card.classList.add('exit-left');
+        setTimeout(() => {
+            card.classList.remove('exit-left'); card.classList.add('enter-right');
+            
+            let contentHTML = `<div class="q-number">Fråga ${q.num} av ${questions.length}</div><div class="q-text">${q.text}</div>`;
+            
+            if (q.type === 'multiple-choice' || q.type === 'lucktext') {
+                contentHTML += `<div class="options">
+                    ${q.options.map(o => `<div class="opt" onclick="selectMC(this, '${o.letter}')"><span class="letter">${o.letter}</span><span>${o.text}</span></div>`).join('')}
+                </div>`;
+            } 
+            else if (q.type === 'match') {
+                matchState = { left: null, completed: {} };
+                const lefts = shuffle(q.pairs.map(p => p.left));
+                const rights = shuffle(q.pairs.map(p => p.right));
+                contentHTML += `<div class="match-container">
+                    <div class="match-col"><div class="match-col-title">Begrepp</div>
+                        ${lefts.map(l => `<div class="match-item left-item" data-val="${l}" onclick="selectMatchLeft(this)">${l}</div>`).join('')}
+                    </div>
+                    <div class="match-col"><div class="match-col-title">Förklaring</div>
+                        ${rights.map(r => `<div class="match-item right-item" data-val="${r}" onclick="selectMatchRight(this)">${r}</div>`).join('')}
+                    </div>
+                </div>`;
+            }
+            else if (q.type === 'categorize') {
+                catState = { placements: {} };
+                const words = shuffle(q.items.map(i => i.word));
+                contentHTML += `
+                    <div class="cat-buckets">
+                        ${q.categories.map((c, i) => `<div class="bucket" data-cat="${i}" onclick="selectBucket(this)"><div class="bucket-title">${c}</div></div>`).join('')}
+                    </div>
+                    <div class="cat-items">
+                        ${words.map(w => `<div class="chip" data-val="${w}" onclick="selectCatChip(this)">${w}</div>`).join('')}
+                    </div>`;
+            }
+
+            contentHTML += `
+                <div class="feedback" id="fb"></div>
+                ${!isSyncMode ? `<button class="next-btn" id="nextBtn" onclick="nextQuestion()">${idx < questions.length - 1 ? 'Nästa Fråga →' : 'Visa Resultat →'}</button>` : `<div id="syncWaitMsg" style="display:none; text-align:center; margin-top:2rem; color:var(--text-muted); font-weight:600;">Svar registrerat! ⏳ Väntar på Håkan...</div>`}
+            `;
+            
+            card.innerHTML = contentHTML;
+            requestAnimationFrame(() => { requestAnimationFrame(() => { card.classList.remove('enter-right'); }); });
+        }, 300);
+    }
+
+    function evaluateAnswer(isCorrect) {
+        answers[currentQ] = isCorrect;
+        const q = questions[currentQ];
+        const fb = document.getElementById('fb');
+        fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
+        fb.innerHTML = isCorrect ? '✓ ' + q.feedbackOk : '✗ ' + q.feedbackNok;
+        if (!isSyncMode) document.getElementById('nextBtn').classList.add('show');
+        else document.getElementById('syncWaitMsg').style.display = 'block';
+    }
+
+    /* --- MULTIPLE CHOICE & LUCKTEXT --- */
+    function selectMC(el, val) {
+        if (answers[currentQ] !== undefined) return;
+        const q = questions[currentQ];
+        const isCorrect = val === q.correct;
+        document.querySelectorAll('.opt').forEach(o => {
+            o.style.cursor = 'default';
+            if (o.dataset.val === q.correct || o.querySelector('.letter').innerText === q.correct) o.classList.add('correct-opt');
+            else if (o === el && !isCorrect) o.classList.add('wrong-opt');
+            else o.classList.add('dimmed');
+        });
+        evaluateAnswer(isCorrect);
+    }
+
+    /* --- MATCH UI LOGIC --- */
+    let matchColors = ['matched-0', 'matched-1', 'matched-2', 'matched-3'];
+    function selectMatchLeft(el) {
+        if (answers[currentQ] !== undefined || el.classList.contains('matched')) return;
+        document.querySelectorAll('.left-item').forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+        matchState.left = el.dataset.val;
+    }
+    function selectMatchRight(el) {
+        if (answers[currentQ] !== undefined || el.classList.contains('matched') || !matchState.left) return;
+        const q = questions[currentQ];
+        
+        // Mark as matched
+        const leftEl = document.querySelector(`.left-item[data-val="${matchState.left}"]`);
+        const colorClass = matchColors[Object.keys(matchState.completed).length % matchColors.length];
+        
+        leftEl.classList.remove('selected');
+        leftEl.classList.add('matched', colorClass);
+        el.classList.add('matched', colorClass);
+        
+        matchState.completed[matchState.left] = el.dataset.val;
+        matchState.left = null;
+
+        if (Object.keys(matchState.completed).length === q.pairs.length) {
+            let allCorrect = true;
+            for (let term in matchState.completed) {
+                const pair = q.pairs.find(p => p.left === term);
+                if (!pair || pair.right !== matchState.completed[term]) allCorrect = false;
+            }
+            evaluateAnswer(allCorrect);
+        }
+    }
+
+    /* --- CATEGORIZE UI LOGIC --- */
+    let catSelected = null;
+    function selectCatChip(el) {
+        if (answers[currentQ] !== undefined) return;
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        catSelected = el;
+    }
+    function selectBucket(el) {
+        if (answers[currentQ] !== undefined || !catSelected) return;
+        el.appendChild(catSelected);
+        catSelected.classList.remove('selected');
+        catState.placements[catSelected.dataset.val] = parseInt(el.dataset.cat);
+        catSelected = null;
+
+        const q = questions[currentQ];
+        if (Object.keys(catState.placements).length === q.items.length) {
+            let allCorrect = true;
+            for (let word in catState.placements) {
+                const item = q.items.find(i => i.word === word);
+                if (!item || item.cat !== catState.placements[word]) allCorrect = false;
+            }
+            evaluateAnswer(allCorrect);
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQ < questions.length - 1) showQuestion(++currentQ);
+        else showResults();
+    }
+
+    function showResults() {
+        if(syncInterval) clearInterval(syncInterval);
+        progressBar.style.width = '100%'; stepIndicator.style.display = 'none'; msgOverlay.style.display = 'none';
+        
+        let totalPossible = Math.max(0, highestActivated + 1);
+        if (totalPossible === 0) return card.innerHTML = '<div class="results"><h2>Inga frågor besvarades.</h2></div>';
+
+        let score = 0, resultRows = '';
+        for(let i=0; i < totalPossible; i++) {
+            const ok = answers[i] === true;
+            if (ok) score++;
+            resultRows += `<div class="result-row ${ok ? 'ok' : 'nok'}"><span class="result-icon">${ok ? '✓' : '✗'}</span><span>Fråga ${questions[i].num}: ${ok ? 'Rätt' : 'Fel'}</span></div>`;
+        }
+
+        const pct = score / totalPossible;
+        const emoji = pct === 1 ? '🌟' : (pct >= 0.6 ? '💚' : (pct >= 0.3 ? '🌱' : '📖'));
+        const title = pct === 1 ? 'Full pott!' : (pct >= 0.6 ? 'Snyggt!' : 'På god väg!');
+
+        card.classList.add('exit-left');
+        setTimeout(() => {
+            card.classList.remove('exit-left'); card.classList.add('enter-right');
+            card.innerHTML = `<div class="results"><div class="emoji">${emoji}</div><h2>${title}</h2><p class="score-line">Du hade <strong>${score}</strong> rätt av ${totalPossible} möjliga.</p><div style="max-height:250px; overflow-y:auto; margin-bottom:2rem;">${resultRows}</div>${!isSyncMode ? `<button class="retry-btn" onclick="retry()">Kör igen</button>` : ''}</div>`;
+            requestAnimationFrame(() => { requestAnimationFrame(() => { card.classList.remove('enter-right'); }); });
+        }, 300);
+    }
+
+    function retry() { currentQ = -1; highestActivated = -1; answers = {}; renderIntro(); }
+
+    /* --- TEACHER PANEL --- */
+    async function renderTeacherPanel() {
+        stepIndicator.style.display = 'none'; progressBar.style.display = 'none';
+        await setGlobalQ(-1); window._lastPushedIndex = -1;
+
+        card.innerHTML = `
+            <div class="intro" style="text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                    <div><div class="badge">KlassPuls v2: Lärarpanel</div><h1 style="color:var(--primary); text-align:left; font-size:2rem; margin-top:0.5rem;">Kontrollpanel</h1></div>
+                    <button onclick="resetLesson()" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); padding:0.5rem 1rem; border-radius:8px; cursor:pointer; font-weight:bold;">🔄 Nollställ</button>
+                </div>
+                
+                <h3 style="margin-top:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">📣 Klassrumsstyrning (Skärmövertagande)</h3>
+                <div style="display:flex; gap:0.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; margin-bottom:2rem;">
+                    <button id="btnMsgRed" onclick="pushMessage('red', 'VAR TYSTA!')" style="flex:1; background:rgba(239,68,68,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">🛑 Var Tysta!</button>
+                    <button id="btnMsgBlue" onclick="pushMessage('blue', 'Titta framåt')" style="flex:1; background:rgba(59,130,246,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">👁 Fokusera</button>
+                </div>
+
+                <h3 style="margin-bottom:1rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">Glosfrågor (${questions.length} st)</h3>
+                <div style="max-height: 450px; overflow-y: auto; padding-right:1rem; display:flex; flex-direction:column; gap:1rem;">
+                    ${questions.map((q, i) => `
+                        <div class="opt" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
+                            <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
+                            <button id="t-btn-${i}" onclick="manualPush(${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="opt" onclick="pushQuestion(999)" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center; padding:1.2rem; cursor:pointer;">
+                    <span style="font-size:1.1rem; font-weight:bold; color:var(--incorrect);">🏁 Avsluta Lektion (Visa resultat)</span>
+                </div>
+            </div>`;
+    }
+
+    window.resetLesson = async function() {
+        if(confirm("Nollställ för nästa klass?")) {
+            window._lastPushedIndex = -1; currentMsgColor = 'none'; currentMsgText = '';
+            await setGlobalQ(-1); renderTeacherPanel();
+        }
+    };
+    window.pushMessage = async function(color, text) {
+        currentMsgColor = color; currentMsgText = text;
+        await setGlobalQ(window._lastPushedIndex !== undefined ? window._lastPushedIndex : -1);
+    };
+    window.manualPush = async function(idx) {
+        currentMsgColor = 'none'; currentMsgText = ''; window._lastPushedIndex = idx;
+        for (let i = 0; i < questions.length; i++) {
+            const btn = document.getElementById(`t-btn-${i}`);
+            if(i < idx) { btn.style.background = 'rgba(255,255,255,0.05)'; btn.style.borderColor = 'rgba(255,255,255,0.1)'; btn.style.color = '#9ca3af'; btn.innerText = '✓ Redan pushad'; }
+            else if(i === idx) { btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.innerText = '▶️ AKTIV NU'; }
+            else { btn.style.background = 'rgba(16,185,129,0.2)'; btn.style.borderColor = 'rgba(16,185,129,0.5)'; btn.style.color = '#fff'; btn.innerText = '🚀 Puscha till klassen'; }
+        }
+        await setGlobalQ(idx);
+    };
+    window.pushQuestion = async function(idx) { await setGlobalQ(idx); };
+
+    renderIntro();
+    </script>
+</body>
+</html>
