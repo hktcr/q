@@ -441,6 +441,111 @@ const questions = [
             feedbackOk: "Korrekt! Hög biologisk mångfald är som ett brett Jenga-torn — det tål mycket stryk (sjukdomar) innan det rasar. Läs om detta på s. 2 i häftet.", 
             feedbackNok: "Tänk Jenga-tornet från lektion 3! Biologisk mångfald betyder MÅNGA OLIKA arter. En veteåker har ju bara EN art. Kolla s. 2 i häftet." 
         }
+    ,
+        { 
+            num: 15, 
+            type: "freetext", 
+            text: "Den process där växter tillverkar socker och syre med hjälp av solljus, koldioxid och vatten kallas för <span class='blank'></span>.", 
+            correctAnswers: ["fotosyntes", "fotosyntesen", "fotosyntes "],
+            specificErrors: [
+                { trigger: ["cellandning", "cellandningen"], feedback: "Nej, cellandning är motsatsen! Det är när djur (och växter) FÖRBRÄNNER sockret för att få energi. Kolla s. 4 i häftet." },
+                { trigger: ["klorofyll"], feedback: "Klorofyll är visserligen det gröna ämnet i bladen som FÅNGAR solljuset, men vad heter själva processen/tillverkningen?" }
+            ],
+            feedbackOk: "Korrekt! Fotosyntesen är grunden för nästan allt liv på Jorden.", 
+            feedbackNok: "Det rätta svaret är FOTOSYNTES. Detta är den absolut viktigaste reaktionen på jorden. Läs mer på s. 4 i häftet!" 
+        },
+        { 
+            num: 16, 
+            type: "freetext", 
+            text: "Alla individer av en och samma art som lever i ett visst område (t.ex. alla harar i en skog) kallas gemensamt för en <span class='blank'></span>.", 
+            correctAnswers: ["population", "populationen", "popolation"],
+            specificErrors: [
+                { trigger: ["art", "arten"], feedback: "Nästan! 'Art' beskriver vilken typ av djur det är globalt, men när vi pratar om en specifik grupp av samma art i just en skog använder vi ett annat ord på P. Kolla s. 1." },
+                { trigger: ["samhälle", "ekologiskt samhälle"], feedback: "Ett samhälle består av MÅNGA olika arter (både harar, rådjur, ekar etc). Om vi bara tittar på EN art är det en...?" },
+                { trigger: ["ekosystem"], feedback: "Ett ekosystem inkluderar även det abiotiska (stenar, regn, solljus). Vi söker ordet för en grupp av samma art." }
+            ],
+            feedbackOk: "Helt rätt! Population är det ord biologer använder för att studera hur antalet individer av en art ökar eller minskar.", 
+            feedbackNok: "Det rätta svaret är POPULATION. Om du missade detta, repetera de grundläggande begreppen på s. 1 i häftet." 
+        },
+        { 
+            num: 17, 
+            type: "freetext", 
+            text: "I naturen äter många djur flera olika saker. När flera näringskedjor flätas samman och korsar varandra kallas det för en <span class='blank'></span>.", 
+            correctAnswers: ["näringsväv", "näringsväven", "neringsväv"],
+            specificErrors: [
+                { trigger: ["näringskedja", "näringskedjan", "neringskedja"], feedback: "En näringskedja är bara en enda rak linje (Gräs -> Hare -> Räv). Vad kallas det när flera sådana kedjor flätas ihop till ett nät?" },
+                { trigger: ["ekosystem"], feedback: "Det sker i ett ekosystem, men vi söker det specifika begreppet för 'mat-kartan' där streck går kors och tvärs mellan alla djur och växter." },
+                { trigger: ["näringspyramid"], feedback: "Näringspyramiden visar hur ENERGIN försvinner på vägen upp. Vi söker ordet för det nätverk som visar vem som äter vem." }
+            ],
+            feedbackOk: "Snyggt! En näringsväv ger en mycket mer realistisk bild av naturen än en enkel kedja.", 
+            feedbackNok: "Det rätta svaret är NÄRINGSVÄV. Tänk dig det som ett spindelnät av matvanor! Kolla s. 3 i häftet." 
+        }
+    ,
+        { 
+            num: 18, 
+            type: "freetext", 
+            text: "De organismer (t.ex. svampar, maskar och bakterier) som lever på döda växter och djur och på så sätt återför näringen till jorden kallas för <span class='blank'></span>.", 
+            correctAnswers: ["nedbrytare", "nedbrytarna", "destruenter"],
+            specificErrors: [
+                { trigger: ["konsumenter"], feedback: "De är tekniskt sett en typ av konsument, men vad är det specifika namnet för dem som 'städar upp' i naturen?" },
+                { trigger: ["producenter", "producent"], feedback: "Nej, producenter (växter) TILLVERKAR näring. Dessa organismer bryter ner den. Försök igen!" }
+            ],
+            feedbackOk: "Korrekt! Utan nedbrytarna hade naturen drunknat i döda löv och djurkroppar.", 
+            feedbackNok: "Det rätta svaret är NEDBRYTARE. Detta är naturens egna städpatrull!" 
+        },
+        { 
+            num: 19, 
+            type: "multiple-choice", 
+            text: "Vad menas egentligen med begreppet 'Biologisk mångfald'?", 
+            options: [
+                {letter: "A", text: "Att det finns extremt många djur av samma art i en och samma skog."}, 
+                {letter: "B", text: "Att naturen är rik på variation, med många olika arter, gener och livsmiljöer."}, 
+                {letter: "C", text: "Att vi människor aktivt planterar många träd för att motverka klimatförändringarna."}, 
+                {letter: "D", text: "Att djuren utvecklas och förändras långsamt under miljoner år."}
+            ],
+            correct: "B", 
+            feedbackOk: "Helt rätt! Mångfalden är vår absolut bästa 'livförsäkring' mot miljöförändringar.", 
+            feedbackNok: "Ledtråd: 'Mångfald' betyder variation. Det handlar inte om ANTALET individer, utan hur många OLIKA typer som finns." 
+        },
+        { 
+            num: 20, 
+            type: "match", 
+            text: "Koppla ihop rätt art/begrepp med dess ekologiska roll!", 
+            pairs: [
+                { left: "Spansk skogssnigel", right: "Invasiv art som tränger undan lokala arter" },
+                { left: "Varg", right: "Toppkonsument som reglerar antalet växtätare" },
+                { left: "Daggmask", right: "Viktig nedbrytare som syresätter jorden" },
+                { left: "Bakterie", right: "Mikroskopisk nedbrytare i naturens kretslopp" }
+            ],
+            feedbackOk: "Snyggt jobbat! Invasiva arter är ett av de största hoten mot biologisk mångfald idag.", 
+            feedbackNok: "Kom ihåg: Invasiva arter (som snigeln) är arter som människan flyttat och som ställer till problem i sin nya miljö." 
+        },
+        { 
+            num: 21, 
+            type: "freetext", 
+            text: "Den process som gör att jorden hålls varm tack vare en 'filt' av gaser (t.ex. koldioxid) i atmosfären kallas för <span class='blank'></span>.", 
+            correctAnswers: ["växthuseffekten", "växthuseffekt", "den naturliga växthuseffekten"],
+            specificErrors: [
+                { trigger: ["klimatförändring", "klimatförändringar"], feedback: "Klimatförändringarna är KONSEKVENSEN av att människan har *förstärkt* denna effekt. Vad heter själva gas-filten?" },
+                { trigger: ["global uppvärmning"], feedback: "Global uppvärmning är resultatet när 'filten' blir för tjock. Vi söker namnet på själva fenomenet (som vi faktiskt behöver för att inte frysa ihjäl!)." }
+            ],
+            feedbackOk: "Precis! Växthuseffekten är naturlig och livsnödvändig, men problemet idag är att den har blivit alldeles för stark.", 
+            feedbackNok: "Det rätta svaret är VÄXTHUSEFFEKTEN. Läs mer på s. 12 om hur atmosfären fungerar." 
+        },
+        { 
+            num: 22, 
+            type: "lucktext", 
+            text: "Ett ekosystems förmåga att återhämta sig och motstå störningar (t.ex. en skogsbrand, storm eller sjukdomsutbrott) kallas för ekologisk <span class='blank'></span>.", 
+            options: [
+                {letter: "A", text: "Bärkraft"}, 
+                {letter: "B", text: "Nisch"}, 
+                {letter: "C", text: "Resiliens"}, 
+                {letter: "D", text: "Succession"}
+            ],
+            correct: "C", 
+            feedbackOk: "Exakt! Hög biologisk mångfald ger högre resiliens, vilket gör att ekosystemet inte kollapsar lika lätt.", 
+            feedbackNok: "Bärkraft handlar om hur många individer miljön tål. Succession är naturens ordning. Det rätta ordet för 'motståndskraft' är Resiliens." 
+        }
     ];
 
     let currentQ = -1; 
@@ -571,6 +676,7 @@ const questions = [
             let instructionText = '';
             if (q.type === 'multiple-choice') instructionText = "👆 Tryck på det svarsalternativ du tror är rätt.";
             else if (q.type === 'lucktext') instructionText = "👆 Tryck på det alternativ som passar bäst i luckan.";
+            else if (q.type === 'freetext') instructionText = "⌨️ Skriv in det ord som saknas i luckan och tryck på Svara.";
             else if (q.type === 'match') instructionText = "👆 Tryck på ett begrepp och därefter på rätt förklaring för att koppla ihop dem.";
             else if (q.type === 'categorize') instructionText = "👆 Tryck först på ett ord här nere, och därefter på den ruta du vill placera ordet i.";
 
@@ -583,6 +689,12 @@ const questions = [
                     ${q.options.map(o => `<div class="opt" onclick="selectMC(this, '${o.letter}')"><span class="letter">${o.letter}</span><span>${o.text}</span></div>`).join('')}
                 </div>`;
             } 
+            else if (q.type === 'freetext') {
+                contentHTML += `<div class="freetext-container" style="display:flex; flex-direction:column; gap:1rem; align-items:center; margin-top:1rem;">
+                    <input type="text" id="freetextInput" placeholder="Skriv ditt ord här..." style="width:100%; max-width:400px; padding:1.2rem; font-size:1.5rem; text-align:center; border-radius:12px; border:2px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.4); color:#fff; font-weight:bold; outline:none;" autocomplete="off" onkeydown="if(event.key==='Enter') submitFreetext()">
+                    <button onclick="submitFreetext()" style="width:100%; max-width:400px; padding:1.2rem; font-size:1.2rem; font-weight:bold; border-radius:12px; background:var(--primary); color:#fff; border:none; cursor:pointer;">Svara / Rätta</button>
+                </div>`;
+            }
             else if (q.type === 'match') {
                 matchState = { left: null, completed: {} };
                 const lefts = shuffle(q.pairs.map(p => p.left));
@@ -634,6 +746,52 @@ const questions = [
     }
 
     /* --- MULTIPLE CHOICE & LUCKTEXT --- */
+    
+    /* --- FREETEXT LOGIC --- */
+    window.submitFreetext = function() {
+        if (answers[currentQ] !== undefined) return;
+        const q = questions[currentQ];
+        const inputEl = document.getElementById('freetextInput');
+        const ans = inputEl.value.trim().toLowerCase();
+        if (ans === "") return;
+        
+        inputEl.disabled = true;
+        
+        let isCorrect = false;
+        let specificFeedback = null;
+        
+        if (q.correctAnswers.some(c => c.toLowerCase() === ans)) {
+            isCorrect = true;
+        } else {
+            // Check specific errors
+            for (let err of q.specificErrors) {
+                if (err.trigger.some(t => t.toLowerCase() === ans)) {
+                    specificFeedback = err.feedback;
+                    break;
+                }
+            }
+        }
+        
+        answers[currentQ] = isCorrect;
+        sendStat(isCorrect ? 'ok' : 'nok');
+        
+        const fb = document.getElementById('fb');
+        fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
+        
+        if (isCorrect) {
+            fb.innerHTML = '✓ ' + q.feedbackOk;
+            inputEl.style.borderColor = 'var(--correct)';
+            inputEl.style.color = 'var(--correct)';
+        } else {
+            fb.innerHTML = '✗ ' + (specificFeedback ? specificFeedback : q.feedbackNok);
+            inputEl.style.borderColor = 'var(--incorrect)';
+            inputEl.style.color = 'var(--incorrect)';
+        }
+        
+        if (!isSyncMode) document.getElementById('nextBtn').classList.add('show');
+        else document.getElementById('syncWaitMsg').style.display = 'block';
+    };
+
     function selectMC(el, val) {
         if (answers[currentQ] !== undefined) return;
         const q = questions[currentQ];
@@ -778,6 +936,18 @@ const questions = [
                 </div>
 
                 <h3 style="margin-bottom:1rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">Glosfrågor (${questions.length} st)</h3>
+                <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                    <input type="text" id="teacherSearch" placeholder="🔍 Sök efter ord, svar eller begrepp..." onkeyup="filterQuestions()" style="flex:1; padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-size:1rem; outline:none;">
+                    <select id="teacherFilterType" onchange="filterQuestions()" style="padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-size:1rem; outline:none;">
+                        <option value="all">Alla typer</option>
+                        <option value="multiple-choice">Flerval</option>
+                        <option value="lucktext">Lucktext</option>
+                        <option value="match">Matchning</option>
+                        <option value="categorize">Kategorisering</option>
+                        <option value="freetext">Fritext</option>
+                    </select>
+                </div>
+
                 <div style="max-height: 450px; overflow-y: auto; padding-right:1rem; display:flex; flex-direction:column; gap:1rem;">
                     ${questions.map((q, i) => {
                         let statsHTML = '';
@@ -787,6 +957,11 @@ const questions = [
                         if(q.type === 'multiple-choice' || q.type === 'lucktext') {
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
                                 q.options.map(o => `<div style="${o.letter === q.correct ? 'color:#a7f3d0; font-weight:bold;' : ''}">${o.letter === q.correct ? '✅' : '⬜'} ${o.letter}: ${o.text}</div>`).join('') + `</div>`;
+                        } else if(q.type === 'freetext') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">
+                                <div><strong>✅ Rätt:</strong> ${q.correctAnswers.join(', ')}</div>
+                                ${q.specificErrors.map(e => `<div style="color:#fca5a5; margin-top:0.3rem;"><strong>❌ Vid '${e.trigger.join('/')}':</strong> ${e.feedback}</div>`).join('')}
+                            </div>`;
                         } else if(q.type === 'match') {
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
                                 q.pairs.map(p => `<div>🔗 <strong style="color:#d1d5db;">${p.left}</strong> ➔ ${p.right}</div>`).join('') + `</div>`;
@@ -809,7 +984,7 @@ const questions = [
                         }
 
                         return `
-                        <div class="opt" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
+                        <div id="t-card-${i}" class="opt teacher-q-card" data-qtype="${q.type}" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
                             <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
                             ${previewHTML}
@@ -880,6 +1055,29 @@ const questions = [
         statsInterval = setInterval(() => pollStats(idx), 2000);
     };
     window.pushQuestion = async function(idx) { await setGlobalQ(idx); };
+
+    window.filterQuestions = function() {
+        const query = document.getElementById('teacherSearch').value.toLowerCase();
+        const typeFilter = document.getElementById('teacherFilterType').value;
+        
+        for (let i = 0; i < questions.length; i++) {
+            const card = document.getElementById('t-card-' + i);
+            if (!card) continue;
+            
+            const q = questions[i];
+            let isMatch = true;
+            
+            if (typeFilter !== 'all' && q.type !== typeFilter) isMatch = false;
+            
+            if (query !== '') {
+                const searchStr = JSON.stringify(q).toLowerCase(); // Ghetto but effective full-text search on question object
+                if (!searchStr.includes(query)) isMatch = false;
+            }
+            
+            card.style.display = isMatch ? 'flex' : 'none';
+        }
+    };
+
 
     renderIntro();
     </script>
