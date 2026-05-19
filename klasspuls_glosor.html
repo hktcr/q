@@ -484,7 +484,8 @@ const questions = [
             const text = await res.text();
             if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '', sessionId: '' };
             const parts = text.replace(/"/g, '').trim().split('_');
-            let result = { q: parseInt(parts[0]) || -1, msgColor: 'none', msgText: '', sessionId: '' };
+            let parsedQ = parseInt(parts[0]);
+            let result = { q: isNaN(parsedQ) ? -1 : parsedQ, msgColor: 'none', msgText: '', sessionId: '' };
             if(parts.length >= 4) {
                 result.msgColor = parts[2];
                 if(parts[3] !== 'none') result.msgText = hexToStr(parts[3]);
