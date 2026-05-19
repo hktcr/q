@@ -269,45 +269,55 @@
         } catch(e) { console.warn("Stat sync failed", e); } // Graceful degradation
     }
 
-    const questions = [
+const questions = [
         { 
             num: 1, 
             type: "lucktext", 
-            text: "Ekologi (oikos + logos) betyder ordagrant 'Läran om <span class='blank'></span>'.", 
-            options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Miljögifterna"}], 
-            correct: "B", 
-            feedbackOk: "Exakt! 'Oikos' är grekiska för hus. Vi studerar hur alla varelser samspelar i vårt gemensamma hem.", 
-            feedbackNok: "Huset (Jorden) är svaret. 'Oikos' är grekiska för hus. Vi studerar hela det gemensamma hemmet, inte bara djuren." 
+            text: "Ordet ekologi kommer från grekiskans 'Oikos' (hus) och 'logos' (läran om). Ekologi betyder alltså läran om <span class='blank'></span>.", 
+            correct: "huset", 
+            feedbackOk: "Exakt! Jorden är vårt gemensamma hus. Läs mer på s. 1 i häftet '14. Ekologi'.", 
+            feedbackNok: "Ledtråd: Tänk på ordet 'Oikos'. Vi bor alla på Jorden, som är vårt gemensamma... vadå? Kolla s. 1 i häftet!" 
         },
         { 
             num: 2, 
             type: "categorize", 
-            text: "Kategorisera faktorerna! Vad är levande och icke-levande i ekosystemet?", 
-            categories: ["Biotiska faktorer", "Abiotiska faktorer"], 
-            items: [{word: "Temperatur", cat: 1}, {word: "Rovdjur", cat: 0}, {word: "Nederbörd", cat: 1}, {word: "Nedbrytare", cat: 0}], 
-            feedbackOk: "Klockrent! 'A-' betyder 'icke', så abiotisk är solljus, regn och grus. Biotiskt är allt som lever.", 
-            feedbackNok: "Tips: 'A-' framför ett ord betyder 'icke'. Abiotisk = Icke-levande (regn, sten, temperatur). Biotisk = Levande djur och växter." 
+            text: "Sortera faktorerna i rätt ekologisk hink!", 
+            categories: ["Abiotisk (Icke-levande)", "Biotisk (Levande)"], 
+            items: [
+                {label: "Solljus", cat: "Abiotisk (Icke-levande)"},
+                {label: "Temperatur", cat: "Abiotisk (Icke-levande)"},
+                {label: "Rovdjur", cat: "Biotisk (Levande)"},
+                {label: "Bakterier", cat: "Biotisk (Levande)"},
+                {label: "Vind", cat: "Abiotisk (Icke-levande)"}
+            ], 
+            feedbackOk: "Klockrent! A- betyder 'icke' (abiotisk = icke-levande). Dessa faktorer styr tillsammans ekosystemet (se s. 1-2 i häftet).", 
+            feedbackNok: "Minnesregel: Sätt ett A framför så betyder det 'icke'. Abiotisk = Icke-levande. Kolla s. 1 i häftet!" 
         },
         { 
             num: 3, 
             type: "match", 
-            text: "Koppla ihop rätt nivå i ekosystemet med rätt definition!", 
+            text: "Koppla ihop rätt nivå i ekosystemet!", 
             pairs: [
-                {left: "Biotop", right: "Naturtypen, t.ex. en lövskog"}, 
-                {left: "Population", right: "Alla individer av EN art i området"}, 
-                {left: "Samhälle", right: "ALLA olika arter som lever där"}
+                {left: "Biotop", right: "Själva naturtypen (t.ex. en stubbe eller granskog)"}, 
+                {left: "Population", right: "Alla individer av SAMMA art i ett område"}, 
+                {left: "Samhälle", right: "Alla OLIKA arter som lever tillsammans"}
             ], 
-            feedbackOk: "Snyggt! Biotopen är platsen, populationen är räven, samhället är räven + haren + träden tillsammans.", 
-            feedbackNok: "Repetera detta: Biotop = Platsen/Miljön. Population = Flocken (En art). Samhälle = Hela gänget (Alla arter)." 
+            feedbackOk: "Snyggt! Kom ihåg: Ett ekosystem = Samhället + Miljön (Biotopen). Repetera gärna detta på s. 1-2 i häftet.", 
+            feedbackNok: "Ledtråd: Ordet population betyder 'befolkning' (bara en art). Ett samhälle är när FLERA arter lever ihop (s. 1-2 i häftet)." 
         },
         { 
             num: 4, 
             type: "multiple-choice", 
-            text: "Vad är skillnaden på en Näringskedja och en Näringsväv?", 
-            options: [{letter: "A", text: "Näringskedjan saknar producenter, men väven har dem."}, {letter: "B", text: "Det är två ord för exakt samma sak."}, {letter: "C", text: "En näringsväv är mer komplex och består av flera sammanflätade näringskedjor."}, {letter: "D", text: "Näringsvävar visar bara abiotiska faktorer."}], 
-            correct: "C", 
-            feedbackOk: "Rätt! Verkligheten är nästan alltid en väv. En räv äter ju inte *bara* sork, den äter bär och fåglar också.", 
-            feedbackNok: "Rätt svar är C. En näringsväv är flera kedjor som korsar varandra, eftersom djur ofta har en varierad diet." 
+            text: "Vad är skillnaden mellan en näringskedja och en näringsväv?", 
+            options: [
+                {letter: "A", text: "En näringskedja har flera toppkonsumenter, en väv har bara en."}, 
+                {letter: "B", text: "En näringsväv är flera korsande näringskedjor som sitter ihop."}, 
+                {letter: "C", text: "Näringsvävar finns bara i havet, näringskedjor på land."}, 
+                {letter: "D", text: "Det är exakt samma sak."}
+            ], 
+            correct: "B", 
+            feedbackOk: "Helt rätt! I naturen är det sällan raka rör. En räv kan äta både möss, bär och harar. (Läs mer på s. 8-9 i häftet).", 
+            feedbackNok: "Tänk på ordet 'väv' (som en spindelväv med många korsande trådar). I naturen äter ju rovdjur flera olika saker. Kolla bilderna på s. 9!" 
         },
         { 
             num: 5, 
@@ -318,49 +328,62 @@
                 {left: "Konsument", right: "Måste äta andra för att få energi"}, 
                 {left: "Toppkonsument", right: "Saknar naturliga fiender"}
             ], 
-            feedbackOk: "Helt rätt! Producenten (växten) skapar basen, konsumenterna äter den, och toppkonsumenten regerar högst upp.", 
-            feedbackNok: "Minnesregel: 'Producera' = tillverka egen mat (växter). 'Konsumera' = äta upp." 
+            feedbackOk: "Helt rätt! Producenten (växten) skapar basen, konsumenterna äter den, och toppkonsumenten regerar högst upp. Läs mer på s. 8.", 
+            feedbackNok: "Minnesregel: 'Producera' = tillverka egen mat (växter). 'Konsumera' = äta upp (djur). Kolla s. 8 i häftet!" 
         },
         { 
             num: 6, 
             type: "lucktext", 
-            text: "Svampar, bakterier och daggmaskar kallas för <span class='blank'></span>. De sluter kretsloppet genom att bryta ner dött material.", 
-            options: [{letter: "A", text: "Toppkonsumenter"}, {letter: "B", text: "Nedbrytare"}, {letter: "C", text: "Producenter"}, {letter: "D", text: "Parasiter"}], 
-            correct: "B", 
-            feedbackOk: "Visst är det så! Utan nedbrytarna skulle jorden vara täckt av döda träd och löv. De återför näringen till jorden.", 
-            feedbackNok: "Svaret är Nedbrytare. De är naturens städpatrull som ser till att kretsloppet kan fortsätta." 
+            text: "Utan <span class='blank'></span> (svampar & bakterier) skulle kretsloppet stanna av. De städar upp döda växter och djur så näringen kan användas igen.", 
+            correct: "nedbrytare", 
+            feedbackOk: "Snyggt! Nedbrytarna är naturens återvinningsstation. Viktigt för kolets kretslopp (se s. 7 i häftet).", 
+            feedbackNok: "Vilka är det som bryter ner dött material i naturen (maskar, svampar...)? Ordet börjar på N. Kolla s. 7 i häftet!" 
         },
         { 
             num: 7, 
             type: "categorize", 
-            text: "Hur fungerar Symbios? Sortera begreppen rätt!", 
-            categories: ["Tävlar om resurser", "Ett nära samliv mellan arter"], 
-            items: [{word: "Konkurrens", cat: 0}, {word: "Mutualism", cat: 1}, {word: "Parasitism", cat: 1}], 
-            feedbackOk: "Exakt! Symbios betyder samliv - oavsett om det är positivt (mutualism) eller negativt för en (parasitism). Konkurrens är ren tävling.", 
-            feedbackNok: "Symbios = Samliv. Även fästingen som suger blod (parasitism) lever i symbios, även om det är taskigt. Konkurrens är när två arter bråkar om maten." 
+            text: "Kategorisera vilket typ av samspel (symbios) det är!", 
+            categories: ["Mutualism (+/+)", "Parasitism (+/-)"], 
+            items: [
+                {label: "Mykorrhiza (Svamp+Träd)", cat: "Mutualism (+/+)"},
+                {label: "Tarmbakterier i oss", cat: "Mutualism (+/+)"},
+                {label: "Fästing på en hund", cat: "Parasitism (+/-)"},
+                {label: "Bandmask", cat: "Parasitism (+/-)"}
+            ], 
+            feedbackOk: "Korrekt! Mutualism gynnar båda (ömsesidigt), medan parasiten stjäl energi. Bra minne från genomgången (och anteckningarna)!", 
+            feedbackNok: "Ledtråd: En parasit är någon som tar utan att ge (+/-). Mutualism betyder 'ömsesidig' — båda vinner (+/+). Kolla dina egna anteckningar!" 
         },
         { 
             num: 8, 
             type: "multiple-choice", 
             text: "Vad menas med en arts 'Ekologiska Nisch'?", 
-            options: [{letter: "A", text: "Ett litet hål i marken där arten sover."}, {letter: "B", text: "Artens 'yrke' – exakt vad den äter och vilken miljö den kräver."}, {letter: "C", text: "Antalet ungar en art får varje år."}, {letter: "D", text: "När en art byter färg på vintern."}], 
-            correct: "B", 
-            feedbackOk: "Rätt! Om två arter har *exakt* samma ekologiska nisch blir det extrem konkurrens tills en flyttar eller dör ut.", 
-            feedbackNok: "Svaret är B (Artens yrke). Nischen beskriver hur arten passar in i pusslet. Vem den äter, när den jagar och var den bygger bo." 
+            options: [
+                {letter: "A", text: "Platsen där den bygger sitt bo."}, 
+                {letter: "B", text: "Den typ av miljö (biotop) den lever i."}, 
+                {letter: "C", text: "Artens 'yrke' och specialisering i ekosystemet."}, 
+                {letter: "D", text: "Hur många ungar den får per år."}
+            ], 
+            correct: "C", 
+            feedbackOk: "Rätt! Genom att ha olika 'yrken' (nischer) slipper arterna konkurrera med varandra. Tänk på Talgoxen och Blåmesen från lektionen!", 
+            feedbackNok: "Tänk på exemplet med Talgoxen och Blåmesen som letar insekter på olika tjocka grenar. De har olika 'yrken' för att slippa konkurrera." 
         },
         { 
             num: 9, 
             type: "categorize", 
-            text: "Vad händer med miljögifter (t.ex. DDT/PCB) i Näringspyramiden? Sortera halterna!", 
-            categories: ["Låg halt av gift", "Hög halt av gift (Bioackumulation)"], 
-            items: [{word: "Växtplankton", cat: 0}, {word: "Djurplankton", cat: 0}, {word: "Säl", cat: 1}, {word: "Isbjörn", cat: 1}], 
-            feedbackOk: "Bra! Miljögiftet lagras i fettet och anrikas (bioackumuleras). Toppkonsumenten får i sig giftet från ALLA som den har ätit.", 
-            feedbackNok: "Regeln kallas bioackumulation: Giftet anrikas på vägen upp. Den som är högst upp i pyramiden (Isbjörnen) får störst koncentration i kroppen." 
+            text: "Bioackumulation innebär att miljögifter koncentreras i pyramiden. Sortera var de har LÄGST resp. HÖGST koncentration av gift!", 
+            categories: ["Låg gifthalt (Botten)", "Hög gifthalt (Toppen)"], 
+            items: [
+                {label: "Isbjörn / Toppkonsument", cat: "Hög gifthalt (Toppen)"},
+                {label: "Växtplankton / Producent", cat: "Låg gifthalt (Botten)"},
+                {label: "Havsörn", cat: "Hög gifthalt (Toppen)"},
+                {label: "Gräs", cat: "Låg gifthalt (Botten)"}
+            ], 
+            feedbackOk: "Mycket bra! Gifter förbränns inte, de lagras i fettet. Därför drabbas rovdjuren längst upp värst. Repetera detta från H.Pod #3 och utdelat papper!", 
+            feedbackNok: "Minnesregel: Eftersom rovdjuret måste äta MÅNGA byten, samlas (ackumuleras) alla bytenas gifter i ETT rovdjur. Kolla H.Pod #3!" 
         },
         { 
             num: 10, 
             type: "lucktext", 
-            text: "Ett <span class='blank'></span> innebär att livsviktiga atomer (som kol och vatten) aldrig försvinner, utan används om och om igen i naturen.", 
             options: [{letter: "A", text: "Samhälle"}, {letter: "B", text: "Kretslopp"}, {letter: "C", text: "Ekosystem"}, {letter: "D", text: "Biotop"}], 
             correct: "B", 
             feedbackOk: "Snyggt jobbat! Energin strömmar (sol till värme), men atomerna går alltid i ett kretslopp.", 
@@ -702,9 +725,7 @@
                         <div class="opt" style="flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
                             <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga \${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(\${q.type})</span></span></div>
                             <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">\${q.text.replace('<span class=\\'blank\\'></span>', '_____')}</div>
-                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
-                            <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
-                            ${statsHTML}
+                            \${statsHTML}
                             <button id="t-btn-${i}" onclick="manualPush(${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
                         </div>
                     `}).join('')}
