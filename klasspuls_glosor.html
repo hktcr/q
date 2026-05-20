@@ -1308,7 +1308,7 @@ const questions = [
         
         for(let k of keys) {
             try {
-                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}`, { cache: 'no-store' });
+                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}/`, { cache: 'no-store' });
                 const statEl = document.getElementById(`stat_${idx}_${k}`);
                 if (res.ok) {
                     const data = await res.json();
