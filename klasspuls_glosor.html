@@ -292,6 +292,25 @@
     const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
     let currentSessionId = Date.now().toString();
 
+    // Levenshtein distance algorithm for spell-checking
+    function levenshtein(a, b) {
+        if(a.length === 0) return b.length;
+        if(b.length === 0) return a.length;
+        var matrix = [];
+        for(var i = 0; i <= b.length; i++){ matrix[i] = [i]; }
+        for(var j = 0; j <= a.length; j++){ matrix[0][j] = j; }
+        for(var i = 1; i <= b.length; i++){
+            for(var j = 1; j <= a.length; j++){
+                if(b.charAt(i-1) == a.charAt(j-1)){
+                    matrix[i][j] = matrix[i-1][j-1];
+                } else {
+                    matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
     // --- TWO-WAY STATS API ---
     async function sendStat(type) {
         if(isTeacher) return;
@@ -823,25 +842,44 @@ const questions = [
         inputEl.disabled = true;
         
         let isCorrect = false;
+        let isClose = false;
+        let bestMatch = "";
         
-        if (q.correctAnswers.some(c => c.toLowerCase() === ans)) {
-            isCorrect = true;
+        for (let c of q.correctAnswers) {
+            let dist = levenshtein(c.toLowerCase(), ans);
+            if (dist === 0) {
+                isCorrect = true; break;
+            } else if (dist <= 2 && ans.length >= 4) {
+                isClose = true; bestMatch = c;
+            }
         }
         
-        answers[currentQ] = isCorrect;
-        sendStat(isCorrect ? 'ok' : 'nok');
+        answers[currentQ] = isCorrect || isClose;
+        let statType = isCorrect ? 'ok' : (isClose ? 'close' : 'nok');
+        sendStat(statType);
         
         const fb = document.getElementById('fb');
-        fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
+        fb.style.backgroundColor = '';
         
         if (isCorrect) {
-            fb.innerHTML = '✓ ' + q.feedbackOk; if(navigator.vibrate) navigator.vibrate([100]); if(navigator.vibrate) navigator.vibrate([100]);
-            inputEl.style.borderColor = 'var(--correct)'; if(navigator.vibrate) navigator.vibrate([100]);
+            fb.className = 'feedback show ok';
+            fb.innerHTML = '✓ ' + q.feedbackOk; 
+            inputEl.style.borderColor = 'var(--correct)'; 
             inputEl.style.color = 'var(--correct)';
+            if(navigator.vibrate) navigator.vibrate([100]);
+        } else if (isClose) {
+            fb.className = 'feedback show ok'; 
+            fb.style.backgroundColor = '#d97706'; // Orange-ish for typo
+            fb.innerHTML = `⚠️ Rätt tänkt, men tänk på stavningen! (Rätt stavas: <strong>${bestMatch}</strong>).<br><br>${q.feedbackOk}`;
+            inputEl.style.borderColor = '#d97706';
+            inputEl.style.color = '#d97706';
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
         } else {
-            fb.innerHTML = '✗ ' + q.feedbackNok; if(navigator.vibrate) navigator.vibrate([50,100,50]);
-            inputEl.style.borderColor = 'var(--incorrect)'; if(navigator.vibrate) navigator.vibrate([50,100,50]);
+            fb.className = 'feedback show nok';
+            fb.innerHTML = '✗ ' + q.feedbackNok; 
+            inputEl.style.borderColor = 'var(--incorrect)'; 
             inputEl.style.color = 'var(--incorrect)';
+            if(navigator.vibrate) navigator.vibrate([50,100,50]);
         }
         
         if (!isSyncMode) document.getElementById('nextBtn').classList.add('show');
@@ -1045,6 +1083,13 @@ const questions = [
                                 <button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button>
                                 ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
                             </div>`;
+                        } else if(q.type === 'lucktext') {
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
+                                <button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button>
+                                <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_${i}_ok">0</strong></div>
+                                <div style="background:rgba(217,119,6,0.2); color:#fcd34d; padding:0.4rem 0.8rem; border-radius:6px;">Stavfel: <strong id="stat_${i}_close">0</strong></div>
+                                <div style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:0.4rem 0.8rem; border-radius:6px;">Fel: <strong id="stat_${i}_nok">0</strong></div>
+                            </div>`;
                         } else {
                             statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
                                 <button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button>
@@ -1077,7 +1122,14 @@ const questions = [
 
     window.pollStats = async function(idx) {
         const q = questions[idx];
-        const keys = (q.type === 'multiple-choice') ? ['opt_A', 'opt_B', 'opt_C', 'opt_D'] : ['ok', 'nok'];
+        let keys = [];
+        if (q.type === 'multiple-choice') {
+            keys = ['opt_A', 'opt_B', 'opt_C', 'opt_D'];
+        } else if (q.type === 'lucktext') {
+            keys = ['ok', 'close', 'nok'];
+        } else {
+            keys = ['ok', 'nok'];
+        }
         
         for(let k of keys) {
             try {
