@@ -1232,13 +1232,13 @@ const questions = [
                         // Generate Live Stats UI
                         if(q.type === 'multiple-choice') {
                             statsHTML = `
-                            <div style="margin-bottom:0.5rem;"><button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button></div>
+                            <div style="margin-bottom:0.5rem;"><button onclick="pollStats(${i}, this)" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold; transition:all 0.2s;">Hämta Svar</button></div>
                             <div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
                                 ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
                             </div>`;
                         } else if(q.type === 'lucktext') {
                             statsHTML = `
-                            <div style="margin-bottom:0.5rem;"><button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button></div>
+                            <div style="margin-bottom:0.5rem;"><button onclick="pollStats(${i}, this)" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold; transition:all 0.2s;">Hämta Svar</button></div>
                             <div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
                                 <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_${i}_ok">0</strong></div>
                                 <div style="background:rgba(217,119,6,0.2); color:#fcd34d; padding:0.4rem 0.8rem; border-radius:6px;">Stavfel: <strong id="stat_${i}_close">0</strong></div>
@@ -1246,7 +1246,7 @@ const questions = [
                             </div>`;
                         } else {
                             statsHTML = `
-                            <div style="margin-bottom:0.5rem;"><button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button></div>
+                            <div style="margin-bottom:0.5rem;"><button onclick="pollStats(${i}, this)" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold; transition:all 0.2s;">Hämta Svar</button></div>
                             <div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
                                 <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_${i}_ok">0</strong></div>
                                 <div style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:0.4rem 0.8rem; border-radius:6px;">Fel: <strong id="stat_${i}_nok">0</strong></div>
@@ -1275,7 +1275,14 @@ const questions = [
             </div>`;
     }
 
-    window.pollStats = async function(idx) {
+    window.pollStats = async function(idx, btnEl) {
+        if (btnEl) {
+            btnEl.dataset.originalText = btnEl.textContent;
+            btnEl.textContent = "Hämtar...";
+            btnEl.style.opacity = "0.7";
+            btnEl.disabled = true;
+        }
+
         const q = questions[idx];
         let keys = [];
         if (q.type === 'multiple-choice') {
@@ -1289,10 +1296,25 @@ const questions = [
         for(let k of keys) {
             try {
                 const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}`, { cache: 'no-store' });
-                const data = await res.json();
                 const statEl = document.getElementById(`stat_${idx}_${k}`);
-                if(statEl) statEl.textContent = data.count || 0;
-            } catch(e) {}
+                if (res.ok) {
+                    const data = await res.json();
+                    if(statEl) statEl.textContent = data.count || 0;
+                } else {
+                    if(statEl) statEl.textContent = 0;
+                }
+            } catch(e) {
+                console.warn("Could not fetch stat", e);
+            }
+        }
+        
+        if (btnEl) {
+            btnEl.textContent = "Hämtat!";
+            btnEl.style.opacity = "1";
+            setTimeout(() => {
+                btnEl.textContent = btnEl.dataset.originalText || "Hämta Svar";
+                btnEl.disabled = false;
+            }, 1000);
         }
     }
 
