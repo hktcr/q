@@ -304,8 +304,8 @@ const questions = [
         { 
             num: 1, 
             type: "multiple-choice", 
-            text: "Ordet ekologi kommer från grekiskans \"Oikos\" (hus) och \"logos\" (läran om). Ekologi betyder alltså läran om <span class='blank'></span>.", 
-            options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Rymden"}],
+            text: "Ordet ekologi kommer från de grekiska orden \"Oikos\" och \"logos\". Vad betyder ordet egentligen?", 
+            options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Läran om huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Rymden"}],
             correct: "B", 
             feedbackOk: "Exakt! Jorden är vårt gemensamma hus. Läs mer under rubriken \"Vad är ekologi?\" i häftet.", 
             feedbackNok: "Fel svar. Rätt svar är Huset (Jorden). Tänk på ordet 'Oikos'. Vi bor alla på Jorden, som är vårt gemensamma hus. Kolla under rubriken \"Vad är ekologi?\" i häftet." 
@@ -314,7 +314,7 @@ const questions = [
             num: 2, 
             type: "categorize", 
             text: "Kategorisera miljöfaktorerna nedan!", 
-            categories: ["Abiotisk (Icke-levande)", "Biotisk (Levande)"], 
+            categories: ["Abiotiska faktorer", "Biotiska faktorer"], 
             items: [
                 {word: "Solljus", cat: 0},
                 {word: "Temperatur", cat: 0},
@@ -376,7 +376,7 @@ const questions = [
             num: 7, 
             type: "categorize", 
             text: "Kategorisera vilket typ av samspel (symbios) det är!", 
-            categories: ["Mutualism (+/+)", "Parasitism (+/-)"], 
+            categories: ["Mutualism", "Parasitism"], 
             items: [
                 {word: "Mykorrhiza (Svamp+Träd)", cat: 0},
                 {word: "Tarmbakterier i oss", cat: 0},
@@ -428,9 +428,9 @@ const questions = [
             type: "match", 
             text: "Vi dök ju ner i \"Symbios\" (samliv). Koppla rätt begrepp till förklaringen!", 
             pairs: [
-                {left: "Mutualism (+/+)", right: "Båda arterna vinner på det (t.ex. lav = alg + svamp)"}, 
-                {left: "Kommensalism (+/0)", right: "Ena vinner, den andra bryr sig inte (t.ex. havstulpan på val)"}, 
-                {left: "Parasitism (+/-)", right: "Ena vinner, den andra skadas (t.ex. fästing på hund)"}
+                {left: "Mutualism", right: "Båda arterna vinner på det (t.ex. lav = alg + svamp)"}, 
+                {left: "Kommensalism", right: "Ena vinner, den andra bryr sig inte (t.ex. havstulpan på val)"}, 
+                {left: "Parasitism", right: "Ena vinner, den andra skadas (t.ex. fästing på hund)"}
             ], 
             feedbackOk: "Grymt! Mutualism (+/+), Kommensalism (+/0) och Parasitism (+/-). Repetera under rubriken \"Symbios\" i häftet.", 
             feedbackNok: "Något blev fel. Rätt är: Mutualism = båda vinner (+/+), Kommensalism = en vinner och den andra bryr sig inte (+/0), Parasitism = en skadas (+/-). Läs under \"Symbios\"." 
@@ -1047,7 +1047,7 @@ const questions = [
             </div>`;
     }
 
-    async function pollStats(idx) {
+    window.pollStats = async function(idx) {
         const q = questions[idx];
         const keys = (q.type === 'multiple-choice') ? ['opt_A', 'opt_B', 'opt_C', 'opt_D'] : ['ok', 'nok'];
         
