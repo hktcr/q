@@ -767,7 +767,7 @@ const questions = [
                         ${q.categories.map((c, i) => `<div class="bucket" data-cat="${i}" onclick="selectBucket(this)"><div class="bucket-title">${c}</div></div>`).join('')}
                     </div>
                     <div class="cat-items">
-                        ${words.map(w => `<div class="chip" data-val="${w}" onclick="selectCatChip(this)">${w}</div>`).join('')}
+                        ${words.map(w => `<div class="chip" data-val="${w}" onclick="selectCatChip(this, event)">${w}</div>`).join('')}
                     </div>`;
             }
 
@@ -903,11 +903,19 @@ const questions = [
 
     /* --- CATEGORIZE UI LOGIC --- */
     let catSelected = null;
-    function selectCatChip(el) {
+    function selectCatChip(el, event) {
         if (answers[currentQ] !== undefined) return;
+        
+        if (catSelected && el.parentNode.classList.contains('bucket') && catSelected !== el) {
+            selectBucket(el.parentNode);
+            if (event) event.stopPropagation();
+            return;
+        }
+
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
         catSelected = el;
+        if (event) event.stopPropagation();
     }
     function selectBucket(el) {
         if (answers[currentQ] !== undefined || !catSelected) return;
