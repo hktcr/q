@@ -69,12 +69,12 @@
 
         /* === CARD === */
         .card {
-            width: 100%; max-width: 760px;
+            width: 96vw; max-width: 1400px;
             background: rgba(10, 15, 10, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 24px;
-            padding: clamp(1.5rem, 4vw, 3.5rem);
+            padding: clamp(1.5rem, 5vw, 5rem);
             box-shadow: 0 30px 80px rgba(0,0,0,0.6);
             transform: translateX(0); opacity: 1;
             transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
@@ -89,9 +89,9 @@
             font-weight: 800; margin-bottom: 0.75rem;
         }
         .q-text {
-            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+            font-size: clamp(1.2rem, 3.5vw, 2.5rem);
             font-weight: 600; line-height: 1.55;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
         .q-text .blank {
             display: inline-block;
@@ -104,12 +104,12 @@
         .options { display: flex; flex-direction: column; gap: 0.85rem; }
 
         .opt {
-            display: flex; align-items: center; gap: 1rem;
-            padding: 1.1rem 1.4rem;
+            display: flex; align-items: center; gap: 1.5rem;
+            padding: clamp(1.1rem, 2vw, 2.2rem) clamp(1.4rem, 2.5vw, 3rem);
             background: rgba(255,255,255,0.04);
             border: 2px solid rgba(255,255,255,0.08);
             border-radius: 14px; cursor: pointer;
-            font-size: clamp(1rem, 1.8vw, 1.15rem);
+            font-size: clamp(1.1rem, 2.2vw, 1.8rem);
             line-height: 1.45;
             transition: all 0.2s ease;
             -webkit-tap-highlight-color: transparent;
@@ -119,9 +119,9 @@
         .opt.selected { border-color: var(--primary); background: rgba(16,185,129,0.1); }
 
         .opt .letter {
-            flex-shrink: 0; width: 36px; height: 36px;
+            flex-shrink: 0; width: clamp(36px, 4vw, 55px); height: clamp(36px, 4vw, 55px);
             display: flex; align-items: center; justify-content: center;
-            border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+            border-radius: 10px; font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.4rem);
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.2s ease;
@@ -144,11 +144,12 @@
         .match-col-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem; text-align: center; }
         
         .match-item {
-            padding: 1rem;
+            padding: clamp(1rem, 2vw, 1.8rem);
             background: rgba(255,255,255,0.04);
             border: 2px solid rgba(255,255,255,0.1);
             border-radius: 12px; cursor: pointer;
             text-align: center; font-weight: 600;
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
             transition: all 0.2s ease;
             user-select: none;
         }
@@ -182,10 +183,11 @@
             min-height: 60px;
         }
         .chip {
-            padding: 0.8rem 1.5rem;
+            padding: clamp(0.8rem, 1.5vw, 1.5rem) clamp(1.5rem, 3vw, 2.5rem);
             background: rgba(255,255,255,0.08);
             border: 2px solid rgba(255,255,255,0.1);
             border-radius: 50px; font-weight: 600;
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
             cursor: pointer; transition: all 0.2s;
             user-select: none;
         }
