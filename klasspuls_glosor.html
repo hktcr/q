@@ -880,6 +880,16 @@ const questions = [
                         ${words.map(w => `<div class="chip" data-val="${w}" onclick="selectCatChip(this, event)">${w}</div>`).join('')}
                     </div>`;
             }
+            else if (q.type === 'image-label') {
+                visState = { placements: {} };
+                const labels = shuffle(q.labels);
+                contentHTML += `<div style="position:relative; width:100%; max-width:600px; margin:0 auto 2rem auto; display:flex; justify-content:center;">
+                    ${q.html}
+                </div>
+                <div class="cat-items">
+                    ${labels.map(l => `<div class="chip" data-val="${l}" onclick="selectVisLabel(this, event)">${l}</div>`).join('')}
+                </div>`;
+            }
 
             contentHTML += `
                 <div class="feedback" id="fb"></div>
@@ -1180,8 +1190,8 @@ const questions = [
                 
                 <h3 style="margin-top:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">🔗 Elevlänk</h3>
                 <div style="display:flex; gap:0.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; margin-bottom:1rem; align-items:center;">
-                    <input type="text" readonly value="hktcr.github.io/q/klasspuls_glosor.html" style="flex:1; padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.5); color:#a7f3d0; font-size:1.1rem; font-family:monospace; outline:none; cursor:text;" onclick="this.select()">
-                    <button onclick="navigator.clipboard.writeText('https://hktcr.github.io/q/klasspuls_glosor.html'); this.innerText='Kopierad! ✅'; setTimeout(() => this.innerText='Kopiera', 2000);" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem 1.5rem; border-radius:8px; font-weight:bold; cursor:pointer; white-space:nowrap;">Kopiera</button>
+                    <input type="text" readonly value="hktcr.github.io/q/klasspuls_glosor.html?sync=1" style="flex:1; padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.5); color:#a7f3d0; font-size:1.1rem; font-family:monospace; outline:none; cursor:text;" onclick="this.select()">
+                    <button onclick="navigator.clipboard.writeText('https://hktcr.github.io/q/klasspuls_glosor.html?sync=1'); this.innerText='Kopierad! ✅'; setTimeout(() => this.innerText='Kopiera', 2000);" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem 1.5rem; border-radius:8px; font-weight:bold; cursor:pointer; white-space:nowrap;">Kopiera</button>
                 </div>
 
                 <h3 style="margin-top:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">📣 Klassrumsstyrning (Skärmövertagande)</h3>
@@ -1227,6 +1237,9 @@ const questions = [
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
                                 `<div style="margin-bottom:0.3rem;"><strong style="color:#d1d5db;">Kategorier:</strong> ${q.categories.join(' vs ')}</div>` +
                                 q.items.map(item => `<div>• ${item.word} ➔ <em style="color:#a7f3d0;">${q.categories[item.cat]}</em></div>`).join('') + `</div>`;
+                        } else if(q.type === 'image-label') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                `<div><strong>✅ Element:</strong> ${q.labels.join(', ')}</div></div>`;
                         }
 
                         // Generate Live Stats UI
