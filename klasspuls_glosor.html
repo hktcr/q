@@ -163,6 +163,33 @@
         .matched-2 { border-color: #8b5cf6 !important; background: rgba(139, 92, 246, 0.15) !important; color: #c4b5fd; }
         .matched-3 { border-color: #10b981 !important; background: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7; }
 
+        /* === LUCKTEXT UI === */
+        .luck-input {
+            width: clamp(160px, 20vw, 220px); 
+            padding: 0.2rem 0.5rem; 
+            font-size: inherit; 
+            text-align: center; 
+            border-radius: 8px; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            background: rgba(0,0,0,0.4); 
+            color: var(--gold); 
+            font-weight: bold; 
+            outline: none; 
+            display: inline-block; 
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .luck-input:placeholder-shown {
+            border-color: var(--gold);
+            background: rgba(245, 158, 11, 0.1);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+        }
+        .luck-input:focus {
+            border-color: var(--gold);
+            background: rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
         /* === CATEGORIZE UI === */
         .cat-buckets { display: flex; gap: 1rem; margin-bottom: 2rem; }
         @media(max-width: 600px) { .cat-buckets { flex-direction: column; } }
@@ -703,7 +730,7 @@ const questions = [
 
             let qTextHTML = q.text;
             if (q.type === 'lucktext') {
-                qTextHTML = qTextHTML.replace("<span class='blank'></span>", `<input type="text" id="freetextInput" placeholder="skriv här..." style="width:160px; padding:0.2rem 0.5rem; font-size:inherit; text-align:center; border-radius:8px; border:2px dashed rgba(255,255,255,0.4); background:rgba(0,0,0,0.4); color:var(--gold); font-weight:bold; outline:none; display:inline-block; margin:0 0.5rem;" autocomplete="off" onkeydown="if(event.key==='Enter') submitFreetext()">`);
+                qTextHTML = qTextHTML.replace("<span class='blank'></span>", `<input type="text" id="freetextInput" class="luck-input" placeholder="skriv här..." autocomplete="off" onkeydown="if(event.key==='Enter') submitFreetext()">`);
             }
             let contentHTML = `<div class="q-number">${!isSyncMode ? `Fråga ${idx + 1} av ${questions.length}` : `Fråga ${q.num}`}</div>
                                <div class="q-text" style="line-height:1.6;">${qTextHTML}</div>
