@@ -322,6 +322,13 @@ const questions = [
                 {word: "Bakterier", cat: 1},
                 {word: "Vind", cat: 0}
             ], 
+            specificErrors: {
+                "Solljus": "Du lade Solljus som levande, men solljus lever ju inte! Det är abiotiskt.",
+                "Temperatur": "Temperatur lever inte och saknar celler, alltså är det abiotiskt.",
+                "Rovdjur": "Rovdjur är i allra högsta grad levande djur (biotiska)!",
+                "Bakterier": "Ett vanligt misstag! Bakterier är levande organismer (biotiska) och förökar sig.",
+                "Vind": "Vind är bara luft i rörelse, det lever inte. Alltså abiotiskt!"
+            },
             feedbackOk: "Klockrent! A- betyder \"icke\" (abiotisk = icke-levande). Dessa faktorer styr tillsammans ekosystemet (se s. 1-2 i häftet).", 
             feedbackNok: "Minnesregel: Sätt ett A framför så betyder det \"icke\". Abiotisk = Icke-levande. Kolla s. 1-2 i häftet!" 
         },
@@ -383,6 +390,12 @@ const questions = [
                 {word: "Fästing på en hund", cat: 1},
                 {word: "Bandmask", cat: 1}
             ], 
+            specificErrors: {
+                "Mykorrhiza (Svamp+Träd)": "Mykorrhiza är mutualism! Svampen får socker, trädet får vatten. Båda vinner (+/+).",
+                "Tarmbakterier i oss": "Våra tarmbakterier är mutualism! De får mat av oss, och vi får vitaminer och skydd (+/+).",
+                "Fästing på en hund": "Fästingen suger blod (vinner) men hunden förlorar på det. Alltså parasitism (+/-).",
+                "Bandmask": "Bandmasken stjäl näring inuti kroppen, vilket skadar värddjuret. Parasitism (+/-)!"
+            },
             feedbackOk: "Korrekt! Mutualism gynnar båda (ömsesidigt), medan parasiten stjäl energi. Bra minne! Repetera symbiosbegreppen i häftet / anteckningarna.", 
             feedbackNok: "Ledtråd: En parasit är någon som tar utan att ge (+/-). Mutualism betyder \"ömsesidig\" — båda vinner (+/+). Kolla symbiosavsnittet i häftet!" 
         },
@@ -411,6 +424,12 @@ const questions = [
                 {word: "Havsörn", cat: 1},
                 {word: "Gräs", cat: 0}
             ], 
+            specificErrors: {
+                "Isbjörn / Toppkonsument": "Isbjörnen är högst upp i näringskedjan! Gifter från alla byten lagras och blir som allra högst här.",
+                "Växtplankton / Producent": "Växtplankton är i botten! De tar upp lite gift ur vattnet, så halten är låg här.",
+                "Havsörn": "Havsörnen är en toppkonsument! Den äter fisk som ätit fisk... gifthalten blir jättehög i toppen.",
+                "Gräs": "Gräs är en producent (i botten). Gifthalten är väldigt låg här innan den hinner ackumuleras."
+            },
             feedbackOk: "Mycket bra! Gifter förbränns inte, de lagras i fettet. Därför drabbas rovdjuren längst upp värst. Repetera detta från H.Pod #3 och häftet!", 
             feedbackNok: "Minnesregel: Eftersom rovdjuret måste äta MÅNGA byten, samlas (ackumuleras) alla bytenas gifter i ETT rovdjur. Kolla H.Pod #3 och häftet!" 
         },
@@ -787,7 +806,7 @@ const questions = [
         }, 300);
     }
 
-    function evaluateAnswer(isCorrect) {
+    function evaluateAnswer(isCorrect, customFeedback = null) {
         answers[currentQ] = isCorrect;
         const q = questions[currentQ];
         
@@ -797,7 +816,7 @@ const questions = [
 
         const fb = document.getElementById('fb');
         fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
-        fb.innerHTML = isCorrect ? '✓ ' + q.feedbackOk : '✗ ' + q.feedbackNok;
+        fb.innerHTML = isCorrect ? '✓ ' + q.feedbackOk : '✗ ' + (customFeedback || q.feedbackNok);
         
         if (isCorrect && navigator.vibrate) navigator.vibrate([100]);
         else if (!isCorrect && navigator.vibrate) navigator.vibrate([50, 100, 50]);
@@ -927,11 +946,17 @@ const questions = [
         const q = questions[currentQ];
         if (Object.keys(catState.placements).length === q.items.length) {
             let allCorrect = true;
+            let customFeedback = null;
             for (let word in catState.placements) {
                 const item = q.items.find(i => i.word === word);
-                if (!item || item.cat !== catState.placements[word]) allCorrect = false;
+                if (!item || item.cat !== catState.placements[word]) {
+                    allCorrect = false;
+                    if (!customFeedback && q.specificErrors && q.specificErrors[word]) {
+                        customFeedback = q.specificErrors[word];
+                    }
+                }
             }
-            evaluateAnswer(allCorrect);
+            evaluateAnswer(allCorrect, customFeedback);
         }
     }
 
