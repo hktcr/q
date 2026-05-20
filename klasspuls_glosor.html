@@ -606,7 +606,7 @@ const questions = [
                 if(parts[3] !== 'none') result.msgText = hexToStr(parts[3]);
             }
             if(parts.length >= 5) {
-                result.sessionId = parts[4];
+                result.sessionId = parts.slice(4).join('_');
             }
             return result;
         } catch(e) { return { q: -1, msgColor: 'none', msgText: '', sessionId: '' }; }
@@ -1065,7 +1065,7 @@ const questions = [
             const safeName = className.trim() || 'Klass';
             const cleanId = safeName.replace(/[^a-zA-Z0-9]/g, '');
             window._lastPushedIndex = -1; currentMsgColor = 'none'; currentMsgText = '';
-            currentSessionId = cleanId + '_' + Date.now().toString();
+            currentSessionId = cleanId + '-' + Date.now().toString();
             window._currentClassName = safeName;
             sessionHistory = {}; // Clear local history for the new class
             await setGlobalQ(-1); 
