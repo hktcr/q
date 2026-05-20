@@ -937,7 +937,7 @@ const questions = [
     function retry() { currentQ = -1; highestActivated = -1; answers = {}; renderIntro(); }
 
     /* --- TEACHER PANEL --- */
-    let statsInterval = null;
+    let statsInterval = null; // unused but kept for backwards compatibility in other functions if any
 
     async function renderTeacherPanel() {
         stepIndicator.style.display = 'none'; progressBar.style.display = 'none';
@@ -1013,11 +1013,13 @@ const questions = [
 
                         // Generate Live Stats UI
                         if(q.type === 'multiple-choice') {
-                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
+                                <button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button>
                                 ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
                             </div>`;
                         } else {
-                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem; align-items:center; flex-wrap:wrap;">
+                                <button onclick="pollStats(${i})" style="padding:0.4rem 0.8rem; border-radius:6px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:bold;">🔄 Hämta Svar</button>
                                 <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_${i}_ok">0</strong></div>
                                 <div style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:0.4rem 0.8rem; border-radius:6px;">Fel: <strong id="stat_${i}_nok">0</strong></div>
                             </div>`;
@@ -1130,10 +1132,8 @@ const questions = [
         }
         await setGlobalQ(idx);
         
-        // Start polling stats for active question
-        if(statsInterval) clearInterval(statsInterval);
-        pollStats(idx); // Poll immediately
-        statsInterval = setInterval(() => pollStats(idx), 10000);
+        // Remove auto-polling to save API limits. Fetch once initially.
+        pollStats(idx); 
     };
     window.pushQuestion = async function(idx) { await setGlobalQ(idx); };
 
