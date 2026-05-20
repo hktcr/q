@@ -1133,7 +1133,7 @@ const questions = [
         // Start polling stats for active question
         if(statsInterval) clearInterval(statsInterval);
         pollStats(idx); // Poll immediately
-        statsInterval = setInterval(() => pollStats(idx), 8000);
+        statsInterval = setInterval(() => pollStats(idx), 10000);
     };
     window.pushQuestion = async function(idx) { await setGlobalQ(idx); };
 
