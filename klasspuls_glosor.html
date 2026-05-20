@@ -95,7 +95,7 @@
         }
         .q-text .blank {
             display: inline-block;
-            min-width: 80px;
+            min-width: clamp(60px, 10vw, 100px);
             border-bottom: 3px solid var(--primary);
             margin: 0 5px;
         }
@@ -165,7 +165,7 @@
 
         /* === LUCKTEXT UI === */
         .luck-input {
-            width: clamp(160px, 20vw, 220px); 
+            width: clamp(100px, 20vw, 220px); 
             padding: 0.2rem 0.5rem; 
             font-size: inherit; 
             text-align: center; 
@@ -638,7 +638,7 @@ const questions = [
             html: `<div style="display:flex; flex-direction:column; align-items:center; gap:1.5rem; margin-bottom:1rem;">
     <!-- Topp -->
     <div style="display:flex; flex-direction:column; align-items:center;">
-        <div id="vz-fw1" class="vis-zone" data-correct="Toppkonsument" onclick="selectVisZone(this)" style="width:180px; height:50px; border-radius:8px;"></div>
+        <div id="vz-fw1" class="vis-zone" data-correct="Toppkonsument" onclick="selectVisZone(this)" style="width:clamp(100px, 30vw, 180px); height:clamp(40px, 8vw, 50px); border-radius:8px;"></div>
         <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🦊 Räv</div>
     </div>
     
@@ -647,11 +647,11 @@ const questions = [
     <!-- Mitten -->
     <div style="display:flex; gap:1rem;">
         <div style="display:flex; flex-direction:column; align-items:center;">
-            <div id="vz-fw2" class="vis-zone" data-correct="Förstahandskonsument" onclick="selectVisZone(this)" style="width:140px; height:50px; border-radius:8px;"></div>
+            <div id="vz-fw2" class="vis-zone" data-correct="Förstahandskonsument" onclick="selectVisZone(this)" style="width:clamp(80px, 20vw, 140px); height:clamp(40px, 8vw, 50px); border-radius:8px;"></div>
             <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🐰 Kanin</div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:center;">
-            <div id="vz-fw3" class="vis-zone" data-correct="Förstahandskonsument" onclick="selectVisZone(this)" style="width:140px; height:50px; border-radius:8px;"></div>
+            <div id="vz-fw3" class="vis-zone" data-correct="Förstahandskonsument" onclick="selectVisZone(this)" style="width:clamp(80px, 20vw, 140px); height:clamp(40px, 8vw, 50px); border-radius:8px;"></div>
             <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🐭 Sork</div>
         </div>
     </div>
@@ -660,7 +660,7 @@ const questions = [
     
     <!-- Botten -->
     <div style="display:flex; flex-direction:column; align-items:center;">
-        <div id="vz-fw4" class="vis-zone" data-correct="Producent" onclick="selectVisZone(this)" style="width:200px; height:50px; border-radius:8px;"></div>
+        <div id="vz-fw4" class="vis-zone" data-correct="Producent" onclick="selectVisZone(this)" style="width:clamp(120px, 35vw, 200px); height:clamp(40px, 8vw, 50px); border-radius:8px;"></div>
         <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🌱 Gräs / Blad</div>
     </div>
 </div>`,
@@ -912,6 +912,7 @@ const questions = [
     let visState = { placements: {} };
     
     window.selectVisLabel = function(el, event) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined) return;
         if (visLabelSelected === el) {
             visLabelSelected.classList.remove('selected');
@@ -925,6 +926,7 @@ const questions = [
     };
 
     window.selectVisZone = function(el) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined) return;
         if (!visLabelSelected) {
             // Un-place
@@ -1048,6 +1050,7 @@ const questions = [
     };
 
     function selectMC(el, val) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined) return;
         const q = questions[currentQ];
         const isCorrect = val === q.correct;
@@ -1066,12 +1069,14 @@ const questions = [
     /* --- MATCH UI LOGIC --- */
     let matchColors = ['matched-0', 'matched-1', 'matched-2', 'matched-3'];
     function selectMatchLeft(el) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined || el.classList.contains('matched')) return;
         document.querySelectorAll('.left-item').forEach(e => e.classList.remove('selected'));
         el.classList.add('selected');
         matchState.left = el.dataset.val;
     }
     function selectMatchRight(el) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined || el.classList.contains('matched') || !matchState.left) return;
         const q = questions[currentQ];
         
@@ -1099,6 +1104,7 @@ const questions = [
     /* --- CATEGORIZE UI LOGIC --- */
     let catSelected = null;
     function selectCatChip(el, event) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined) return;
         
         if (catSelected && el.parentNode.classList.contains('bucket') && catSelected !== el) {
@@ -1113,6 +1119,7 @@ const questions = [
         if (event) event.stopPropagation();
     }
     function selectBucket(el) {
+        if(navigator.vibrate) navigator.vibrate(10);
         if (answers[currentQ] !== undefined || !catSelected) return;
         el.appendChild(catSelected);
         catSelected.classList.remove('selected');
