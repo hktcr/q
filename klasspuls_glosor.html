@@ -716,6 +716,7 @@
     let currentQ = -1; 
     let highestActivated = -1;
     let answers = {};
+    let activatedQuestions = new Set();
     let isSyncMode = false;
     let syncInterval = null;
     let currentMsgColor = 'none';
@@ -771,7 +772,7 @@
 
     /* --- SYNC MODE --- */
     function startSyncMode() {
-        isSyncMode = true; currentQ = -1; highestActivated = -1; answers = {};
+        isSyncMode = true; currentQ = -1; highestActivated = -1; answers = {}; activatedQuestions.clear();
         card.innerHTML = `<div class="intro"><div class="badge">Live-Synk Aktiv</div><div class="emoji" style="font-size:4rem; margin:1rem 0;">⏳</div><h1>Låst skärm</h1><p class="sub">Väntar på att Håkan ska pusha ut första frågan...</p></div>`;
         syncInterval = setInterval(async () => {
             const state = await getGlobalQ();
@@ -809,7 +810,7 @@
             if (state.q !== currentQ && state.q > -1 && state.q !== 999) {
                 currentQ = state.q; showQuestion(currentQ);
             } else if (state.q === -1 && currentQ !== -1) {
-                currentQ = -1; highestActivated = -1; answers = {};
+                currentQ = -1; highestActivated = -1; answers = {}; activatedQuestions.clear();
                 card.innerHTML = `<div class="intro"><div class="emoji" style="font-size:4rem; margin-bottom:1rem;">⏳</div><h2>Väntar...</h2><p class="sub">Lektionen har nollställts.</p></div>`;
             }
         }, 2000);
@@ -829,7 +830,7 @@
     }
 
     function startSoloMode() {
-        isSyncMode = false; currentQ = 0; highestActivated = questions.length - 1; answers = {};
+        isSyncMode = false; currentQ = 0; highestActivated = questions.length - 1; answers = {}; activatedQuestions.clear();
         showQuestion(0);
     }
 
@@ -841,6 +842,7 @@
     let catState = { placements: {} };
 
     function showQuestion(idx) {
+        activatedQuestions.add(idx);
         if (!isSyncMode) {
             stepIndicator.style.display = 'block'; stepCurrent.textContent = idx + 1;
             progressBar.style.width = ((idx) / questions.length * 100) + '%';
@@ -1170,29 +1172,29 @@
         if(syncInterval) clearInterval(syncInterval);
         progressBar.style.width = '100%'; stepIndicator.style.display = 'none'; msgOverlay.style.display = 'none';
         
-        let totalPossible = Math.max(0, highestActivated + 1);
-        if (totalPossible === 0) return card.innerHTML = '<div class="results"><h2>Inga frågor besvarades.</h2></div>';
+        let pushedArray = isSyncMode ? Array.from(activatedQuestions).sort((a,b) => a-b) : Array.from({length: questions.length}, (_, i) => i);
+        if (pushedArray.length === 0) return card.innerHTML = '<div class="results"><h2>Inga frågor besvarades.</h2></div>';
 
         let score = 0, resultRows = '';
-        for(let i=0; i < totalPossible; i++) {
+        for(let i of pushedArray) {
             const ok = answers[i] === true;
             if (ok) score++;
             resultRows += `<div class="result-row ${ok ? 'ok' : 'nok'}"><span class="result-icon">${ok ? '✓' : '✗'}</span><span>Fråga ${questions[i].num}: ${ok ? 'Rätt' : 'Fel'}</span></div>`;
         }
 
-        const pct = score / totalPossible;
+        const pct = score / pushedArray.length;
         const emoji = pct === 1 ? '🌟' : (pct >= 0.6 ? '💚' : (pct >= 0.3 ? '🌱' : '📖'));
         const title = pct === 1 ? 'Full pott!' : (pct >= 0.6 ? 'Snyggt!' : 'På god väg!');
 
         card.classList.add('exit-left');
         setTimeout(() => {
             card.classList.remove('exit-left'); card.classList.add('enter-right');
-            card.innerHTML = `<div class="results"><div class="emoji">${emoji}</div><h2>${title}</h2><p class="score-line">Du hade <strong>${score}</strong> rätt av ${totalPossible} möjliga.</p><div style="max-height:250px; overflow-y:auto; margin-bottom:2rem;">${resultRows}</div>${!isSyncMode ? `<button class="retry-btn" onclick="retry()">Kör igen</button>` : ''}</div>`;
+            card.innerHTML = `<div class="results"><div class="emoji">${emoji}</div><h2>${title}</h2><p class="score-line">Du hade <strong>${score}</strong> rätt av ${pushedArray.length} möjliga.</p><div style="max-height:250px; overflow-y:auto; margin-bottom:2rem;">${resultRows}</div>${!isSyncMode ? `<button class="retry-btn" onclick="retry()">Kör igen</button>` : ''}</div>`;
             requestAnimationFrame(() => { requestAnimationFrame(() => { card.classList.remove('enter-right'); }); });
         }, 300);
     }
 
-    function retry() { currentQ = -1; highestActivated = -1; answers = {}; renderIntro(); }
+    function retry() { currentQ = -1; highestActivated = -1; answers = {}; activatedQuestions.clear(); renderIntro(); }
 
     /* --- TEACHER PANEL --- */
     let statsInterval = null; // unused but kept for backwards compatibility in other functions if any
