@@ -663,9 +663,7 @@ const questions = [
         if (isTeacher) return renderTeacherPanel();
         card.innerHTML = `
             <div class="intro">
-                <div class="badge">Glosförhör: Självdiagnos</div>
                 <h1>KlassPuls: Ekologi</h1>
-                <p class="sub">En "Tap-to-Select"-avstämning på glosorna från de tre första veckorna.</p>
                 <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
                     <button class="start-btn show" style="width:auto; padding: 1rem 2.5rem;" onclick="startSyncMode()">🔗 Gå med i klassrummet</button>
                     <button class="retry-btn" style="margin-top:0;" onclick="startSoloMode()">Öva ensam</button>
@@ -1003,7 +1001,6 @@ const questions = [
                         } else if(q.type === 'lucktext') {
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">
                                 <div><strong>✅ Rätt:</strong> ${q.correctAnswers.join(', ')}</div>
-                                ${q.specificErrors.map(e => `<div style="color:#fca5a5; margin-top:0.3rem;"><strong>❌ Vid '${e.trigger.join('/')}':</strong> ${e.feedback}</div>`).join('')}
                             </div>`;
                         } else if(q.type === 'match') {
                             previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
