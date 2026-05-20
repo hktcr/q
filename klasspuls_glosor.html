@@ -223,6 +223,37 @@
         
         .bucket .chip { width: 100%; text-align: center; border-color: rgba(255,255,255,0.05); background: rgba(0,0,0,0.3); }
 
+        /* === VISUAL LABEL (IMAGE-LABEL) === */
+        .vis-zone {
+            border: 2px dashed rgba(255,255,255,0.4);
+            background: rgba(0,0,0,0.4);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #d1d5db;
+            transition: all 0.2s;
+        }
+        .vis-zone:hover { background: rgba(255,255,255,0.1); border-color: white; }
+        .vis-zone.filled {
+            border: 2px solid var(--gold);
+            background: rgba(245, 158, 11, 0.2);
+            color: white;
+        }
+        .vis-zone.correct-zone {
+            border-color: var(--correct);
+            background: rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+        }
+        .vis-zone.wrong-zone {
+            border-color: var(--incorrect);
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+        .chip.hidden { display: none !important; }
+
         /* === FEEDBACK === */
         .feedback {
             margin-top: 1.5rem; padding: 1.2rem 1.5rem;
@@ -599,6 +630,61 @@ const questions = [
             correct: "C", 
             feedbackOk: "Exakt! Hög mångfald ger hög resiliens, vilket gör att ekosystemet står emot katastrofer bättre.", 
             feedbackNok: "Fel svar. Rätt ord är Resiliens. Det betyder just motståndskraft och förmåga att återhämta sig. Läs om detta under rubriken \"Biologisk mångfald\" i häftet." 
+        },
+        { 
+            num: 25, 
+            type: "image-label", 
+            text: "Sätt rätt trofisk nivå på rätt plats i näringsväven!", 
+            html: `<div style="display:flex; flex-direction:column; align-items:center; gap:1.5rem; margin-bottom:1rem;">
+    <!-- Topp -->
+    <div style="display:flex; flex-direction:column; align-items:center;">
+        <div id="vz-fw1" class="vis-zone" data-correct="Toppkonsument" onclick="selectVisZone(this)" style="width:180px; height:50px; border-radius:8px;"></div>
+        <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🦊 Räv</div>
+    </div>
+    
+    <div style="display:flex; gap:3rem; font-size:1.5rem;"><span>⬆️</span><span>⬆️</span></div>
+    
+    <!-- Mitten -->
+    <div style="display:flex; gap:1rem;">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div id="vz-fw2" class="vis-zone" data-correct="Förstahandskonsument" onclick="selectVisZone(this)" style="width:140px; height:50px; border-radius:8px;"></div>
+            <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🐰 Kanin</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div id="vz-fw3" class="vis-zone" data-correct="Förstahandskonsument" onclick="selectVisZone(this)" style="width:140px; height:50px; border-radius:8px;"></div>
+            <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🐭 Sork</div>
+        </div>
+    </div>
+    
+    <div style="display:flex; gap:6rem; font-size:1.5rem;"><span>⬆️</span><span>⬆️</span></div>
+    
+    <!-- Botten -->
+    <div style="display:flex; flex-direction:column; align-items:center;">
+        <div id="vz-fw4" class="vis-zone" data-correct="Producent" onclick="selectVisZone(this)" style="width:200px; height:50px; border-radius:8px;"></div>
+        <div style="font-size:0.8rem; color:#9ca3af; margin-top:5px;">🌱 Gräs / Blad</div>
+    </div>
+</div>`,
+            labels: ["Toppkonsument", "Förstahandskonsument", "Förstahandskonsument", "Producent"],
+            feedbackOk: "Snyggt! Energin går från gräset (producent) upp till sorken och kaninen (förstahandskonsumenter) och slutligen räven (toppkonsument).", 
+            feedbackNok: "Något hamnade fel. Pilarna visar vem som äter vem (energins väg). Gräs producerar mat. Kanin och sork äter gräs. Räv äter kanin och sork." 
+        },
+        { 
+            num: 26, 
+            type: "image-label", 
+            text: "Sätt rätt energinivå i näringspyramiden!", 
+            html: `<div style="display:flex; flex-direction:column; align-items:center; gap:5px; margin-bottom:1rem; position:relative; width:100%; max-width:300px;">
+    <!-- Toppkonsument -->
+    <div id="vz-p4" class="vis-zone" data-correct="0.1%" onclick="selectVisZone(this)" style="width: 25%; height: 60px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); align-items:flex-end; padding-bottom:5px;"></div>
+    <!-- Andrahandskonsument -->
+    <div id="vz-p3" class="vis-zone" data-correct="1%" onclick="selectVisZone(this)" style="width: 50%; height: 50px; clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);"></div>
+    <!-- Förstahandskonsument -->
+    <div id="vz-p2" class="vis-zone" data-correct="10%" onclick="selectVisZone(this)" style="width: 75%; height: 50px; clip-path: polygon(16.6% 0%, 83.3% 0%, 100% 100%, 0% 100%);"></div>
+    <!-- Producent -->
+    <div id="vz-p1" class="vis-zone" data-correct="100%" onclick="selectVisZone(this)" style="width: 100%; height: 50px; clip-path: polygon(12.5% 0%, 87.5% 0%, 100% 100%, 0% 100%);"></div>
+</div>`,
+            labels: ["0.1%", "1%", "10%", "100%"],
+            feedbackOk: "Korrekt! Minns 10%-regeln: Bara 10% av energin går vidare till nästa nivå. 90% förloras som värme eller används av djuret.", 
+            feedbackNok: "Fel. Minns 10%-regeln! Det finns 100% energi i botten (producenterna). Sen blir det 10% -> 1% -> 0.1% i toppen. Läs under 'Näringspyramid'." 
         }
     ];
 
@@ -810,6 +896,71 @@ const questions = [
             });
         }, 300);
     }
+
+    /* === VISUAL LABEL UI LOGIC === */
+    let visLabelSelected = null;
+    let visState = { placements: {} };
+    
+    window.selectVisLabel = function(el, event) {
+        if (answers[currentQ] !== undefined) return;
+        if (visLabelSelected === el) {
+            visLabelSelected.classList.remove('selected');
+            visLabelSelected = null;
+            return;
+        }
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        visLabelSelected = el;
+        if (event) event.stopPropagation();
+    };
+
+    window.selectVisZone = function(el) {
+        if (answers[currentQ] !== undefined) return;
+        if (!visLabelSelected) {
+            // Un-place
+            if (el.dataset.placed) {
+                // Find a hidden chip that matches
+                const hiddenChips = Array.from(document.querySelectorAll('.chip.hidden'));
+                const chip = hiddenChips.find(c => c.dataset.val === el.dataset.placed);
+                if (chip) chip.classList.remove('hidden');
+                delete visState.placements[el.id];
+                el.innerText = '';
+                el.dataset.placed = '';
+                el.classList.remove('filled');
+            }
+            return;
+        }
+        
+        const val = visLabelSelected.dataset.val;
+        
+        if (el.dataset.placed) {
+            const hiddenChips = Array.from(document.querySelectorAll('.chip.hidden'));
+            const oldChip = hiddenChips.find(c => c.dataset.val === el.dataset.placed);
+            if (oldChip) oldChip.classList.remove('hidden');
+        }
+        
+        el.innerText = val;
+        el.dataset.placed = val;
+        el.classList.add('filled');
+        visState.placements[el.id] = val;
+        visLabelSelected.classList.add('hidden');
+        visLabelSelected.classList.remove('selected');
+        visLabelSelected = null;
+        
+        const q = questions[currentQ];
+        if (Object.keys(visState.placements).length === q.labels.length) {
+            let allCorrect = true;
+            document.querySelectorAll('.vis-zone').forEach(z => {
+                if (z.dataset.placed === z.dataset.correct) {
+                    z.classList.add('correct-zone');
+                } else {
+                    z.classList.add('wrong-zone');
+                    allCorrect = false;
+                }
+            });
+            evaluateAnswer(allCorrect);
+        }
+    };
 
     function evaluateAnswer(isCorrect) {
         answers[currentQ] = isCorrect;
@@ -1052,6 +1203,7 @@ const questions = [
                         <option value="match">Matchning</option>
                         <option value="categorize">Kategorisering</option>
                         <option value="lucktext">Lucktext (Skriv in)</option>
+                        <option value="image-label">Bild & Etikett (Visuell)</option>
                     </select>
                 </div>
 
