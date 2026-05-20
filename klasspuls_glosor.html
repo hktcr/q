@@ -375,15 +375,15 @@
         } catch(e) { console.warn("Stat sync failed", e); } // Graceful degradation
     }
 
-const questions = [
+    const questions = [
         { 
             num: 1, 
             type: "multiple-choice", 
             text: "Ordet ekologi kommer från de grekiska orden \"Oikos\" och \"logos\". Vad betyder ordet egentligen?", 
             options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Läran om huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Rymden"}],
             correct: "B", 
-            feedbackOk: "Exakt! Jorden är vårt gemensamma hus. Läs mer under rubriken \"Vad är ekologi?\" i häftet.", 
-            feedbackNok: "Fel svar. Rätt svar är Huset (Jorden). Tänk på ordet 'Oikos'. Vi bor alla på Jorden, som är vårt gemensamma hus. Kolla under rubriken \"Vad är ekologi?\" i häftet." 
+            feedbackOk: "Exakt! 'Oikos' betyder hus och 'logos' betyder lära. Ekologi är alltså läran om vårt gemensamma hus, Jorden, och hur allt liv samspelar här.", 
+            feedbackNok: "Tyvärr fel. Rätt svar är B (Läran om huset). 'Oikos' är grekiska för hus. Inom ekologin ser vi hela Jorden som vårt gemensamma hus där allt liv hänger ihop." 
         },
         { 
             num: 2, 
@@ -397,8 +397,8 @@ const questions = [
                 {word: "Bakterier", cat: 1},
                 {word: "Vind", cat: 0}
             ], 
-            feedbackOk: "Klockrent! Abiotisk betyder icke-levande (solljus, vind, temp) medan biotisk är allt levande (djur, bakterier). Läs mer under \"Biotiska och abiotiska faktorer\".", 
-            feedbackNok: "Något hamnade fel. Rätt är att solljus, temperatur och vind är Abiotiska (icke-levande), medan rovdjur och bakterier är Biotiska (levande). Läs mer under \"Biotiska och abiotiska faktorer\" i häftet." 
+            feedbackOk: "Klockrent! Abiotiska faktorer är den icke-levande miljön (solljus, temperatur, vind). Biotiska faktorer är de levande organismerna (rovdjur, bakterier).", 
+            feedbackNok: "Något hamnade fel. Solljus, temperatur och vind är Abiotiska (icke-levande fysiska faktorer), medan rovdjur och bakterier är Biotiska (levande organismer)." 
         },
         { 
             num: 3, 
@@ -409,8 +409,8 @@ const questions = [
                 {left: "Population", right: "Alla individer av SAMMA art i ett område"}, 
                 {left: "Samhälle", right: "Alla OLIKA arter som lever tillsammans"}
             ], 
-            feedbackOk: "Snyggt! Biotop är naturtypen, en population är alla av en art, och samhället är alla arter tillsammans. Läs mer under \"Ekosystemets nivåer\".", 
-            feedbackNok: "Någon koppling blev fel. Rätt är: Biotop = naturtypen, Population = en specifik art, Samhälle = alla olika arter ihop. Läs mer under \"Ekosystemets nivåer\" i häftet." 
+            feedbackOk: "Snyggt! En biotop är platsen, en population är individerna av samma art, och samhället är nätverket av alla arter som lever där.", 
+            feedbackNok: "Någon koppling blev fel. Biotop = själva naturtypen, Population = alla av en specifik art, Samhälle = alla olika arter i ekosystemet tillsammans." 
         },
         { 
             num: 4, 
@@ -423,8 +423,8 @@ const questions = [
                 {letter: "D", text: "Det är exakt samma sak."}
             ], 
             correct: "B", 
-            feedbackOk: "Helt rätt! I naturen är det sällan raka rör, utan korsande kedjor bildar en väv. Läs mer under \"Näringskedjor och näringsvävar\".", 
-            feedbackNok: "Fel svar. Rätt svar är att en näringsväv är flera korsande näringskedjor. I naturen äter ju djur flera olika saker. Kolla under \"Näringskedjor och näringsvävar\" i häftet." 
+            feedbackOk: "Helt rätt! I verkligheten är det sällan enkla 'raka rör', eftersom de flesta djur äter flera olika saker. Detta bildar ett komplext nätverk, en näringsväv.", 
+            feedbackNok: "Fel svar. Rätt svar är B. I naturen äter många djur flera olika saker. När man slår ihop flera raka näringskedjor bildas en mer realistisk och komplex näringsväv." 
         },
         { 
             num: 5, 
@@ -435,8 +435,8 @@ const questions = [
                 {left: "Konsument", right: "Måste äta andra för att få energi"}, 
                 {left: "Toppkonsument", right: "Saknar naturliga fiender"}
             ], 
-            feedbackOk: "Helt rätt! Producenter tillverkar, konsumenter äter, och toppkonsumenter saknar fiender. Läs mer under \"Roller i näringskedjan\".", 
-            feedbackNok: "Något blev fel. Rätt är: Producent (tillverkar mat), Konsument (äter andra), Toppkonsument (saknar fiender). Kolla under \"Roller i näringskedjan\" i häftet." 
+            feedbackOk: "Helt rätt! Producenter fångar solens energi, konsumenter äter denna energi, och toppkonsumenter står högst upp i näringskedjan utan naturliga rovdjur.", 
+            feedbackNok: "Något blev fel. Rätt är: Producent (tillverkar energi via fotosyntes), Konsument (måste äta för energi), Toppkonsument (högst upp, saknar naturliga fiender)." 
         },
         { 
             num: 6, 
@@ -444,8 +444,8 @@ const questions = [
             text: "Utan <span class='blank'></span> (svampar & bakterier) skulle kretsloppet stanna av. De städar upp döda växter och djur så näringen kan användas igen.", 
             options: [{letter: "A", text: "Toppkonsumenter"}, {letter: "B", text: "Producenter"}, {letter: "C", text: "Nedbrytare"}, {letter: "D", text: "Parasiter"}],
             correct: "C", 
-            feedbackOk: "Snyggt! Nedbrytarna är naturens återvinningsstation. Mycket viktigt för kretsloppen. Läs mer under \"Nedbrytare\".", 
-            feedbackNok: "Fel svar. Rätt svar är Nedbrytare. De bryter ner dött material (som maskar och svampar). Kolla under \"Nedbrytare\" i häftet." 
+            feedbackOk: "Snyggt! Nedbrytarna fungerar som naturens återvinningsstation. Utan dem skulle jorden täckas av döda växter och djur, och näringen skulle ta slut.", 
+            feedbackNok: "Fel svar. Rätt svar är C (Nedbrytare). Det är maskar, svampar och bakterier som äter dött material och frigör näringen till jorden igen." 
         },
         { 
             num: 7, 
@@ -458,8 +458,8 @@ const questions = [
                 {word: "Fästing på en hund", cat: 1},
                 {word: "Bandmask", cat: 1}
             ], 
-            feedbackOk: "Korrekt! Mutualism gynnar båda (Mykorrhiza, tarmbakterier), medan parasiter stjäl energi (fästing, bandmask). Repetera under rubriken \"Symbios\".", 
-            feedbackNok: "Något hamnade fel. Mutualism är ömsesidig nytta (t.ex. mykorrhiza, tarmbakterier). Parasitism är när en tar utan att ge (fästing, bandmask). Kolla \"Symbios\" i häftet." 
+            feedbackOk: "Korrekt! Mutualism är 'Win-Win' (mykorrhiza, tarmbakterier) där båda vinner. Parasitism är 'Win-Lose' där den ena stjäl energi och den andra skadas.", 
+            feedbackNok: "Något hamnade fel. Mutualism = ömsesidig nytta där båda gynnas (mykorrhiza, tarmbakterier). Parasitism = en vinner och den andra skadas (fästing, bandmask)." 
         },
         { 
             num: 8, 
@@ -472,8 +472,8 @@ const questions = [
                 {letter: "D", text: "Hur många ungar den får per år."}
             ], 
             correct: "C", 
-            feedbackOk: "Rätt! Genom att ha olika yrken (nischer) slipper arterna konkurrera. Läs mer under rubriken \"Ekologisk Nisch\" i häftet.", 
-            feedbackNok: "Fel svar. Rätt svar är att det är artens 'yrke'. Exempelvis har talgoxen och blåmesen olika nischer för att inte tävla om maten. Läs under \"Ekologisk Nisch\"." 
+            feedbackOk: "Rätt! Genom att ha olika yrken (specialiserade nischer) slipper arterna konkurrera med varandra om exakt samma mat och utrymme.", 
+            feedbackNok: "Fel svar. Rätt svar är C. Nischen är artens 'yrke'. Exempelvis har talgoxen och blåmesen olika nischer (äter på olika ställen) för att undvika konkurrens." 
         },
         { 
             num: 9, 
@@ -486,8 +486,8 @@ const questions = [
                 {word: "Havsörn", cat: 1},
                 {word: "Gräs", cat: 0}
             ], 
-            feedbackOk: "Mycket bra! Producenter i botten har lägst gifthalt, och toppkonsumenter (örn, isbjörn) drabbas värst eftersom gifterna samlas. Läs under \"Miljögifter\".", 
-            feedbackNok: "Något hamnade fel. Producenter (gräs, plankton) i botten har låg gifthalt. Toppkonsumenter (isbjörn, örn) får i sig allt gift från bytena och har högst halt. Kolla \"Miljögifter\"." 
+            feedbackOk: "Mycket bra! Producenter i botten har låg gifthalt. Eftersom rovdjuren högre upp måste äta väldigt många djur under sitt liv, lagras allt gift i deras kroppar.", 
+            feedbackNok: "Fel sorterat. Producenter i botten har låg gifthalt. Toppkonsumenter drabbas hårdast, eftersom de får i sig allt gift som deras tusentals byten har samlat på sig." 
         },
         { 
             num: 10, 
@@ -495,8 +495,8 @@ const questions = [
             text: "När cellandning och fotosyntes jobbar ihop går materiens atomer runt i ett evigt <span class='blank'></span>.", 
             options: [{letter: "A", text: "Samhälle"}, {letter: "B", text: "Kretslopp"}, {letter: "C", text: "Ekosystem"}, {letter: "D", text: "Biotop"}],
             correct: "B", 
-            feedbackOk: "Bra! Atomer återvinns om och om igen i ett kretslopp. Naturen kastar inget. Läs under rubriken \"Kretslopp\" i häftet.", 
-            feedbackNok: "Fel svar. Rätt svar är Kretslopp. Atomer återvinns och går runt i en evig slinga mellan fotosyntes och cellandning. Läs under rubriken \"Kretslopp\"." 
+            feedbackOk: "Bra! Atomer kan varken skapas eller förstöras. De återvinns om och om igen i naturens kretslopp mellan luften, växterna och djuren.", 
+            feedbackNok: "Fel svar. Rätt svar är Kretslopp (B). Atomer återvinns och går runt i en evig slinga, t.ex. när syre från växter andas in av djur, som andas ut koldioxid till växterna." 
         },
         { 
             num: 11, 
@@ -507,8 +507,8 @@ const questions = [
                 {left: "Kommensalism", right: "Ena vinner, den andra bryr sig inte (t.ex. havstulpan på val)"}, 
                 {left: "Parasitism", right: "Ena vinner, den andra skadas (t.ex. fästing på hund)"}
             ], 
-            feedbackOk: "Grymt! Mutualism (+/+), Kommensalism (+/0) och Parasitism (+/-). Repetera under rubriken \"Symbios\" i häftet.", 
-            feedbackNok: "Något blev fel. Rätt är: Mutualism = båda vinner (+/+), Kommensalism = en vinner och den andra bryr sig inte (+/0), Parasitism = en skadas (+/-). Läs under \"Symbios\"." 
+            feedbackOk: "Grymt! Mutualism (+/+), Kommensalism (+/0) och Parasitism (+/-). Dessa är de tre vanligaste typerna av samliv i naturen.", 
+            feedbackNok: "Något blev fel. Rätt är: Mutualism = båda vinner (+/+), Kommensalism = en vinner och den andra påverkas inte (+/0), Parasitism = en vinner och den andra skadas (+/-)." 
         },
         { 
             num: 12, 
@@ -521,8 +521,8 @@ const questions = [
                 {letter: "D", text: "Konkurrens"}
             ],
             correct: "C", 
-            feedbackOk: "Helt rätt! Vid parasitism gynnas den ena på den andras bekostnad. Läs under rubriken \"Symbios\".", 
-            feedbackNok: "Fel. Rätt svar är Parasitism. Vid parasitism utnyttjas värden så att den tar skada. Kolla under rubriken \"Symbios\" i häftet." 
+            feedbackOk: "Helt rätt! Vid parasitism (+/-) stjäl parasiten näring, vilket gör värddjuret sjukt eller försvagat, men parasiten dödar oftast inte sitt värddjur direkt.", 
+            feedbackNok: "Fel. Rätt svar är Parasitism (C). Vid parasitism utnyttjas den ena organismen (värden) så att den tar skada eller förlorar näring." 
         },
         { 
             num: 13, 
@@ -535,8 +535,8 @@ const questions = [
                 {letter: "D", text: "Predation"}
             ],
             correct: "B", 
-            feedbackOk: "Snyggt! Kommensalism brukar kallas för snålskjuts – en vinner, den andra bryr sig inte. Repetera under \"Symbios\".", 
-            feedbackNok: "Fel svar. Rätt svar är Kommensalism. Det är när en får en fördel utan att den andra påverkas alls (exempelvis en liten fisk som gömmer sig bakom en stor). Läs under \"Symbios\"." 
+            feedbackOk: "Snyggt! Kommensalism brukar ibland kallas för \"snålskjuts\". Den ena får en fördel, medan den andra förblir helt opåverkad (+/0).", 
+            feedbackNok: "Fel svar. Rätt svar är Kommensalism (B). Det är när en organism får fördel (t.ex. en liten fisk som simmar bakom en haj) utan att hajen bryr sig." 
         },
         { 
             num: 14, 
@@ -549,8 +549,8 @@ const questions = [
                 {letter: "D", text: "En ekologisk nisch"}
             ], 
             correct: "A", 
-            feedbackOk: "Exakt! Förändringen på toppen rinner ner genom hela systemet som ett vattenfall. Läs mer under \"Kaskadeffekter\".", 
-            feedbackNok: "Fel svar. Rätt svar är Kaskadeffekt. En förändring i toppen rinner ner genom systemet som ett dominospel. Kolla under rubriken \"Kaskadeffekter\"." 
+            feedbackOk: "Exakt! I en kaskadeffekt rinner en förändring på toppkonsument-nivån ner genom hela systemet, som ett dominospel, och påverkar växterna i botten.", 
+            feedbackNok: "Fel svar. Rätt svar är Kaskadeffekt. Kaskad betyder vattenfall. När toppkonsumenten rubbas rinner effekterna hela vägen ner genom näringsväven." 
         },
         { 
             num: 15, 
@@ -558,8 +558,8 @@ const questions = [
             text: "Varje nytt steg i en näringskedja (t.ex. från producent till konsument) brukar med ett finare ord kallas för en <span class='blank'></span>.", 
             options: [{letter: "A", text: "Ekologisk nisch"}, {letter: "B", text: "Bioackumulation"}, {letter: "C", text: "Trofinivå"}, {letter: "D", text: "Biotop"}],
             correct: "C", 
-            feedbackOk: "Snyggt! För varje trofinivå går energi förlorad (10%-regeln). Läs mer under rubriken \"Näringspyramiden\".", 
-            feedbackNok: "Fel svar. Rätt svar är Trofinivå. Ordet handlar om nivån (trappsteget) i näringspyramiden. Du kan läsa om detta under \"Näringspyramiden\" i häftet." 
+            feedbackOk: "Snyggt! 'Trofi' handlar om näring. För varje trofinivå går 90% av energin förlorad som rörelse och värme (10%-regeln).", 
+            feedbackNok: "Fel svar. Rätt svar är Trofinivå (C). Trofinivåer är de olika stegen i en näringspyramid (Producent → 1:a konsument → Toppkonsument)." 
         },
         { 
             num: 16, 
@@ -572,40 +572,40 @@ const questions = [
                 {word: "En veteåker", cat: 1},
                 {word: "En asfalterad skolgård", cat: 1}
             ], 
-            feedbackOk: "Korrekt! Skogar och korallrev har hög mångfald (som ett brett Jenga-torn). Veteåkrar har låg mångfald. Läs under \"Biologisk mångfald\".", 
-            feedbackNok: "Något blev fel. Gammelskog och korallrev är fyllda med olika arter = Hög mångfald. Veteåker och asfalt saknar variation = Låg mångfald. Kolla under \"Biologisk mångfald\"." 
+            feedbackOk: "Korrekt! Gammelskogar och rev har enorm variation (hög mångfald). Åkrar består ofta av bara en enda art (monokultur) och har extremt låg mångfald.", 
+            feedbackNok: "Något blev fel. Gammelskog och korallrev har stor artrikedom = Hög mångfald. Veteåker (monokultur) och asfalt saknar variation = Låg mångfald." 
         },
         { 
             num: 17, 
             type: "lucktext", 
             text: "Den process där växter tillverkar socker och syre med hjälp av solljus, koldioxid och vatten kallas för <span class='blank'></span>.", 
             correctAnswers: ["fotosyntes", "fotosyntesen", "fotosyntes "],
-            feedbackOk: "Korrekt! Fotosyntesen är grunden för nästan allt liv på Jorden. Repetera processen under rubriken \"Fotosyntes\".", 
-            feedbackNok: "Fel svar. Det rätta svaret är FOTOSYNTES. Detta är processen där växter bygger socker. Läs mer under rubriken \"Fotosyntes\"." 
+            feedbackOk: "Korrekt! Fotosyntesen är bokstavligen motorn för nästan allt liv på Jorden, eftersom solenergin binds in i sockret och syret frigörs till oss.", 
+            feedbackNok: "Fel svar. Det rätta svaret är FOTOSYNTES. Detta är den livsviktiga kemiska reaktionen där växterna förvandlar solenergi till socker och syre." 
         },
         { 
             num: 18, 
             type: "lucktext", 
             text: "Alla individer av en och samma art som lever i ett visst område (t.ex. alla harar i en skog) kallas gemensamt för en <span class='blank'></span>.", 
             correctAnswers: ["population", "populationen", "popolation"],
-            feedbackOk: "Helt rätt! Population är ordet för alla av SAMMA art i ett område. Läs under \"Ekosystemets nivåer\".", 
-            feedbackNok: "Fel svar. Det rätta svaret är POPULATION. Det är biologernas ord för alla individer av samma art. Läs under \"Ekosystemets nivåer\" i häftet." 
+            feedbackOk: "Helt rätt! En population växer om det finns mat och krymper om rovdjuren blir fler eller sjukdomar bryter ut (detta kallas populationsekologi).", 
+            feedbackNok: "Fel svar. Det rätta svaret är POPULATION. Det är biologernas ord för alla de individer av en specifik art som delar samma livsmiljö." 
         },
         { 
             num: 19, 
             type: "lucktext", 
             text: "I naturen äter många djur flera olika saker. När flera näringskedjor flätas samman och korsar varandra kallas det för en <span class='blank'></span>.", 
             correctAnswers: ["näringsväv", "näringsväven", "neringsväv"],
-            feedbackOk: "Snyggt! En näringsväv ger en mycket mer realistisk bild av naturen än en enkel kedja. Titta under \"Näringskedjor och näringsvävar\".", 
-            feedbackNok: "Fel svar. Det rätta svaret är NÄRINGSVÄV. Tänk dig det som ett spindelnät av matvanor där korsande kedjor flätas ihop! Kolla under \"Näringskedjor och näringsvävar\"." 
+            feedbackOk: "Snyggt! En näringsväv är mycket mer stabil. Om en art minskar, kan rovdjuren byta till att äta något av de andra bytena i väven.", 
+            feedbackNok: "Fel svar. Det rätta svaret är NÄRINGSVÄV. Tänk dig det som ett nätverk av pilar som korsar varandra, till skillnad från en rak näringskedja." 
         },
         { 
             num: 20, 
             type: "lucktext", 
             text: "De organismer (t.ex. svampar, maskar och bakterier) som lever på döda växter och djur och på så sätt återför näringen till jorden kallas för <span class='blank'></span>.", 
             correctAnswers: ["nedbrytare", "nedbrytarna", "destruenter"],
-            feedbackOk: "Korrekt! Nedbrytarna är naturens städpatrull. Läs mer under rubriken \"Nedbrytare\".", 
-            feedbackNok: "Fel svar. Det rätta svaret är NEDBRYTARE. Detta är naturens egna städpatrull som äter dött material. Läs mer under rubriken \"Nedbrytare\"." 
+            feedbackOk: "Korrekt! När nedbrytarna bryter ner dött material frigörs näringsämnen (t.ex. kväve och fosfor) i jorden så att nya växter kan använda dem.", 
+            feedbackNok: "Fel svar. Det rätta svaret är NEDBRYTARE. Detta är naturens egna städpatrull som äter dött material och sluter det ekologiska kretsloppet." 
         },
         { 
             num: 21, 
@@ -618,8 +618,8 @@ const questions = [
                 {letter: "D", text: "Att djuren utvecklas och förändras långsamt under miljoner år."}
             ],
             correct: "B", 
-            feedbackOk: "Helt rätt! Mångfalden handlar om variationen av arter och miljöer. Repetera under rubriken \"Biologisk mångfald\".", 
-            feedbackNok: "Fel svar. Rätt svar är att naturen är rik på variation (B). Biologisk mångfald betyder just MÅNGA OLIKA typer, inte många av samma typ. Läs under \"Biologisk mångfald\"." 
+            feedbackOk: "Helt rätt! Mångfalden handlar om variationen. Hög variation gör naturen mycket starkare mot sjukdomar och klimatförändringar.", 
+            feedbackNok: "Fel svar. Rätt svar är B (Naturen är rik på variation). Mångfald handlar inte om *antalet* djur, utan om *hur många olika sorter* (arter, gener) det finns." 
         },
         { 
             num: 22, 
@@ -631,16 +631,16 @@ const questions = [
                 { left: "Daggmask", right: "Viktig nedbrytare som syresätter jorden" },
                 { left: "Bakterie", right: "Mikroskopisk nedbrytare i naturens kretslopp" }
             ],
-            feedbackOk: "Snyggt jobbat! Bra koll på de olika ekologiska rollerna och Invasiva arter.", 
-            feedbackNok: "Något blev fel. Rätt är: Snigeln = Invasiv art, Varg = Toppkonsument, Daggmask och Bakterie = Nedbrytare. Läs under rubrikerna om \"Roller i näringskedjan\" och \"Invasiva arter\"." 
+            feedbackOk: "Snyggt jobbat! Invasiva arter, som spansk skogssnigel, är farliga eftersom de rubbar ekosystemet och tränger undan lokala svenska arter.", 
+            feedbackNok: "Något blev fel. Snigeln = Invasiv art (utifrån), Varg = Toppkonsument (rovdjur), Daggmask = Stor nedbrytare, Bakterie = Mikroskopisk nedbrytare." 
         },
         { 
             num: 23, 
             type: "lucktext", 
             text: "Den process som gör att jorden hålls varm tack vare en \"filt\" av gaser (t.ex. koldioxid) i atmosfären kallas för <span class='blank'></span>.", 
             correctAnswers: ["växthuseffekten", "växthuseffekt", "den naturliga växthuseffekten"],
-            feedbackOk: "Precis! Växthuseffekten är naturlig, men vi har gjort den för stark. Läs mer under rubriken \"Växthuseffekten\".", 
-            feedbackNok: "Fel svar. Det rätta svaret är VÄXTHUSEFFEKTEN. Det är filt-liknande lagret av gaser som håller värmen kvar. Läs noga under rubriken \"Växthuseffekten\" i häftet." 
+            feedbackOk: "Precis! Växthuseffekten är naturlig och livsnödvändig (annars vore Jorden -18°C), men när vi eldar fossil energi blir filten för tjock.", 
+            feedbackNok: "Fel svar. Det rätta svaret är VÄXTHUSEFFEKTEN. Koldioxid och metan fungerar som glaset i ett växthus – de släpper in solens strålar, men håller kvar värmen." 
         },
         { 
             num: 24, 
@@ -653,8 +653,8 @@ const questions = [
                 {letter: "D", text: "Succession"}
             ],
             correct: "C", 
-            feedbackOk: "Exakt! Hög mångfald ger hög resiliens, vilket gör att ekosystemet står emot katastrofer bättre.", 
-            feedbackNok: "Fel svar. Rätt ord är Resiliens. Det betyder just motståndskraft och förmåga att återhämta sig. Läs om detta under rubriken \"Biologisk mångfald\" i häftet." 
+            feedbackOk: "Exakt! Hög biologisk mångfald ger hög resiliens, vilket fungerar som en ekologisk stötdämpare när katastrofer inträffar.", 
+            feedbackNok: "Fel svar. Rätt ord är Resiliens (C). Ordet kommer från engelskans 'resilience' och handlar om systemets flexibilitet och motståndskraft mot yttre påfrestningar." 
         },
         { 
             num: 25, 
@@ -690,8 +690,8 @@ const questions = [
     </div>
 </div>`,
             labels: ["Toppkonsument", "Förstahandskonsument", "Förstahandskonsument", "Producent"],
-            feedbackOk: "Snyggt! Energin går från gräset (producent) upp till sorken och kaninen (förstahandskonsumenter) och slutligen räven (toppkonsument).", 
-            feedbackNok: "Något hamnade fel. Pilarna visar vem som äter vem (energins väg). Gräs producerar mat. Kanin och sork äter gräs. Räv äter kanin och sork." 
+            feedbackOk: "Snyggt! Energin går från gräset (producent) upp till sorken och kaninen (förstahandskonsumenter) och slutligen räven (toppkonsument). Pilarna i näringskedjan visar alltid åt vilket håll energin färdas.", 
+            feedbackNok: "Något hamnade fel. Pilarna visar vem som äter vem (energins väg). Gräs (producent) är längst ner. Kanin och sork äter gräs (förstahandskonsumenter). Räv äter kanin och sork (toppkonsument)." 
         },
         { 
             num: 26, 
@@ -708,11 +708,10 @@ const questions = [
     <div id="vz-p1" class="vis-zone" data-correct="100%" onclick="selectVisZone(this)" style="width: 100%; height: 50px; clip-path: polygon(12.5% 0%, 87.5% 0%, 100% 100%, 0% 100%);"></div>
 </div>`,
             labels: ["0.1%", "1%", "10%", "100%"],
-            feedbackOk: "Korrekt! Minns 10%-regeln: Bara 10% av energin går vidare till nästa nivå. 90% förloras som värme eller används av djuret.", 
-            feedbackNok: "Fel. Minns 10%-regeln! Det finns 100% energi i botten (producenterna). Sen blir det 10% -> 1% -> 0.1% i toppen. Läs under 'Näringspyramid'." 
+            feedbackOk: "Korrekt! På grund av 10%-regeln ryms det väldigt få toppkonsumenter jämfört med producenter. 90% går förlorat som rörelse och värme på varje steg.", 
+            feedbackNok: "Fel. Minns 10%-regeln! Du startar med 100% energi i botten hos växterna (producenterna). Vid varje steg upp tappas 90%. Så det blir: 100% -> 10% -> 1% -> 0.1% högst upp i toppen." 
         }
     ];
-
 
     let currentQ = -1; 
     let highestActivated = -1;
