@@ -1336,6 +1336,7 @@ const questions = [
         if(className !== null) {
             const safeName = className.trim() || 'Klass';
             const cleanId = safeName.replace(/[^a-zA-Z0-9]/g, '');
+            window._pushedQuestions = new Set();
             window._lastPushedIndex = -1; currentMsgColor = 'none'; currentMsgText = '';
             currentSessionId = cleanId + '-' + Date.now().toString();
             window._currentClassName = safeName;
@@ -1387,17 +1388,20 @@ const questions = [
             statusTxt.style.display = 'block';
         }
     };
+    window._pushedQuestions = window._pushedQuestions || new Set();
     window.manualPush = async function(idx) {
         if(window._lastPushedIndex !== undefined && window._lastPushedIndex > -1 && window._lastPushedIndex !== idx) {
             saveHistory(window._lastPushedIndex);
         }
+        window._pushedQuestions.add(idx);
         currentMsgColor = 'none'; currentMsgText = ''; window._lastPushedIndex = idx;
         const clearBtn = document.getElementById('btnMsgClear');
         if(clearBtn) { clearBtn.style.display = 'none'; document.getElementById('activeMsgStatus').style.display = 'none'; }
         for (let i = 0; i < questions.length; i++) {
             const btn = document.getElementById(`t-btn-${i}`);
-            if(i < idx) { btn.style.background = 'rgba(255,255,255,0.05)'; btn.style.borderColor = 'rgba(255,255,255,0.1)'; btn.style.color = '#9ca3af'; btn.innerText = '✓ Redan pushad'; }
-            else if(i === idx) { btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.innerText = '▶️ AKTIV NU'; }
+            if(!btn) continue;
+            if(i === idx) { btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.innerText = '▶️ AKTIV NU'; }
+            else if(window._pushedQuestions.has(i)) { btn.style.background = 'rgba(255,255,255,0.05)'; btn.style.borderColor = 'rgba(255,255,255,0.1)'; btn.style.color = '#9ca3af'; btn.innerText = '✓ Redan pushad'; }
             else { btn.style.background = 'rgba(16,185,129,0.2)'; btn.style.borderColor = 'rgba(16,185,129,0.5)'; btn.style.color = '#fff'; btn.innerText = '🚀 Puscha till klassen'; }
         }
         await setGlobalQ(idx);
