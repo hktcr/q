@@ -346,7 +346,24 @@
     async function sendStat(type) {
         if(isTeacher) return;
         try {
-            await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${currentQ}_${type}/up`);
+            // Jitter for mitigating race conditions
+            await new Promise(r => setTimeout(r, Math.random() * 800));
+            
+            const statKey = `S_${currentSessionId}_Q${currentQ}`;
+            let res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${statKey}?t=` + Date.now(), { cache: 'no-store' });
+            let text = await res.text();
+            
+            let stats = {};
+            if (text && text !== '0' && !text.includes('not found')) {
+                text.replace(/"/g, '').split('|').forEach(p => {
+                    let [k,v] = p.split('=');
+                    if(k && v) stats[k] = parseInt(v);
+                });
+            }
+            stats[type] = (stats[type] || 0) + 1;
+            
+            let newStr = Object.keys(stats).map(k => `${k}=${stats[k]}`).join('|');
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${statKey}/${encodeURIComponent(newStr)}`, { method: 'POST', cache: 'no-store' });
         } catch(e) { console.warn("Stat sync failed", e); } // Graceful degradation
     }
 
@@ -1313,18 +1330,27 @@ const questions = [
             keys = ['ok', 'nok'];
         }
         
-        for(let k of keys) {
-            try {
-                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}/`, { cache: 'no-store' });
+        const statKey = `S_${currentSessionId}_Q${idx}`;
+        try {
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${statKey}?t=` + Date.now(), { cache: 'no-store' });
+            let text = await res.text();
+            let stats = {};
+            if (text && text !== '0' && !text.includes('not found')) {
+                text.replace(/"/g, '').split('|').forEach(p => {
+                    let [k,v] = p.split('=');
+                    if(k && v) stats[k] = parseInt(v);
+                });
+            }
+            
+            for(let k of keys) {
                 const statEl = document.getElementById(`stat_${idx}_${k}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if(statEl) statEl.textContent = data.count || 0;
-                } else {
-                    if(statEl) statEl.textContent = 0;
-                }
-            } catch(e) {
-                console.warn("Could not fetch stat", e);
+                if (statEl) statEl.textContent = stats[k] || 0;
+            }
+        } catch(e) {
+            console.warn("Could not fetch stat", e);
+            for(let k of keys) {
+                const statEl = document.getElementById(`stat_${idx}_${k}`);
+                if (statEl) statEl.textContent = 0;
             }
         }
         
