@@ -1593,6 +1593,15 @@
             player.jumpCount = 0;
         }
 
+        // Toxin sweat visual
+        if (toxin > 25 && Math.random() < toxin / 300) {
+            particles.push({
+                x: player.x + Math.random() * PLAYER_SIZE,
+                y: player.y + Math.random() * PLAYER_SIZE,
+                vx: 0, vy: -30, size: 2, color: '#a855f7', life: 0.5, maxLife: 0.8
+            });
+        }
+
         // Ducking
         player.ducking = keys.down && player.grounded;
 
@@ -1972,26 +1981,36 @@
                     ctx.beginPath();
                     ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2 + 3, 0, Math.PI * 2);
                     ctx.stroke();
-                    // Star marker
+                    // Star marker and Toxin markers
                     ctx.globalAlpha = 1;
+                    ctx.fillStyle = '#c084fc'; // Purple toxins (rich food gives +5 toxin)
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2 - 4, e.y + e.h/2 + 2, 2.5, 0, Math.PI * 2);
+                    ctx.arc(e.x + e.w/2 + 4, e.y + e.h/2 - 3, 2, 0, Math.PI * 2);
+                    ctx.arc(e.x + e.w/2, e.y + e.h/2 + 5, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
                     ctx.font = '10px "Press Start 2P"';
                     ctx.fillStyle = '#fff';
                     ctx.textAlign = 'center';
                     ctx.fillText('⭐', e.x + e.w/2, e.y - 4);
                 } else if (e.toxic) {
-                    // Toxic food: purple glow + skull marker
-                    ctx.shadowColor = '#a855f7';
-                    ctx.shadowBlur = 15 + Math.sin(gameTime * 5) * 5;
-                    ctx.fillStyle = '#c084fc';
+                    // Toxic food: Looks like normal food but with internal purple particles
+                    ctx.shadowColor = lvl.collectColor;
+                    ctx.shadowBlur = 12;
+                    ctx.fillStyle = lvl.collectColor;
                     ctx.beginPath();
                     ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
                     ctx.fill();
-                    // Skull marker
-                    ctx.globalAlpha = 0.7 + Math.sin(gameTime * 4) * 0.3;
-                    ctx.font = '10px "Press Start 2P"';
-                    ctx.fillStyle = '#fff';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('☠️', e.x + e.w/2, e.y - 4);
+                    // Internal purple toxins
+                    ctx.fillStyle = '#c084fc';
+                    const offset1 = Math.sin(gameTime * 4) * 2;
+                    const offset2 = Math.cos(gameTime * 3) * 2;
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2 - 2 + offset1, e.y + e.h/2 - 1 + offset2, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2 + 2 - offset2, e.y + e.h/2 + 2 - offset1, 2.0, 0, Math.PI * 2);
+                    ctx.fill();
                 } else {
                     // Normal collectible
                     ctx.shadowColor = lvl.collectColor;
@@ -2193,29 +2212,32 @@
 
             // Toxin bar (if applicable)
             if (currentLevel >= 2) {
-                const tBarX = GAME_W - 100;
-                const tBarY = 14;
+                const tBarX = GAME_W / 2 - 100;
+                const tBarY = barY + barH + 20;
                 const tPct = Math.min(toxin / 100, 1);
+                
+                let warningPulse = 0;
+                if (tPct > 0.5) warningPulse = Math.abs(Math.sin(gameTime * 8)) * 0.4;
 
-                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillStyle = `rgba(${239 + warningPulse*16}, 68, 68, ${0.4 + warningPulse})`;
                 ctx.beginPath();
-                ctx.roundRect(tBarX - 2, tBarY - 2, 84, barH + 4, 6);
+                ctx.roundRect(tBarX - 2, tBarY - 2, 204, barH + 4, 6);
                 ctx.fill();
 
                 ctx.fillStyle = 'rgba(255,255,255,0.08)';
                 ctx.beginPath();
-                ctx.roundRect(tBarX, tBarY, 80, barH, 4);
+                ctx.roundRect(tBarX, tBarY, 200, barH, 4);
                 ctx.fill();
 
                 ctx.fillStyle = tPct > 0.7 ? '#ef4444' : '#a855f7';
                 ctx.beginPath();
-                ctx.roundRect(tBarX, tBarY, 80 * tPct, barH, 4);
+                ctx.roundRect(tBarX, tBarY, 200 * tPct, barH, 4);
                 ctx.fill();
 
-                ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                ctx.font = '600 8px Inter';
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.font = '600 9px Inter';
                 ctx.textAlign = 'center';
-                ctx.fillText(`☠ Gift ${Math.round(toxin)}%`, tBarX + 40, tBarY + barH + 13);
+                ctx.fillText(`☠ Giftmätare: ${Math.round(toxin)}%`, GAME_W / 2, tBarY + barH + 13);
             }
 
             // Score
@@ -2249,15 +2271,18 @@
             }
 
             // Population slots
-            ctx.font = '12px "Press Start 2P"';
-            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.fillStyle = '#a7f3d0';
             ctx.textAlign = 'right';
+            ctx.fillText(`POPULATION: ${lives}/${lvl.maxPop}`, GAME_W - 12, 18);
+            
+            ctx.font = '12px "Press Start 2P"';
             let popStr = '';
             for (let i = 0; i < lvl.maxPop; i++) {
                 if (i < lives) popStr += lvl.emoji;
                 else popStr += '🌑';
             }
-            ctx.fillText(popStr, GAME_W - 12, 22);
+            ctx.fillText(popStr, GAME_W - 12, 34);
 
             // Shield indicator (shows remaining hits)
             if (shieldActive) {
@@ -2403,49 +2428,27 @@
             ctx.fillText('ÄT → VÄX → DELA DIG!', GAME_W - 152, GROUND_Y + 28);
         }
 
-        } else if (currentLevel === 2) {
+        if (currentLevel === 2 && gameTime < 7.0 && toxin === 0) {
             // Level 2 onboarding: toxic food + gold food + detox
-            // Step 1: Toxic food warning (0-3s)
-            if (gameTime < 3.5) {
-                const alpha = gameTime < 2.5 ? 0.95 : Math.max(0, 1.0 - (gameTime - 2.5) * 1.5);
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.beginPath();
-                ctx.roundRect(GAME_W/2 - 140, 35, 280, 35, 10);
-                ctx.fill();
-                ctx.font = '7px "Press Start 2P"';
-                ctx.fillStyle = '#a855f7';
-                ctx.textAlign = 'center';
-                ctx.fillText('\u2620\ufe0f LILA MAT = GIFTIG! UNDVIK?', GAME_W/2, 58);
-            }
-            // Step 2: Gold food (2-5s)
-            if (gameTime > 1.5 && gameTime < 5.5) {
-                const alpha = gameTime < 2.5 ? Math.min(1, (gameTime - 1.5)) :
-                              gameTime > 4.5 ? Math.max(0, 1.0 - (gameTime - 4.5) * 1.5) : 0.95;
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.beginPath();
-                ctx.roundRect(GAME_W/2 - 140, 78, 280, 35, 10);
-                ctx.fill();
-                ctx.font = '7px "Press Start 2P"';
-                ctx.fillStyle = '#fbbf24';
-                ctx.textAlign = 'center';
-                ctx.fillText('\u2b50 GULD = +3 ENERGI MEN GIFT', GAME_W/2, 100);
-            }
-            // Step 3: Detox (4-7s)
-            if (gameTime > 3.5 && gameTime < 7.5) {
-                const alpha = gameTime < 4.5 ? Math.min(1, (gameTime - 3.5) * 1.5) :
-                              gameTime > 6.5 ? Math.max(0, 1.0 - (gameTime - 6.5) * 1.5) : 0.95;
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.beginPath();
-                ctx.roundRect(GAME_W/2 - 130, 120, 260, 35, 10);
-                ctx.fill();
-                ctx.font = '7px "Press Start 2P"';
-                ctx.fillStyle = '#22c55e';
-                ctx.textAlign = 'center';
-                ctx.fillText('H\u00c5LL D = DETOX (KOSTAR \u26a1)', GAME_W/2, 142);
-            }
+            const alpha = gameTime < 6.0 ? 0.95 : Math.max(0, 1.0 - (gameTime - 6.0) * 1.5);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.beginPath();
+            ctx.roundRect(GAME_W/2 - 190, 35, 380, 130, 10);
+            ctx.fill();
+            
+            const bounce = Math.sin(gameTime * 5) * 3;
+            ctx.font = '9px "Press Start 2P"';
+            
+            ctx.fillStyle = '#c084fc'; // Purple
+            ctx.textAlign = 'center';
+            ctx.fillText('☠️ MAT MED LILA PRICKAR = GIFTIG!', GAME_W/2, 65 + bounce);
+            
+            ctx.fillStyle = '#fcd34d'; // Gold
+            ctx.fillText('⭐ GULD = +3 ENERGI, MEN LITE GIFT', GAME_W/2, 105 + bounce);
+            
+            ctx.fillStyle = '#4ade80'; // Green
+            ctx.fillText('HÅLL D = DETOX (KOSTAR ⚡)', GAME_W/2, 145 + bounce);
         }
 
         ctx.globalAlpha = 1;
@@ -3119,17 +3122,21 @@
             if (text && text !== '0' && !text.includes('not found')) {
                 text = text.replace(/"/g, '');
                 scores = text.split('|').map(s => {
-                    const [n, sc, lv] = s.split(':');
+                    const parts = s.includes('_') ? s.split('_') : s.split(':');
+                    const [n, sc, lv] = parts;
                     return { name: n, score: parseInt(sc) || 0, level: parseInt(lv) || 1 };
                 }).filter(s => s.name);
             }
 
-            scores.push({ name: playerName, score, level: currentLevel + 1 });
+            // Ensure player name does not contain our delimiter characters
+            const safeName = playerName.replace(/[_:|]/g, '').trim() || 'Spelare';
+            scores.push({ name: safeName, score, level: currentLevel + 1 });
             scores.sort((a, b) => b.score - a.score);
             scores = scores.slice(0, 25);
 
-            const encoded = encodeURIComponent(scores.map(s => `${s.name}:${s.score}:${s.level}`).join('|'));
-            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encoded}`, { method: 'POST', cache: 'no-store' });
+            // Use underscore instead of colon to bypass ASP.NET path validation error 400
+            const encoded = encodeURIComponent(scores.map(s => `${s.name}_${s.score}_${s.level}`).join('|'));
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encoded}`, { method: 'POST', body: '', cache: 'no-store' });
         } catch (e) {
             console.warn('Highscore submit failed:', e);
         }
@@ -3143,7 +3150,8 @@
             if (!text || text === '0' || text.includes('not found')) return [];
             text = text.replace(/"/g, '');
             return text.split('|').map(s => {
-                const [n, sc, lv] = s.split(':');
+                const parts = s.includes('_') ? s.split('_') : s.split(':');
+                const [n, sc, lv] = parts;
                 return { name: n, score: parseInt(sc) || 0, level: parseInt(lv) || 1 };
             }).filter(s => s.name).sort((a, b) => b.score - a.score);
         } catch (e) {
