@@ -946,8 +946,11 @@
                 <div class="gameover-score" id="goScore">0</div>
                 <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;" id="goLevel">Nådde: Nivå 2: Primärkonsument</p>
                 <div class="btn-group">
-                    <button class="btn" onclick="restartGame()">🔄 Spela igen</button>
+                    <button class="btn btn-secondary btn-sm" id="btnGoSubmit" onclick="userSubmitHighscore(this)">💾 Spara resultat</button>
                     <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+                </div>
+                <div class="btn-group" style="margin-top:0.5rem;">
+                    <button class="btn" onclick="restartGame()">🔄 Spela igen</button>
                 </div>
             </div>
         </div>
@@ -1008,8 +1011,11 @@
                 <div class="gameover-score" id="winScore">0</div>
                 <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Alla 4 trofinivåer avklarade!</p>
                 <div class="btn-group">
-                    <button class="btn btn-gold" onclick="restartGame()">🔄 Spela igen</button>
+                    <button class="btn btn-secondary btn-sm" id="btnWinSubmit" onclick="userSubmitHighscore(this)">💾 Spara resultat</button>
                     <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+                </div>
+                <div class="btn-group" style="margin-top:0.5rem;">
+                    <button class="btn btn-gold" onclick="restartGame()">🔄 Spela igen</button>
                 </div>
             </div>
         </div>
@@ -3093,8 +3099,14 @@
         document.getElementById('goScore').textContent = score.toLocaleString();
         document.getElementById('goLevel').textContent = `Nådde: Nivå ${currentLevel + 1}: ${LEVELS[currentLevel].name}`;
 
+        const btn = document.getElementById('btnGoSubmit');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '💾 Spara resultat';
+        }
+
         showOverlay('gameOverOverlay');
-        submitHighscore();
+        // submitHighscore(); // Now manual
     }
 
     function showWin() {
@@ -3102,13 +3114,28 @@
         hideAllOverlays();
         document.getElementById('hud').classList.add('hidden');
         document.getElementById('winScore').textContent = score.toLocaleString();
+        
+        const btn = document.getElementById('btnWinSubmit');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '💾 Spara resultat';
+        }
+
         showOverlay('winOverlay');
-        submitHighscore();
+        // submitHighscore(); // Now manual
     }
 
     // ============================================================
     // HIGHSCORE SYSTEM (Immanuel KV API)
     // ============================================================
+    async function userSubmitHighscore(btn) {
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        btn.textContent = 'Sparar...';
+        await submitHighscore();
+        btn.textContent = '✅ Sparat!';
+    }
+
     async function submitHighscore() {
         if (highscoreSubmitted) return;
         highscoreSubmitted = true;
