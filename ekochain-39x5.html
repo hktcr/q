@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>EkoChain 🌿 Klättra i Näringskedjan!</title>
-    <meta name="description" content="EkoChain: ett ekologi-arkadspel där du klättrar genom näringskedjan. Från alg till toppkonsument!">
+    <title>Apex 🌿 Klättra i Näringsväven!</title>
+    <meta name="description" content="Apex: ett ekologi-arkadspel där du klättrar genom näringsväven. Från alg till toppkonsument!">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Outfit:wght@700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -404,6 +404,22 @@
             margin-bottom: 1.5rem;
             line-height: 1.5;
         }
+        .levelup-legend {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .levelup-legend span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+        }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
 
         /* === GAME OVER === */
@@ -769,6 +785,27 @@
         @media (max-width: 400px) {
             .intro-rules { grid-template-columns: 1fr; }
         }
+        
+        /* Game entity symbols */
+        .ent-circle {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        .ent-alg { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .ent-insekt { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+        .ent-fagel { background: #eab308; box-shadow: 0 0 8px #eab308; }
+        .ent-rav { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .ent-gift { background: #a855f7; box-shadow: 0 0 8px #a855f7; position:relative; }
+        .ent-gift::after { content: "×"; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); color:white; font-size:12px; font-weight:bold; }
+        .ent-pop { display:inline-flex; gap:2px; vertical-align:middle; margin-right:6px; }
+        .ent-pop .ent-circle { margin-right: 0; width:10px; height:10px; }
+        .ent-pop .ent-circle:nth-child(1) { background: #22c55e; opacity:1; }
+        .ent-pop .ent-circle:nth-child(2) { background: #22c55e; opacity:0.7; }
+        .ent-pop .ent-circle:nth-child(3) { background: #22c55e; opacity:0.4; }
     </style>
 </head>
 <body>
@@ -778,9 +815,8 @@
         <!-- INTRO SCREEN -->
         <div id="introScreen">
             <div class="intro-card">
-                <div style="font-size:2.5rem; margin-bottom:0.5rem;">🌿🐛🐸🦊</div>
-                <h1 class="intro-title">EkoChain</h1>
-                <p class="intro-tagline">Klättra genom näringskedjan. Från alg till toppkonsument!</p>
+                <h1 class="intro-title">Apex</h1>
+                <p class="intro-tagline">Klättra till toppen av näringsväven.</p>
 
                 <div class="intro-story">
                     I naturen vandrar energin uppåt genom <strong>näringskedjan</strong>.
@@ -790,40 +826,36 @@
                 </div>
 
                 <div class="intro-chain">
-                    <div class="intro-chain-step">🌿 Alg</div>
+                    <div class="intro-chain-step"><div class="ent-circle ent-alg"></div>Alg</div>
                     <span class="intro-chain-arrow">→</span>
-                    <div class="intro-chain-step">🐛 Insekt</div>
+                    <div class="intro-chain-step"><div class="ent-circle ent-insekt"></div>Insekt</div>
                     <span class="intro-chain-arrow">→</span>
-                    <div class="intro-chain-step">🐸 Fågel</div>
+                    <div class="intro-chain-step"><div class="ent-circle ent-fagel"></div>Fågel</div>
                     <span class="intro-chain-arrow">→</span>
-                    <div class="intro-chain-step">🦊 Räv</div>
+                    <div class="intro-chain-step"><div class="ent-circle ent-rav"></div>Räv</div>
                 </div>
 
                 <div class="intro-rules">
                     <div class="intro-rule good">
-                        <span class="rule-icon">☀️</span>
-                        <span>Samla energi för att växa</span>
+                        <div class="ent-circle ent-alg"></div>
+                        <span>Ät mat och samla energi.</span>
                     </div>
                     <div class="intro-rule bad">
-                        <span class="rule-icon">🐛</span>
-                        <span>Rovdjur dränerar din energi!</span>
-                    </div>
-                    <div class="intro-rule good">
-                        <span class="rule-icon">🧠</span>
-                        <span>Svara rätt → sköld-powerup</span>
+                        <div class="ent-circle ent-rav"></div>
+                        <span>Undvik rovdjur!</span>
                     </div>
                     <div class="intro-rule bad">
-                        <span class="rule-icon">☠️</span>
-                        <span>Lila mat = gift! Guldmat = riskfylld</span>
+                        <div class="ent-circle ent-gift"></div>
+                        <span>Se upp för miljögifter!</span>
                     </div>
                     <div class="intro-rule good">
-                        <span class="rule-icon">👥</span>
+                        <div class="ent-pop"><div class="ent-circle ent-alg"></div><div class="ent-circle ent-alg"></div><div class="ent-circle ent-alg"></div></div>
                         <span>Väx och dela dig, bygg population!</span>
                     </div>
                 </div>
 
-                <button class="btn btn-blink" onclick="skipIntro()" style="width:100%;">🎮 PRESS START</button>
-                <p class="intro-tip">⌨️ SPACE = Hoppa &nbsp;|&nbsp; ⬇️ = Ducka &nbsp;|&nbsp; D = Detox &nbsp;|&nbsp; ESC = Paus</p>
+                <button class="btn btn-blink" onclick="skipIntro()" style="width:100%;">PRESS START</button>
+                <p class="intro-tip">[SPACE] = Hoppa &nbsp;|&nbsp; [NER] = Ducka &nbsp;|&nbsp; [D] = Detox &nbsp;|&nbsp; [ESC] = Paus</p>
             </div>
         </div>
 
@@ -831,18 +863,6 @@
         <div id="hud" class="hidden">
             <div class="hud-item">
                 <div class="hud-level" id="hudLevel">Nivå 1: Producent</div>
-            </div>
-            <div class="hud-item hud-energy">
-                <span class="hud-label">Energi</span>
-                <div class="hud-bar"><div class="hud-bar-fill" id="hudEnergy" style="width:0%"></div></div>
-            </div>
-            <div class="hud-item hud-toxin" id="hudToxinWrap">
-                <span class="hud-label">☠️ Gift</span>
-                <div class="hud-bar"><div class="hud-bar-fill" id="hudToxin" style="width:0%"></div></div>
-                <span class="hud-label" id="hudToxinPct" style="min-width:2.5em; text-align:right;">0%</span>
-            </div>
-            <div class="hud-item">
-                <span class="hud-score" id="hudScore">0</span>
             </div>
 
             <div class="hud-item" id="hudSymbiont" style="display:none; background:rgba(167,139,250,0.2); padding:2px 8px; border-radius:8px; font-size:0.75rem;">
@@ -912,6 +932,7 @@
                 <div class="levelup-emoji" id="levelUpEmoji">🐛</div>
                 <h2 class="levelup-title" id="levelUpTitle">Evolution!</h2>
                 <p class="levelup-desc" id="levelUpDesc"></p>
+                <div class="levelup-legend" id="levelUpLegend"></div>
                 <button class="btn btn-gold" onclick="startQuiz()">🧠 Svara rätt och vinn en SYMBIOS!</button>
             </div>
         </div>
@@ -1045,7 +1066,7 @@
             name: "Producent",
             emoji: "🌿",
             organism: "Alg",
-            description: "Du är en liten alg i havet. Strömmar drar i dig!",
+            description: "Du är en alg i havet – en livsviktig producent! Strömmar drar i dig.",
             bgColors: ["#0a2e1a", "#0f3d24", "#1a5c35"],
             groundColor: "#1a4a2a",
             groundAccent: "#2d6b40",
@@ -1067,7 +1088,7 @@
             name: "Primärkonsument",
             emoji: "🐛",
             organism: "Insekt",
-            description: "Du är en insekt! Stå stilla för att kamouflera dig.",
+            description: "Som primärkonsument är du jagad! Var inaktiv för att kamouflera dig.",
             bgColors: ["#1a3a1a", "#254d25", "#306630"],
             groundColor: "#3d5c2e",
             groundAccent: "#5a8040",
@@ -1089,7 +1110,7 @@
             name: "Sekundärkonsument",
             emoji: "🐸",
             organism: "Fågel",
-            description: "Du flyger! Vindbyar ändrar farten. Gift ackumuleras.",
+            description: "Sekundärkonsument. Du flyger i vindbyar. Miljögifter bioackumuleras – se upp!",
             bgColors: ["#1a2a3a", "#1e3a4d", "#254d66"],
             groundColor: "#3d4a3a",
             groundAccent: "#5a6850",
@@ -1111,7 +1132,7 @@
             name: "Toppkonsument",
             emoji: "🦊",
             organism: "Räv",
-            description: "Toppen! Dag och natt växlar. Gift är dödligt.",
+            description: "Apex-predator! Du är på toppen, men gifterna från bytena är nu livsfarliga.",
             bgColors: ["#2a1a1a", "#3d1a1a", "#4d2020"],
             groundColor: "#4a3a2e",
             groundAccent: "#6b5040",
@@ -1148,6 +1169,9 @@
     let frameCount = 0;
     let playerName = '';
     let quizAnswered = false;
+    let pendingSymbiosis = false;
+    let nextSymbiontSpawn = 0;
+    let symbiontLifeTimer = 0;
     let shieldActive = false;
     let shieldTimer = 0;
     let shieldHits = 0; // Shield now absorbs multiple hits
@@ -1184,8 +1208,7 @@
     let symbiontSpawned = false; // Track if symbiont spawned this level
 
     // Population & lives
-    let lives = 3;
-    let followers = []; // Trail positions for population visualization
+    let lives = 1; // Population of 1 organism
     let immuneTimer = 0; // Brief immunity after losing a life
 
     // Growth & reproduction
@@ -1598,6 +1621,7 @@
             // Split!
             energy -= lvl.reproCost;
             popCount++;
+            lives++;
             growthFactor = 0.7; // Shrink back after split
             totalCollected = Math.floor(totalCollected * 0.4); // Reset growth progress
             splitAnim = 0.8; // 0.8 sec animation
@@ -1664,6 +1688,20 @@
             spawnPowerup();
         }
 
+        if (nextSymbiontSpawn > 0 && gameTime >= nextSymbiontSpawn) {
+            spawnSymbiont();
+            symbiontSpawned = true;
+            nextSymbiontSpawn = 0;
+        }
+
+        if (activeSymbiont) {
+            symbiontLifeTimer -= dt;
+            if (symbiontLifeTimer <= 0) {
+                activeSymbiont = null;
+                spawnScorePopup(player.x, player.y, 'Symbios över');
+            }
+        }
+
         // Update entities
         for (let i = entities.length - 1; i >= 0; i--) {
             const e = entities[i];
@@ -1703,17 +1741,24 @@
                     spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, pColor);
                     entities.splice(i, 1);
 
-                    // Check level completion
+                    // Check population growth / level completion
                     if (energy >= lvl.energyNeeded) {
                         energy = 0;
-                        if (currentLevel < 3) {
-                            gameState = 'LEVELUP';
-                            showLevelUp();
-                        } else {
-                            // WIN!
-                            score += 2000;
-                            gameState = 'WIN';
-                            showWin();
+                        lives++;
+                        score += 500;
+                        sfx('levelup');
+                        spawnScorePopup(player.x, player.y, 'POPULATION +1!');
+                        
+                        if (lives >= lvl.maxPop) {
+                            if (currentLevel < 3) {
+                                gameState = 'LEVELUP';
+                                showLevelUp();
+                            } else {
+                                // WIN!
+                                score += 2000;
+                                gameState = 'WIN';
+                                showWin();
+                            }
                         }
                         return;
                     }
@@ -1740,8 +1785,9 @@
                         entities.splice(i, 1);
                         // Check life loss from energy depletion
                         if (energy <= 0) {
+                            lives--;
                             popCount--;
-                            if (popCount <= 0) {
+                            if (lives <= 0) {
                                 gameState = 'GAMEOVER';
                                 showGameOver('population');
                                 return;
@@ -1752,7 +1798,7 @@
                             totalCollected = 0;
                             immuneTimer = 2.0;
                             screenShake = 0.4;
-                            spawnScorePopup(player.x, player.y - 10, '💀 -1 POP');
+                            spawnScorePopup(player.x, player.y - 10, '💀 -1 LIV');
                         }
                     }
                 } else if (e.type === 'toxin') {
@@ -1779,8 +1825,9 @@
                         const threshold = resistensActive ? TOXIN_THRESHOLD_RESISTENS : TOXIN_THRESHOLD_BASE;
                         if (toxin >= threshold) {
                             // Bioaccumulation: lose a population member
+                            lives--;
                             popCount--;
-                            if (popCount <= 0) {
+                            if (lives <= 0) {
                                 gameState = 'GAMEOVER';
                                 showGameOver('bioaccumulation');
                                 return;
@@ -1820,6 +1867,7 @@
                         y: player.y - 5,
                     };
                     symbiontTimer = 0;
+                    symbiontLifeTimer = 30; // 30 seconds duration
                     score += 300;
                     sfx('symbiont');
                     spawnScorePopup(e.x, e.y, e.symData.emoji + ' SYMBIOS!');
@@ -2141,7 +2189,7 @@
             ctx.fillStyle = 'rgba(255,255,255,0.6)';
             ctx.font = '600 9px Inter';
             ctx.textAlign = 'center';
-            ctx.fillText(`${energy}/${lvl.energyNeeded} Energi`, GAME_W / 2, barY + barH + 14);
+            ctx.fillText(`⚡ Energi`, GAME_W / 2, barY + barH + 14);
 
             // Toxin bar (if applicable)
             if (currentLevel >= 2) {
@@ -2200,23 +2248,16 @@
                 ctx.globalAlpha = 1;
             }
 
-            // Population display (POP: count/carrying capacity)
-            ctx.font = '8px "Press Start 2P"';
-            ctx.fillStyle = '#a78bfa';
+            // Population slots
+            ctx.font = '12px "Press Start 2P"';
+            ctx.fillStyle = '#fff';
             ctx.textAlign = 'right';
-            const popLabel = 'POP:' + popCount + '/' + LEVELS[currentLevel].maxPop;
-            ctx.fillText(popLabel, GAME_W - 12, 18);
-            // Growth bar (small bar showing growth toward reproduction)
-            const growthPct = Math.min(1, (growthFactor - 0.6) / (1.2 - 0.6));
-            const gbX = GAME_W - 90, gbY = 22, gbW = 78, gbH = 5;
-            ctx.fillStyle = 'rgba(255,255,255,0.1)';
-            ctx.fillRect(gbX, gbY, gbW, gbH);
-            ctx.fillStyle = growthPct >= 1.0 ? '#fbbf24' : '#a78bfa';
-            ctx.fillRect(gbX, gbY, gbW * growthPct, gbH);
-            ctx.font = '5px "Press Start 2P"';
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.textAlign = 'right';
-            ctx.fillText('TILLVÄXT', GAME_W - 12, 35);
+            let popStr = '';
+            for (let i = 0; i < lvl.maxPop; i++) {
+                if (i < lives) popStr += lvl.emoji;
+                else popStr += '🌑';
+            }
+            ctx.fillText(popStr, GAME_W - 12, 22);
 
             // Shield indicator (shows remaining hits)
             if (shieldActive) {
@@ -2824,27 +2865,7 @@
     function updateHUD() {
         const lvl = LEVELS[currentLevel];
         document.getElementById('hudLevel').textContent = `Nivå ${currentLevel + 1}: ${lvl.name}`;
-        document.getElementById('hudEnergy').style.width = Math.min(energy / lvl.energyNeeded * 100, 100) + '%';
-        document.getElementById('hudScore').textContent = score.toLocaleString();
-        // Toxin bar (visible on all levels, active on 3+)
-        const toxinWrap = document.getElementById('hudToxinWrap');
-        const toxinBar = document.getElementById('hudToxin');
-        const toxinPct = document.getElementById('hudToxinPct');
-        if (currentLevel >= 2) {
-            toxinWrap.style.opacity = '1';
-            const threshold = resistensActive ? TOXIN_THRESHOLD_RESISTENS : TOXIN_THRESHOLD_BASE;
-            const pct = Math.min(toxin / threshold * 100, 100);
-            toxinBar.style.width = pct + '%';
-            // Color codes weakness tiers
-            toxinBar.style.background = toxin > 75 ? '#dc2626' : toxin > 50 ? '#f59e0b' : toxin > 25 ? '#84cc16' : '#22c55e';
-            toxinPct.textContent = Math.round(toxin) + '%';
-            toxinPct.style.color = toxin > 70 ? '#ef4444' : toxin > 40 ? '#f59e0b' : 'var(--text-muted)';
-        } else {
-            toxinWrap.style.opacity = '0.3';
-            toxinBar.style.width = '0%';
-            toxinPct.textContent = '--';
-        }
-
+        
         // Symbiont display
         const symEl = document.getElementById('hudSymbiont');
         if (activeSymbiont) {
@@ -2897,7 +2918,7 @@
         biotopParticles = [];
         rushActive = false;
         symbiontSpawned = false;
-        lives = 3;
+        lives = 1;
         followers = [];
         immuneTimer = 0;
         growthFactor = 0.6;
@@ -2936,6 +2957,11 @@
         document.getElementById('levelUpEmoji').textContent = nextLvl.emoji;
         document.getElementById('levelUpTitle').textContent = `Evolution! → ${nextLvl.name}`;
         document.getElementById('levelUpDesc').textContent = nextLvl.description;
+        
+        let legendHTML = `<span>${nextLvl.collectEmoji} Mat</span>`;
+        if (nextLvl.hazardEmoji) legendHTML += `<span>${nextLvl.hazardEmoji} Fiende</span>`;
+        if (currentLevel + 1 >= 2) legendHTML += `<span>☠️ Gift</span>`;
+        document.getElementById('levelUpLegend').innerHTML = legendHTML;
         showOverlay('levelUpOverlay');
         score += 1000 * (currentLevel + 1);
     }
@@ -3024,6 +3050,7 @@
         rushActive = false;
         symbiontSpawned = false;
         immuneTimer = 0;
+        lives = 1;
         followers = [];
         growthFactor = 0.6;
         popCount = 1;
@@ -3033,8 +3060,7 @@
         scrollSpeed = LEVELS[currentLevel].baseSpeed;
         
         if (pendingSymbiosis) {
-            spawnSymbiont();
-            symbiontSpawned = true;
+            nextSymbiontSpawn = 15 + Math.random() * 15;
             pendingSymbiosis = false;
         }
 
