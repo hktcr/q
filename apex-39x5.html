@@ -2389,50 +2389,51 @@
                 ctx.fillText('↑ SPACE=HOPPA', player.x - 12, player.y - 35 + bounce);
             }
 
-        // Step 2: Duck (2-4.5s)
-        if (gameTime > 2.0 && gameTime < 4.5) {
-            const alpha = gameTime < 2.5 ? (gameTime - 2.0) * 2 : (gameTime > 4.0 ? Math.max(0, 1.0 - (gameTime - 4.0) * 2) : 0.9);
-            ctx.globalAlpha = alpha;
-            const bounce = Math.sin(gameTime * 6) * 4;
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.beginPath();
-            ctx.roundRect(player.x - 20, player.y + PLAYER_SIZE + 8 + bounce, 130, 30, 8);
-            ctx.fill();
-            ctx.font = '8px "Press Start 2P"';
-            ctx.fillStyle = '#fbbf24';
-            ctx.textAlign = 'left';
-            ctx.fillText('↓ S/NER=DUCKA', player.x - 12, player.y + PLAYER_SIZE + 28 + bounce);
-        }
+            // Step 2: Duck (2-4.5s)
+            if (gameTime > 2.0 && gameTime < 4.5) {
+                const alpha = gameTime < 2.5 ? (gameTime - 2.0) * 2 : (gameTime > 4.0 ? Math.max(0, 1.0 - (gameTime - 4.0) * 2) : 0.9);
+                ctx.globalAlpha = alpha;
+                const bounce = Math.sin(gameTime * 6) * 4;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.beginPath();
+                ctx.roundRect(player.x - 20, player.y + PLAYER_SIZE + 8 + bounce, 130, 30, 8);
+                ctx.fill();
+                ctx.font = '8px "Press Start 2P"';
+                ctx.fillStyle = '#fbbf24';
+                ctx.textAlign = 'left';
+                ctx.fillText('↓ S/NER=DUCKA', player.x - 12, player.y + PLAYER_SIZE + 28 + bounce);
+            }
 
-        // Step 3: Collect/Avoid (4-6s)
-        if (gameTime > 4.0 && gameTime < 6.5) {
-            const alpha = gameTime < 4.5 ? (gameTime - 4.0) * 2 : (gameTime > 6.0 ? Math.max(0, 1.0 - (gameTime - 6.0) * 2) : 0.85);
-            ctx.globalAlpha = alpha;
-            const lvl = LEVELS[currentLevel];
-            // Collect indicator
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.beginPath();
-            ctx.roundRect(GAME_W - 160, GROUND_Y - 120, 150, 28, 8);
-            ctx.fill();
-            ctx.font = '7px "Press Start 2P"';
-            ctx.fillStyle = lvl.collectColor;
-            ctx.textAlign = 'left';
-            ctx.fillText('SAMLA ' + lvl.collectEmoji + ' ←', GAME_W - 152, GROUND_Y - 102);
-            // Avoid indicator
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.beginPath();
-            ctx.roundRect(GAME_W - 160, GROUND_Y - 50, 150, 28, 8);
-            ctx.fill();
-            ctx.fillStyle = '#ef4444';
-            ctx.fillText('UNDVIK ' + lvl.hazardEmoji + ' ←', GAME_W - 152, GROUND_Y - 32);
-            // Growth hint
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.beginPath();
-            ctx.roundRect(GAME_W - 160, GROUND_Y + 10, 150, 28, 8);
-            ctx.fill();
-            ctx.fillStyle = '#a78bfa';
-            ctx.fillText('ÄT → VÄX → DELA DIG!', GAME_W - 152, GROUND_Y + 28);
-        }
+            // Step 3: Collect/Avoid (4-6s)
+            if (gameTime > 4.0 && gameTime < 6.5) {
+                const alpha = gameTime < 4.5 ? (gameTime - 4.0) * 2 : (gameTime > 6.0 ? Math.max(0, 1.0 - (gameTime - 6.0) * 2) : 0.85);
+                ctx.globalAlpha = alpha;
+                const lvl = LEVELS[currentLevel];
+                // Collect indicator
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.beginPath();
+                ctx.roundRect(GAME_W - 160, GROUND_Y - 120, 150, 28, 8);
+                ctx.fill();
+                ctx.font = '7px "Press Start 2P"';
+                ctx.fillStyle = lvl.collectColor;
+                ctx.textAlign = 'left';
+                ctx.fillText('SAMLA ' + lvl.collectEmoji + ' ←', GAME_W - 152, GROUND_Y - 102);
+                // Avoid indicator
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.beginPath();
+                ctx.roundRect(GAME_W - 160, GROUND_Y - 50, 150, 28, 8);
+                ctx.fill();
+                ctx.fillStyle = '#ef4444';
+                ctx.fillText('UNDVIK ' + lvl.hazardEmoji + ' ←', GAME_W - 152, GROUND_Y - 32);
+                // Growth hint
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.beginPath();
+                ctx.roundRect(GAME_W - 160, GROUND_Y + 10, 150, 28, 8);
+                ctx.fill();
+                ctx.fillStyle = '#a78bfa';
+                ctx.fillText('ÄT → VÄX → DELA DIG!', GAME_W - 152, GROUND_Y + 28);
+            }
+        } // end if (currentLevel === 0)
 
         if (currentLevel === 2 && gameTime < 7.0 && toxin === 0) {
             // Level 2 onboarding: toxic food + gold food + detox
