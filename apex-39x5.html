@@ -1,0 +1,3341 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>EkoChain 🌿 Klättra i Näringskedjan!</title>
+    <meta name="description" content="EkoChain: ett ekologi-arkadspel där du klättrar genom näringskedjan. Från alg till toppkonsument!">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Outfit:wght@700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #0a0f0a;
+            --surface: rgba(15, 23, 42, 0.85);
+            --surface-light: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --correct: #10b981;
+            --incorrect: #ef4444;
+            --gold: #f59e0b;
+            --toxin: #a855f7;
+            --energy: #3b82f6;
+            --radius: 16px;
+            --retro: 'Press Start 2P', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, #0a1a0f 0%, #0d1117 100%);
+        }
+        /* CRT Scanline overlay */
+        #gameContainer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.08) 2px,
+                rgba(0, 0, 0, 0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        canvas {
+            display: block;
+            background: #000;
+            border-radius: 0;
+            image-rendering: pixelated;
+        }
+
+        /* Retro blink for start buttons */
+        @keyframes retroBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .btn-blink {
+            animation: retroBlink 1.5s ease-in-out infinite;
+        }
+
+        /* Retro game-over and level-up titles */
+        .gameover-score, .win-score {
+            font-family: var(--retro) !important;
+            text-shadow: 0 0 12px var(--gold);
+        }
+
+        /* === OVERLAY BASE === */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 10;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        /* === GLASS CARD === */
+        .glass {
+            background: rgba(10, 15, 20, 0.92);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: clamp(1.5rem, 4vh, 3rem) clamp(1.5rem, 4vw, 3rem);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+        }
+        .glass-wide {
+            max-width: 900px;
+        }
+
+        /* === MENU SCREEN === */
+        .menu-badge {
+            display: inline-block;
+            font-family: var(--retro);
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+        .menu-title {
+            font-family: var(--retro);
+            font-size: clamp(1.8rem, 6vw, 3rem);
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 40%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.5));
+        }
+        .menu-sub {
+            font-family: var(--retro);
+            font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 2;
+        }
+        .menu-emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* === INPUT === */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-align: left;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .input-field:focus {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.08);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        .input-field::placeholder { color: rgba(255,255,255,0.25); }
+
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-family: var(--retro);
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #fff;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.25s ease;
+            min-width: 200px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--primary-glow);
+        }
+        .btn:active { transform: translateY(0); }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.15);
+            color: var(--text-muted);
+        }
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 8px 30px rgba(16,185,129,0.15);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .btn-gold:hover {
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+        }
+        .btn-sm {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.9rem;
+            min-width: auto;
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* === HUD === */
+        #hud {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 0.6rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            z-index: 5;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        #hud.hidden { display: none; }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .hud-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .hud-bar {
+            width: 80px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .hud-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .hud-energy .hud-bar-fill {
+            background: linear-gradient(90deg, var(--energy), #60a5fa);
+        }
+        .hud-toxin .hud-bar-fill {
+            background: linear-gradient(90deg, var(--toxin), #c084fc);
+        }
+        .hud-toxin .hud-bar-fill.flash {
+            animation: toxFlash 0.4s ease;
+        }
+        @keyframes toxFlash {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(2); box-shadow: 0 0 8px var(--toxin); }
+        }
+        .hud-score {
+            font-family: var(--retro);
+            font-size: 0.9rem;
+            color: var(--gold);
+            text-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+        .hud-level {
+            font-family: var(--retro);
+            padding: 0.25rem 0.7rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 8px;
+            font-size: 0.45rem;
+            color: var(--primary);
+            text-shadow: 0 0 6px var(--primary-glow);
+        }
+
+        /* === QUIZ OVERLAY === */
+        .quiz-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+        .quiz-q {
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .quiz-opt {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 1.2rem;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .quiz-opt:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+        .quiz-opt.correct { border-color: var(--correct) !important; background: rgba(16,185,129,0.15) !important; }
+        .quiz-opt.wrong { border-color: var(--incorrect) !important; background: rgba(239,68,68,0.12) !important; opacity: 0.7; }
+        .quiz-opt .letter {
+            flex-shrink: 0;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            font-weight: 700; font-size: 0.85rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .quiz-opt.correct .letter { background: var(--correct); color: #fff; }
+        .quiz-opt.wrong .letter { background: var(--incorrect); color: #fff; }
+
+        .quiz-feedback {
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: none;
+            border-left: 4px solid;
+            text-align: left;
+            animation: fadeUp 0.4s ease-out;
+        }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.ok { background: rgba(16,185,129,0.1); border-color: var(--correct); color: #a7f3d0; }
+        .quiz-feedback.nok { background: rgba(239,68,68,0.1); border-color: var(--incorrect); color: #fca5a5; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === LEVEL UP === */
+        .levelup-emoji { font-size: 4rem; margin-bottom: 0.5rem; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .levelup-title {
+            font-family: var(--retro);
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+        }
+        .levelup-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* === GAME OVER === */
+        .gameover-score {
+            font-family: var(--retro);
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-weight: 400;
+            color: var(--gold);
+            margin: 0.5rem 0;
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+        }
+
+        /* === HIGHSCORE TABLE === */
+        .hs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .hs-table th {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .hs-table td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .hs-rank { font-weight: 800; width: 40px; }
+        .hs-rank.gold { color: #fbbf24; }
+        .hs-rank.silver { color: #cbd5e1; }
+        .hs-rank.bronze { color: #d97706; }
+        .hs-name { font-weight: 600; text-align: left; }
+        .hs-score { font-family: var(--retro); font-size: 0.7rem; color: var(--gold); font-weight: 400; }
+        .hs-level { color: var(--primary); font-size: 0.8rem; }
+        .hs-you { background: rgba(16, 185, 129, 0.1); }
+
+        /* === TEACHER DASHBOARD === */
+        .teacher-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .teacher-title {
+            font-family: var(--retro);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+        .class-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .class-btn {
+            padding: 0.5rem 1rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .class-btn:hover { border-color: rgba(255,255,255,0.2); }
+        .class-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .teacher-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-family: var(--retro);
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .teacher-url {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            color: var(--primary);
+            word-break: break-all;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .teacher-url:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--primary);
+        }
+        .teacher-url .label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        /* === MOBILE CONTROLS === */
+        .mobile-controls {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 35%;
+            display: none;
+            z-index: 4;
+            pointer-events: auto;
+        }
+        .mobile-controls .mc-zone {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: rgba(255,255,255,0.15);
+            pointer-events: auto;
+        }
+        .mc-jump {
+            top: 0; left: 50%; right: 0; bottom: 0;
+        }
+        .mc-duck {
+            top: 0; left: 0; right: 50%; bottom: 0;
+        }
+
+        /* === PAUSE OVERLAY === */
+        #pauseOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            transition: opacity 0.3s ease;
+        }
+        #pauseOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #pauseOverlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .pause-card {
+            background: rgba(10, 15, 20, 0.92);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
+            text-align: center;
+        }
+        .pause-title {
+            font-family: var(--retro);
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        .pause-sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+        .hud-pause-btn {
+            pointer-events: auto;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.5);
+            font-size: 1.1rem;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hud-pause-btn:hover {
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 600px) {
+            .glass { padding: 1.2rem; border-radius: 18px; }
+            .menu-title { font-size: 2.2rem; }
+            .btn { padding: 0.85rem 1.5rem; font-size: 1rem; min-width: 160px; }
+            .hud-bar { width: 55px; }
+            .hud-score { font-size: 1rem; }
+            #hud { padding: 0.4rem 0.6rem; }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .mobile-controls { display: flex; }
+        }
+
+        /* === MISC ANIMATIONS === */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        .shake { animation: shake 0.4s ease; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .pulse { animation: pulse 1.5s ease-in-out infinite; }
+
+        .score-popup {
+            position: absolute;
+            font-family: var(--retro);
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: var(--gold);
+            pointer-events: none;
+            z-index: 6;
+            animation: scoreFloat 1s ease-out forwards;
+        }
+        @keyframes scoreFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.3); }
+        }
+
+        /* === INTRO SCREEN === */
+        #introScreen {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            background: radial-gradient(ellipse at 50% 30%, #0a2e1a 0%, #000 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: introFadeIn 0.8s ease;
+        }
+        #introScreen.hidden { display: none; }
+        @keyframes introFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .intro-card {
+            max-width: 540px;
+            width: 100%;
+            text-align: center;
+        }
+        .intro-title {
+            font-family: var(--retro);
+            font-size: clamp(1.6rem, 6vw, 2.5rem);
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #10b981, #34d399, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.5));
+        }
+        .intro-tagline {
+            font-family: var(--retro);
+            font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 2;
+        }
+        .intro-story {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+            margin-bottom: 1.5rem;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            line-height: 1.7;
+            color: #cbd5e1;
+        }
+        .intro-story strong { color: var(--gold); }
+        .intro-story em { color: var(--primary); font-style: normal; font-weight: 600; }
+
+        .intro-chain {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin: 1.2rem 0;
+            flex-wrap: wrap;
+        }
+        .intro-chain-step {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.35rem 0.7rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .intro-chain-arrow {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .intro-rules {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .intro-rule {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: left;
+        }
+        .intro-rule .rule-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .intro-rule.good { border-color: rgba(16, 185, 129, 0.2); color: #a7f3d0; }
+        .intro-rule.bad { border-color: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+
+        .intro-tip {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 400px) {
+            .intro-rules { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- INTRO SCREEN -->
+        <div id="introScreen">
+            <div class="intro-card">
+                <div style="font-size:2.5rem; margin-bottom:0.5rem;">🌿🐛🐸🦊</div>
+                <h1 class="intro-title">Apex</h1>
+                <p class="intro-tagline">Klättra till toppen av näringsväven.</p>
+
+                <div class="intro-story">
+                    I naturen vandrar energin uppåt genom <strong>näringskedjan</strong>.
+                    Algen fångar solljus. Insekten äter algen. Fågeln äter insekten. Räven jagar fågeln.
+                    Vid varje steg förloras <strong>90% av energin</strong>, och 
+                    <em>gifter ackumuleras</em> ju högre upp du klättrar.
+                </div>
+
+                <div class="intro-chain">
+                    <div class="intro-chain-step">🌿 Alg</div>
+                    <span class="intro-chain-arrow">→</span>
+                    <div class="intro-chain-step">🐛 Insekt</div>
+                    <span class="intro-chain-arrow">→</span>
+                    <div class="intro-chain-step">🐸 Fågel</div>
+                    <span class="intro-chain-arrow">→</span>
+                    <div class="intro-chain-step">🦊 Räv</div>
+                </div>
+
+                <div class="intro-rules">
+                    <div class="intro-rule good">
+                        <span class="rule-icon">☀️</span>
+                        <span>Samla energi för att växa</span>
+                    </div>
+                    <div class="intro-rule bad">
+                        <span class="rule-icon">🐛</span>
+                        <span>Rovdjur dränerar din energi!</span>
+                    </div>
+                    <div class="intro-rule good">
+                        <span class="rule-icon">🧠</span>
+                        <span>Svara rätt → sköld-powerup</span>
+                    </div>
+                    <div class="intro-rule bad">
+                        <span class="rule-icon">☠️</span>
+                        <span>Lila mat = gift! Guldmat = riskfylld</span>
+                    </div>
+                    <div class="intro-rule good">
+                        <span class="rule-icon">👥</span>
+                        <span>Väx och dela dig, bygg population!</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-blink" onclick="skipIntro()" style="width:100%;">🎮 PRESS START</button>
+                <p class="intro-tip">⌨️ SPACE = Hoppa &nbsp;|&nbsp; ⬇️ = Ducka &nbsp;|&nbsp; D = Detox &nbsp;|&nbsp; ESC = Paus</p>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div class="hud-item">
+                <div class="hud-level" id="hudLevel">Nivå 1: Producent</div>
+            </div>
+            <div class="hud-item hud-energy">
+                <span class="hud-label">Energi</span>
+                <div class="hud-bar"><div class="hud-bar-fill" id="hudEnergy" style="width:0%"></div></div>
+            </div>
+            <div class="hud-item hud-toxin" id="hudToxinWrap">
+                <span class="hud-label">☠️ Gift</span>
+                <div class="hud-bar"><div class="hud-bar-fill" id="hudToxin" style="width:0%"></div></div>
+                <span class="hud-label" id="hudToxinPct" style="min-width:2.5em; text-align:right;">0%</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-score" id="hudScore">0</span>
+            </div>
+
+            <div class="hud-item" id="hudSymbiont" style="display:none; background:rgba(167,139,250,0.2); padding:2px 8px; border-radius:8px; font-size:0.75rem;">
+                <span id="hudSymName"></span>
+            </div>
+            <div class="hud-item">
+                <button class="hud-pause-btn" id="hudPauseBtn" onclick="togglePause()" title="Paus">⏸️</button>
+                <button class="hud-pause-btn" id="muteBtn" onclick="toggleMute()" title="Ljud" style="margin-left:4px;">🔇</button>
+            </div>
+        </div>
+
+        <!-- MOBILE CONTROLS -->
+        <div class="mobile-controls" id="mobileControls">
+            <div class="mc-zone mc-duck" id="mcDuck">⬇️ DUCKA</div>
+            <div class="mc-zone" id="mcDetox" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:80px;height:36px;background:rgba(34,197,94,0.25);border:1px solid rgba(34,197,94,0.5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#22c55e;font-family:'Press Start 2P',monospace;pointer-events:auto;z-index:25;">🧬 D</div>
+            <div class="mc-zone mc-jump" id="mcJump">⬆️ HOPPA</div>
+        </div>
+
+        <!-- PAUSE OVERLAY -->
+        <div id="pauseOverlay" class="hidden">
+            <div class="pause-card">
+                <div class="pause-title">⏸️ Paus</div>
+                <p class="pause-sub">Tryck Escape eller klicka för att fortsätta</p>
+                <button class="btn" onclick="togglePause()">▶ Fortsätt</button>
+            </div>
+        </div>
+
+        <!-- MENU -->
+        <div class="overlay visible" id="menuOverlay">
+            <div class="glass">
+                <div class="menu-emoji">🌿🐛🐸🦊</div>
+                <div class="menu-badge">Ekologi Arkadspel</div>
+                <h1 class="menu-title">EkoChain</h1>
+                <p class="menu-sub">Klättra genom näringskedjan!<br>Från alg till toppkonsument. Om du överlever...</p>
+                <div class="input-group">
+                    <label for="playerName">Ditt namn</label>
+                    <input type="text" id="playerName" class="input-field" placeholder="Skriv ditt namn..." maxlength="20" autocomplete="off">
+                </div>
+
+                <div class="btn-group" style="margin-bottom: 1rem;">
+                    <button class="btn" id="startBtn" onclick="startGame()">🎮 Starta spelet</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+                    <button class="btn btn-secondary btn-sm" onclick="replayIntro()">📜 Intro</button>
+                </div>
+                <p style="font-size:0.7rem; color:rgba(255,255,255,0.25); margin-top:1.5rem;">
+                    ⌨️ SPACE/↑ = Hoppa &nbsp;|&nbsp; ↓ = Ducka &nbsp;|&nbsp; 📱 Tryck vänster/höger
+                </p>
+            </div>
+        </div>
+
+        <!-- QUIZ OVERLAY -->
+        <div class="overlay hidden" id="quizOverlay">
+            <div class="glass">
+                <div class="quiz-badge">⚡ Ekologi-utmaning</div>
+                <p class="quiz-q" id="quizQuestion"></p>
+                <div class="quiz-options" id="quizOptions"></div>
+                <div class="quiz-feedback" id="quizFeedback"></div>
+                <button class="btn" id="quizNextBtn" style="display:none;" onclick="quizContinue()">Fortsätt spela ▶</button>
+            </div>
+        </div>
+
+        <!-- LEVEL UP OVERLAY -->
+        <div class="overlay hidden" id="levelUpOverlay">
+            <div class="glass">
+                <div class="levelup-emoji" id="levelUpEmoji">🐛</div>
+                <h2 class="levelup-title" id="levelUpTitle">Evolution!</h2>
+                <p class="levelup-desc" id="levelUpDesc"></p>
+                <button class="btn btn-gold" onclick="startQuiz()">🧠 Svara rätt och vinn en SYMBIOS!</button>
+            </div>
+        </div>
+
+        <!-- GAME OVER OVERLAY -->
+        <div class="overlay hidden" id="gameOverOverlay">
+            <div class="glass">
+                <div style="font-size:3rem; margin-bottom:0.5rem;" id="goEmoji">💀</div>
+                <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:0.25rem;" id="goTitle">Game Over</h2>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:0.5rem;" id="goSubtitle">Bioackumulation tog kål på dig!</p>
+                <div class="gameover-score" id="goScore">0</div>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;" id="goLevel">Nådde: Nivå 2: Primärkonsument</p>
+                <div class="btn-group">
+                    <button class="btn" onclick="restartGame()">🔄 Spela igen</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HIGHSCORES OVERLAY -->
+        <div class="overlay hidden" id="hsOverlay">
+            <div class="glass glass-wide">
+                <div class="menu-badge">🏆 Topplistan</div>
+                <h2 style="font-family:'Press Start 2P',monospace; font-size:1rem; font-weight:400; margin-bottom:1rem; text-shadow:0 0 12px var(--gold);">Highscores</h2>
+                <div id="hsTableWrap">
+                    <p style="color:var(--text-muted);" class="pulse">Laddar...</p>
+                </div>
+                <div class="btn-group" style="margin-top:1rem;">
+                    <button class="btn btn-secondary btn-sm" onclick="backToMenu()">← Tillbaka</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEACHER DASHBOARD -->
+        <div class="overlay hidden" id="teacherOverlay">
+            <div class="glass glass-wide" style="max-height:90vh; overflow-y:auto;">
+                <div class="teacher-header">
+                    <div>
+                        <div class="menu-badge">👨‍🏫 Lärarvy</div>
+                        <h2 class="teacher-title">EkoChain Dashboard</h2>
+                    </div>
+                    <div class="class-selector" id="classSelector">
+                        <button class="class-btn active" onclick="selectClass('BJKA1')" data-cls="BJKA1">BJKA1</button>
+                        <button class="class-btn" onclick="selectClass('BJKD1')" data-cls="BJKD1">BJKD1</button>
+                        <button class="class-btn" onclick="selectClass('BJKE1')" data-cls="BJKE1">BJKE1</button>
+                    </div>
+                </div>
+                <div class="teacher-url" onclick="copyUrl()" id="teacherUrl">
+                    <span class="label">Elevlänk (klicka för att kopiera)</span>
+                    <span id="teacherUrlText"></span>
+                </div>
+                <div class="teacher-stats" id="teacherStats">
+                    <div class="stat-card"><div class="stat-value" id="tStatPlayers">0</div><div class="stat-label">Spelare</div></div>
+                    <div class="stat-card"><div class="stat-value" id="tStatHighest">0</div><div class="stat-label">Högsta poäng</div></div>
+                    <div class="stat-card"><div class="stat-value" id="tStatAvg">0</div><div class="stat-label">Snitt</div></div>
+                    <div class="stat-card"><div class="stat-value" id="tStatMaxLvl">1</div><div class="stat-label">Högsta nivå</div></div>
+                </div>
+                <div id="teacherHsWrap">
+                    <p style="color:var(--text-muted);" class="pulse">Laddar leaderboard...</p>
+                </div>
+                <div class="btn-group" style="margin-top:1rem;">
+                    <button class="btn btn-sm" style="background:var(--incorrect);" onclick="resetHighscores()">🗑️ Nollställ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WIN OVERLAY -->
+        <div class="overlay hidden" id="winOverlay">
+            <div class="glass">
+                <div style="font-size:4rem; margin-bottom:0.5rem;">🏆🦊</div>
+                <h2 style="font-family:'Press Start 2P',monospace; font-size:clamp(0.9rem,3vw,1.3rem); font-weight:400; margin-bottom:0.25rem; text-shadow:0 0 15px rgba(16,185,129,0.6);">Toppkonsument!</h2>
+                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:0.5rem;">Du klarade hela näringskedjan!</p>
+                <div class="gameover-score" id="winScore">0</div>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Alla 4 trofinivåer avklarade!</p>
+                <div class="btn-group">
+                    <button class="btn btn-gold" onclick="restartGame()">🔄 Spela igen</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ============================================================
+    // CONSTANTS & CONFIG
+    // ============================================================
+    const APP_KEY = "HakanEkoChain_Ekologi2026_v1";
+    const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+    const GAME_W = 800;
+    const GAME_H = 450;
+    const GRAVITY = 1800;
+    const JUMP_FORCE = -620;
+    const GROUND_Y = GAME_H - 60;
+    const PLAYER_SIZE = 28;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTeacher = urlParams.get('mode') === 'teacher';
+    let currentClass = 'BJKA1';
+
+    // ============================================================
+    // ECOLOGY QUESTIONS (from GIMKIT_EKOLOGI_V1.csv)
+    // ============================================================
+    const ecoQuestions = [
+        { q: "Läran om samspelet mellan levande varelser och deras miljö kallas?", correct: "Ekologi", wrong: ["Biologi", "Geologi", "Kemi"], explanation: "Just det! Läran om samspelet. Precis det du upplever här: varje organism påverkar alla andra!" },
+        { q: "Ett avgränsat område i naturen där allt levande samspelar med sin omgivning kallas?", correct: "Ekosystem", wrong: ["Biotop", "Population", "Biosfär"], explanation: "Hela det här spelet är ett ekosystem! Allt från algen till räven är del av det." },
+        { q: "En specifik naturtyp, till exempel en lövskog, en sjö eller en äng kallas?", correct: "Biotop", wrong: ["Ekosystem", "Klimat", "Habitat"], explanation: "Tänk på bakgrunden i spelet. Varje nivå är en annan typ av biotop!" },
+        { q: "Alla individer av SAMMA art som lever i ett visst område kallas?", correct: "Population", wrong: ["Samhälle", "Flock", "Biotop"], explanation: "Alla alger på nivå 1, alla insekter på nivå 2. Det är populationer!" },
+        { q: "Alla populationer av olika arter som lever tillsammans i ett ekosystem kallas?", correct: "Samhälle", wrong: ["Population", "Ekosystem", "Biotop"], explanation: "Alla arter du möter i spelet (alger, insekter, fåglar, rävar) bildar tillsammans ett samhälle." },
+        { q: "De levande delarna i ett ekosystem (växter, djur, svampar) kallas?", correct: "Biotiska faktorer", wrong: ["Abiotiska faktorer", "Producenter", "Nedbrytare"], explanation: "Allt levande du möter i spelet är biotiska faktorer!" },
+        { q: "De icke-levande delarna i ett ekosystem (temperatur, vind, solljus) kallas?", correct: "Abiotiska faktorer", wrong: ["Biotiska faktorer", "Klimatfaktorer", "Döda faktorer"], explanation: "Solljuset du samlar på nivå 1? Det är en abiotisk faktor!" },
+        { q: "När det finns en stor rikedom och variation av arter i naturen kallas det?", correct: "Biologisk mångfald", wrong: ["Ekosystem", "Population", "Evolution"], explanation: "Ju fler arter i kedjan, desto stabilare ekosystem. Mångfald är styrka!" },
+        { q: "En organism som tillverkar sin egen näring genom fotosyntes kallas?", correct: "Producent", wrong: ["Konsument", "Nedbrytare", "Toppkonsument"], explanation: "Det är DU på nivå 1: algen som startar hela näringskedjan!" },
+        { q: "En organism som måste skaffa energi genom att äta andra organismer kallas?", correct: "Konsument", wrong: ["Producent", "Nedbrytare", "Växt"], explanation: "Från nivå 2 och uppåt är du konsument, beroende av någon annan för din energi." },
+        { q: "Rovdjuret som befinner sig allra högst upp i näringskedjan och saknar naturliga fiender kallas?", correct: "Toppkonsument", wrong: ["Producent", "Sekundärkonsument", "Nedbrytare"], explanation: "Målet! Nivå 4, räven, utan naturliga fiender, men gifterna är som värst där uppe." },
+        { q: "Svampar och bakterier som bryter ner dött material och återför näringen kallas?", correct: "Nedbrytare", wrong: ["Konsumenter", "Producenter", "Toppkonsumenter"], explanation: "Utan nedbrytare stannar kretsloppet. De är osynliga hjältar i naturen!" },
+        { q: "En enkel, rak modell som visar vem som äter vem kallas?", correct: "Näringskedja", wrong: ["Näringsväv", "Näringspyramid", "Kretslopp"], explanation: "Hela spelet ÄR en näringskedja! Du klättrar genom den steg för steg." },
+        { q: "En komplex modell där flera näringskedjor flätas samman kallas?", correct: "Näringsväv", wrong: ["Näringskedja", "Näringspyramid", "Kretslopp"], explanation: "Verkligheten är mer komplicerad än en enkel kedja. Därför finns näringsväven." },
+        { q: "Naturens egen återvinning, där livsviktiga ämnen används om och om igen, kallas?", correct: "Kretslopp", wrong: ["Näringskedja", "Näringsväv", "Återbruk"], explanation: "Energi och ämnen återvinns i naturen. Inget försvinner, det bara byter form." },
+        { q: "Modellen som visar att bara ca 10% av energin går vidare uppåt i varje steg kallas?", correct: "Näringspyramid", wrong: ["Näringsväv", "Energikedja", "Ekosystem"], explanation: "Märker du att det blir svårare? Det är 10%-regeln i aktion!" },
+        { q: "När miljögifter samlas i kroppen och blir mer koncentrerade högre upp kallas?", correct: "Bioackumulation", wrong: ["Fotosyntes", "Cellandning", "Nedbrytning"], explanation: "Precis som i spelet. Gifterna följer med uppåt och blir farligare för varje nivå!" },
+        { q: "När två olika arter lever tillsammans i ett nära samspel kallas?", correct: "Symbios", wrong: ["Konkurrens", "Ekosystem", "Evolution"], explanation: "Samarbete är livsviktigt. Även i naturen hjälps arter åt." },
+        { q: "En arts specifika 'yrke' eller roll i ekosystemet kallas?", correct: "Ekologisk nisch", wrong: ["Biotop", "Habitat", "Population"], explanation: "Varje art har sin roll. Precis som du har olika uppdrag på varje nivå!" },
+        { q: "När olika organismer tävlar om samma begränsade resurser kallas?", correct: "Konkurrens", wrong: ["Symbios", "Kretslopp", "Mångfald"], explanation: "När resurserna är begränsade, precis som i spelet, uppstår konkurrens." },
+    ];
+
+    // ============================================================
+    // LEVEL DEFINITIONS
+    // ============================================================
+    const LEVELS = [
+        {
+            name: "Producent",
+            emoji: "🌿",
+            organism: "Alg",
+            description: "Du är en alg i havet – en livsviktig producent! Strömmar drar i dig.",
+            bgColors: ["#0a2e1a", "#0f3d24", "#1a5c35"],
+            groundColor: "#1a4a2a",
+            groundAccent: "#2d6b40",
+            playerColor: "#34d399",
+            playerGlow: "rgba(52, 211, 153, 0.4)",
+            collectColor: "#fbbf24",
+            collectEmoji: "☀️",
+            hazardColor: "#8b5e3c",
+            hazardEmoji: "🐛",
+            energyNeeded: 25,
+            maxPop: 5, reproCost: 3, respRate: 0.15,
+            baseSpeed: 190,
+            spawnRate: 0.026,
+            hazardRate: 0.018,
+            biotop: 'vatten', // Water currents push player
+            symbiont: { emoji: '🍄', name: 'Svamp (Lav)', effect: 'energi', desc: 'Lav-symbios: svampen ger mineraler, +1 energi var 5:e sek' },
+        },
+        {
+            name: "Primärkonsument",
+            emoji: "🐛",
+            organism: "Insekt",
+            description: "Som primärkonsument är du jagad! Var inaktiv för att kamouflera dig.",
+            bgColors: ["#1a3a1a", "#254d25", "#306630"],
+            groundColor: "#3d5c2e",
+            groundAccent: "#5a8040",
+            playerColor: "#a3e635",
+            playerGlow: "rgba(163, 230, 53, 0.4)",
+            collectColor: "#22c55e",
+            collectEmoji: "🌿",
+            hazardColor: "#6b21a8",
+            hazardEmoji: "🕷️",
+            energyNeeded: 35,
+            maxPop: 4, reproCost: 5, respRate: 0.25,
+            baseSpeed: 220,
+            spawnRate: 0.023,
+            hazardRate: 0.015,
+            biotop: 'skog', // Camouflage when still
+            symbiont: { emoji: '🌸', name: 'Blomma', effect: 'attract', desc: 'Pollinering: nektar drar näring mot dig' },
+        },
+        {
+            name: "Sekundärkonsument",
+            emoji: "🐸",
+            organism: "Fågel",
+            description: "Sekundärkonsument. Du flyger i vindbyar. Miljögifter bioackumuleras – se upp!",
+            bgColors: ["#1a2a3a", "#1e3a4d", "#254d66"],
+            groundColor: "#3d4a3a",
+            groundAccent: "#5a6850",
+            playerColor: "#38bdf8",
+            playerGlow: "rgba(56, 189, 248, 0.4)",
+            collectColor: "#a3e635",
+            collectEmoji: "🐛",
+            hazardColor: "#dc2626",
+            hazardEmoji: "🦊",
+            energyNeeded: 50,
+            maxPop: 3, reproCost: 8, respRate: 0.6,
+            baseSpeed: 260,
+            spawnRate: 0.021,
+            hazardRate: 0.012,
+            biotop: 'luft', // Wind gusts change speed
+            symbiont: { emoji: '🐃', name: 'Värddjur', effect: 'detox', desc: 'Kohägersymbios: rör upp föda, skydd mot gift' },
+        },
+        {
+            name: "Toppkonsument",
+            emoji: "🦊",
+            organism: "Räv",
+            description: "Apex-predator! Du är på toppen, men gifterna från bytena är nu livsfarliga.",
+            bgColors: ["#2a1a1a", "#3d1a1a", "#4d2020"],
+            groundColor: "#4a3a2e",
+            groundAccent: "#6b5040",
+            playerColor: "#f97316",
+            playerGlow: "rgba(249, 115, 22, 0.4)",
+            collectColor: "#38bdf8",
+            collectEmoji: "🐸",
+            hazardColor: "#a855f7",
+            hazardEmoji: "☠️",
+            energyNeeded: 70,
+            maxPop: 2, reproCost: 12, respRate: 0.8,
+            baseSpeed: 290,
+            spawnRate: 0.019,
+            hazardRate: 0.008,
+            biotop: 'fält',
+            symbiont: { emoji: '🦠', name: 'Tarmflora', effect: 'warn', desc: 'Mikrobiom: bakterier hjälper dig se gifter tydligare' },
+        }
+    ];
+
+    // ============================================================
+    // GAME STATE
+    // ============================================================
+    let canvas, ctx;
+    let gameState = 'CRAWL'; // CRAWL, MENU, PLAYING, PAUSED, QUIZ, LEVELUP, GAMEOVER, HIGHSCORES, WIN, TEACHER
+    let player = {};
+    let entities = [];
+    let particles = [];
+    let score = 0;
+    let energy = 0;
+    let toxin = 0;
+    let currentLevel = 0;
+    let scrollSpeed = 220;
+    let gameTime = 0;
+    let frameCount = 0;
+    let playerName = '';
+    let quizAnswered = false;
+    let pendingSymbiosis = false;
+    let nextSymbiontSpawn = 0;
+    let symbiontLifeTimer = 0;
+    let shieldActive = false;
+    let shieldTimer = 0;
+    let shieldHits = 0; // Shield now absorbs multiple hits
+    let comboCount = 0;
+    let comboTimer = 0;
+    let screenShake = 0;
+    let lastTime = 0;
+    let groundSegments = [];
+    let bgStars = [];
+    let usedQuestions = new Set();
+    let highscoreSubmitted = false;
+
+    let currentQuizQuestion = null;
+
+    // Powerup states
+    let resistensActive = false;
+    let resistensTimer = 0;
+    let instinktActive = false;
+    let instinktTimer = 0;
+    const TOXIN_THRESHOLD_BASE = 100;
+    const TOXIN_THRESHOLD_RESISTENS = 140;
+
+    // Symbiont state
+    let activeSymbiont = null; // { emoji, name, effect, desc, x, y }
+    let symbiontTimer = 0; // For periodic effects
+    let camoTimer = 0; // Camouflage buildup (skog biotop)
+    let camoActive = false;
+    let windGust = 0; // Wind speed modifier (luft biotop)
+    let windTimer = 0;
+    let dayNightPhase = 0; // 0-1 cycle (fält biotop)
+    let waterPhase = 0; // Water current phase (vatten biotop);
+    let biotopParticles = []; // Visual particles for biotop effects
+    let rushActive = false; // Survival Rush mode
+    let symbiontSpawned = false; // Track if symbiont spawned this level
+
+    // Population & lives
+    let lives = 3;
+    let followers = []; // Trail positions for population visualization
+    let immuneTimer = 0; // Brief immunity after losing a life
+
+    // Growth & reproduction
+    let growthFactor = 0.6; // Current organism size multiplier (0.6 - 1.4)
+    let popCount = 1; // Current population count
+    let totalCollected = 0; // Total energy collected this level (for growth calc)
+    let splitAnim = 0; // Split animation timer
+
+    // ============================================================
+    // WEB AUDIO ENGINE (chip-tune)
+    // ============================================================
+    let audioCtx = null;
+    let audioMuted = true; // Default muted for classroom
+    let bgmGain = null;
+    let bgmPlaying = false;
+
+    function initAudio() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        bgmGain = audioCtx.createGain();
+        bgmGain.gain.value = 0.08;
+        bgmGain.connect(audioCtx.destination);
+    }
+
+    function sfx(type) {
+        if (audioMuted || !audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const g = audioCtx.createGain();
+        g.connect(audioCtx.destination);
+
+        if (type === 'jump') {
+            const o = audioCtx.createOscillator();
+            o.type = 'square';
+            o.frequency.setValueAtTime(300, now);
+            o.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+            g.gain.setValueAtTime(0.12, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            o.connect(g);
+            o.start(now);
+            o.stop(now + 0.15);
+        } else if (type === 'collect') {
+            const o = audioCtx.createOscillator();
+            o.type = 'square';
+            o.frequency.setValueAtTime(523, now);
+            o.frequency.setValueAtTime(659, now + 0.05);
+            o.frequency.setValueAtTime(784, now + 0.1);
+            g.gain.setValueAtTime(0.1, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+            o.connect(g);
+            o.start(now);
+            o.stop(now + 0.18);
+        } else if (type === 'hit') {
+            const o = audioCtx.createOscillator();
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(200, now);
+            o.frequency.exponentialRampToValueAtTime(60, now + 0.2);
+            g.gain.setValueAtTime(0.15, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            o.connect(g);
+            o.start(now);
+            o.stop(now + 0.25);
+        } else if (type === 'toxin') {
+            const o = audioCtx.createOscillator();
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(150, now);
+            o.frequency.linearRampToValueAtTime(80, now + 0.3);
+            g.gain.setValueAtTime(0.12, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            o.connect(g);
+            o.start(now);
+            o.stop(now + 0.35);
+        } else if (type === 'levelup') {
+            [523, 659, 784, 1047].forEach((freq, i) => {
+                const o = audioCtx.createOscillator();
+                o.type = 'square';
+                o.frequency.value = freq;
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(0.1, now + i * 0.12);
+                sg.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.15);
+                o.connect(sg);
+                sg.connect(audioCtx.destination);
+                o.start(now + i * 0.12);
+                o.stop(now + i * 0.12 + 0.15);
+            });
+        } else if (type === 'gameover') {
+            [400, 350, 300, 200].forEach((freq, i) => {
+                const o = audioCtx.createOscillator();
+                o.type = 'square';
+                o.frequency.value = freq;
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(0.1, now + i * 0.2);
+                sg.gain.exponentialRampToValueAtTime(0.001, now + i * 0.2 + 0.25);
+                o.connect(sg);
+                sg.connect(audioCtx.destination);
+                o.start(now + i * 0.2);
+                o.stop(now + i * 0.2 + 0.25);
+            });
+        } else if (type === 'symbiont') {
+            [392, 523, 659, 784, 659].forEach((freq, i) => {
+                const o = audioCtx.createOscillator();
+                o.type = 'triangle';
+                o.frequency.value = freq;
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(0.08, now + i * 0.08);
+                sg.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.12);
+                o.connect(sg);
+                sg.connect(audioCtx.destination);
+                o.start(now + i * 0.08);
+                o.stop(now + i * 0.08 + 0.12);
+            });
+        } else if (type === 'rush') {
+            const o = audioCtx.createOscillator();
+            o.type = 'square';
+            o.frequency.setValueAtTime(440, now);
+            o.frequency.setValueAtTime(554, now + 0.08);
+            o.frequency.setValueAtTime(659, now + 0.16);
+            g.gain.setValueAtTime(0.1, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            o.connect(g);
+            o.start(now);
+            o.stop(now + 0.3);
+        }
+    }
+
+    function startBGM() {
+        if (audioMuted || !audioCtx || bgmPlaying) return;
+        bgmPlaying = true;
+        // Simple chip-tune arpeggio loop
+        const notes = [262, 330, 392, 330, 262, 392, 330, 392]; // C E G E C G E G
+        const dur = 0.25;
+        function playBar() {
+            if (audioMuted || gameState !== 'PLAYING') { bgmPlaying = false; return; }
+            const now = audioCtx.currentTime;
+            notes.forEach((freq, i) => {
+                const o = audioCtx.createOscillator();
+                o.type = 'triangle';
+                o.frequency.value = freq;
+                const sg = audioCtx.createGain();
+                sg.gain.setValueAtTime(0.04, now + i * dur);
+                sg.gain.exponentialRampToValueAtTime(0.001, now + i * dur + dur * 0.8);
+                o.connect(sg);
+                sg.connect(bgmGain);
+                o.start(now + i * dur);
+                o.stop(now + i * dur + dur * 0.9);
+            });
+            setTimeout(playBar, notes.length * dur * 1000);
+        }
+        playBar();
+    }
+
+    function toggleMute() {
+        initAudio();
+        audioMuted = !audioMuted;
+        document.getElementById('muteBtn').textContent = audioMuted ? '🔇' : '🔊';
+        if (!audioMuted && gameState === 'PLAYING') startBGM();
+    }
+
+    // Keys
+    let keys = { up: false, down: false, detox: false };
+    let isDetoxing = false; // Active detox state
+
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+    function init() {
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Generate background stars
+        for (let i = 0; i < 60; i++) {
+            bgStars.push({
+                x: Math.random() * GAME_W,
+                y: Math.random() * GAME_H * 0.6,
+                size: Math.random() * 2 + 0.5,
+                speed: Math.random() * 0.3 + 0.1,
+                alpha: Math.random() * 0.5 + 0.2,
+            });
+        }
+
+        // Input
+        document.addEventListener('keydown', (e) => {
+            // Don't intercept keys when typing in input fields
+            const tag = document.activeElement?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+            if (e.code === 'Escape') {
+                e.preventDefault();
+                if (gameState === 'PLAYING' || gameState === 'PAUSED') togglePause();
+                return;
+            }
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                e.preventDefault();
+                keys.up = true;
+                if (gameState === 'PLAYING') jump();
+            }
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                e.preventDefault();
+                keys.down = true;
+            }
+            if (e.code === 'KeyD') {
+                e.preventDefault();
+                keys.detox = true;
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') keys.up = false;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = false;
+            if (e.code === 'KeyD') keys.detox = false;
+        });
+
+        // Touch controls
+        const mcJump = document.getElementById('mcJump');
+        const mcDuck = document.getElementById('mcDuck');
+        if (mcJump) {
+            mcJump.addEventListener('touchstart', (e) => { e.preventDefault(); keys.up = true; if (gameState === 'PLAYING') jump(); }, { passive: false });
+            mcJump.addEventListener('touchend', (e) => { e.preventDefault(); keys.up = false; }, { passive: false });
+        }
+        if (mcDuck) {
+            mcDuck.addEventListener('touchstart', (e) => { e.preventDefault(); keys.down = true; }, { passive: false });
+            mcDuck.addEventListener('touchend', (e) => { e.preventDefault(); keys.down = false; }, { passive: false });
+        }
+        const mcDetox = document.getElementById('mcDetox');
+        if (mcDetox) {
+            mcDetox.addEventListener('touchstart', (e) => { e.preventDefault(); keys.detox = true; }, { passive: false });
+            mcDetox.addEventListener('touchend', (e) => { e.preventDefault(); keys.detox = false; }, { passive: false });
+        }
+
+        // Enter to start
+        document.getElementById('playerName').addEventListener('keydown', (e) => {
+            if (e.code === 'Enter') startGame();
+        });
+
+        // Teacher mode
+        if (isTeacher) {
+            gameState = 'TEACHER';
+            document.getElementById('introScreen').classList.add('hidden');
+            hideAllOverlays();
+            showOverlay('teacherOverlay');
+            const baseUrl = window.location.origin + window.location.pathname;
+            document.getElementById('teacherUrlText').textContent = baseUrl;
+            startTeacherPolling();
+        }
+
+        // Start render loop
+        requestAnimationFrame(gameLoop);
+    }
+
+    function resizeCanvas() {
+        const container = document.getElementById('gameContainer');
+        const cw = container.clientWidth;
+        const ch = container.clientHeight;
+        const scale = Math.min(cw / GAME_W, ch / GAME_H);
+        canvas.width = GAME_W;
+        canvas.height = GAME_H;
+        canvas.style.width = (GAME_W * scale) + 'px';
+        canvas.style.height = (GAME_H * scale) + 'px';
+    }
+
+    // ============================================================
+    // GAME LOOP
+    // ============================================================
+    function gameLoop(timestamp) {
+        const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+        lastTime = timestamp;
+
+        if (gameState === 'PLAYING') {
+            update(dt);
+        }
+        render();
+
+        // Draw onboarding overlay during first 3 seconds
+        if ((gameState === 'PLAYING' || gameState === 'PAUSED') && gameTime < 3.0) {
+            renderOnboarding();
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // ============================================================
+    // UPDATE
+    // ============================================================
+    function update(dt) {
+        const lvl = LEVELS[currentLevel];
+        gameTime += dt;
+        frameCount++;
+
+        // Increase speed over time
+        scrollSpeed = lvl.baseSpeed + Math.min(gameTime * 4, 120);
+        if (rushActive) scrollSpeed *= 1.25;
+
+        // ── BIOTOP MECHANICS ──
+        if (lvl.biotop === 'vatten') {
+            // Water currents: gentle vertical push
+            waterPhase += dt * 0.8;
+            const currentForce = Math.sin(waterPhase) * 180;
+            if (player.grounded || player.y < GROUND_Y) {
+                player.vy += currentForce * dt;
+            }
+        } else if (lvl.biotop === 'skog') {
+            // Camouflage: stand still to become invisible
+            if (player.grounded && !keys.up && !keys.down) {
+                camoTimer += dt;
+                if (camoTimer >= 1.2) camoActive = true;
+            } else {
+                camoTimer = 0;
+                camoActive = false;
+            }
+        } else if (lvl.biotop === 'luft') {
+            // Wind gusts every 8-12 seconds
+            windTimer -= dt;
+            if (windTimer <= 0) {
+                windGust = (Math.random() - 0.4) * 120; // mostly headwind
+                windTimer = 8 + Math.random() * 4;
+                // Spawn wind particles
+                for (let i = 0; i < 8; i++) {
+                    biotopParticles.push({
+                        x: Math.random() * GAME_W,
+                        y: Math.random() * GAME_H * 0.7,
+                        vx: -windGust * 2,
+                        life: 1.5,
+                        maxLife: 1.5,
+                        type: 'wind'
+                    });
+                }
+            }
+            scrollSpeed += windGust;
+        } else if (lvl.biotop === 'fält') {
+            // Day/night cycle: 12s day, 6s night
+            dayNightPhase = (dayNightPhase + dt / 18) % 1.0;
+        }
+
+        // ── SYMBIONT UPDATE ──
+        if (activeSymbiont) {
+            // Follow player smoothly
+            activeSymbiont.x += (player.x - 20 - activeSymbiont.x) * 4 * dt;
+            activeSymbiont.y += (player.y - 5 - activeSymbiont.y) * 4 * dt;
+            symbiontTimer += dt;
+            // Periodic effects
+            if (activeSymbiont.effect === 'energi' && symbiontTimer >= 5) {
+                symbiontTimer = 0;
+                energy += 1;
+                spawnScorePopup(activeSymbiont.x, activeSymbiont.y, activeSymbiont.emoji + '+1');
+            }
+            if (activeSymbiont.effect === 'attract') {
+                // Pull collectibles toward player
+                for (const e of entities) {
+                    if (e.type === 'collect') {
+                        const dx = player.x - e.x;
+                        const dy = player.y - e.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < 120) {
+                            e.x += (dx / dist) * 60 * dt;
+                            e.y += (dy / dist) * 60 * dt;
+                        }
+                    }
+                }
+            }
+            // 'detox' and 'warn' are handled in collision/render
+        }
+
+        // Update biotop particles
+        for (let i = biotopParticles.length - 1; i >= 0; i--) {
+            const p = biotopParticles[i];
+            p.x += (p.vx || 0) * dt;
+            p.life -= dt;
+            if (p.life <= 0) biotopParticles.splice(i, 1);
+        }
+
+        // Update player
+        player.vy += GRAVITY * dt;
+        player.y += player.vy * dt;
+
+        // Ground collision
+        const playerBottom = player.ducking ? GROUND_Y + 10 : GROUND_Y;
+        if (player.y >= playerBottom) {
+            player.y = playerBottom;
+            player.vy = 0;
+            player.grounded = true;
+            player.jumpCount = 0;
+        }
+
+        // Ducking
+        player.ducking = keys.down && player.grounded;
+
+        // Active detox: hold D to metabolize toxins (costs energy)
+        isDetoxing = keys.detox && currentLevel >= 2 && toxin > 0 && player.grounded;
+        if (isDetoxing) {
+            toxin = Math.max(0, toxin - 3 * dt);
+            energy = Math.max(0, energy - 0.5 * dt); // Metabolic cost
+        }
+
+        // Immune timer (after losing a life)
+        if (immuneTimer > 0) {
+            immuneTimer -= dt;
+        }
+
+        // Population trail for followers
+        followers.push({ x: player.x, y: player.y, ducking: player.ducking });
+        if (followers.length > 25) followers.shift();
+
+        // ---- GROWTH SYSTEM ----
+        // Organism grows based on total energy collected this level
+        growthFactor = Math.min(1.4, 0.6 + (totalCollected / lvl.energyNeeded) * 0.8);
+
+        // ---- REPRODUCTION (automatic split) ----
+        if (growthFactor >= 1.2 && popCount < lvl.maxPop && energy >= lvl.reproCost) {
+            // Split!
+            energy -= lvl.reproCost;
+            popCount++;
+            growthFactor = 0.7; // Shrink back after split
+            totalCollected = Math.floor(totalCollected * 0.4); // Reset growth progress
+            splitAnim = 0.8; // 0.8 sec animation
+            sfx('levelup');
+            spawnScorePopup(player.x, player.y - 20, '🧬 DELNING!');
+            spawnCollectParticles(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2, lvl.playerColor);
+        }
+        if (splitAnim > 0) splitAnim -= dt;
+
+        // ---- RESPIRATION (passive energy drain, grace period first 6s) ----
+        if (gameTime > 6) {
+            const baseResp = lvl.respRate;
+            const sizeResp = growthFactor * 0.15;
+            const popResp = (popCount - 1) * 0.2;
+            const totalResp = baseResp + sizeResp + popResp;
+            energy = Math.max(1, energy - totalResp * dt); // Floor at 1, never kills directly
+        }
+
+        // ---- POPULATION INCOME (passive collection by extra individuals) ----
+        if (popCount > 1) {
+            energy += (popCount - 1) * 0.3 * dt;
+        }
+
+        // Shield timer
+        if (shieldActive) {
+            shieldTimer -= dt;
+            if (shieldTimer <= 0 || shieldHits <= 0) shieldActive = false;
+        }
+
+        // Resistens timer
+        if (resistensActive) {
+            resistensTimer -= dt;
+            if (resistensTimer <= 0) resistensActive = false;
+        }
+
+        // Instinkt timer
+        if (instinktActive) {
+            instinktTimer -= dt;
+            if (instinktTimer <= 0) instinktActive = false;
+        }
+
+        // Combo timer
+        if (comboTimer > 0) {
+            comboTimer -= dt;
+            if (comboTimer <= 0) comboCount = 0;
+        }
+
+        // Survival Rush: last 20% of energy goal = intensified
+        const rushThreshold = Math.floor(lvl.energyNeeded * 0.8);
+        const wasRushing = rushActive;
+        rushActive = energy >= rushThreshold && energy < lvl.energyNeeded;
+        if (rushActive && !wasRushing) sfx('rush');
+        const rushMult = rushActive ? 1.35 : 1.0;
+
+        // Spawn entities (boosted during rush)
+        if (Math.random() < lvl.spawnRate * rushMult) spawnCollectible();
+        if (Math.random() < lvl.hazardRate) spawnHazard();
+        // Spawn toxin on level 3+ (more frequent higher up)
+        if (currentLevel >= 2 && Math.random() < 0.002 * (currentLevel - 1)) {
+            spawnToxin();
+        }
+        // Spawn powerups on level 3+ (rare)
+        if (currentLevel >= 2 && Math.random() < 0.002) {
+            spawnPowerup();
+        }
+
+        if (nextSymbiontSpawn > 0 && gameTime >= nextSymbiontSpawn) {
+            spawnSymbiont();
+            symbiontSpawned = true;
+            nextSymbiontSpawn = 0;
+        }
+
+        if (activeSymbiont) {
+            symbiontLifeTimer -= dt;
+            if (symbiontLifeTimer <= 0) {
+                activeSymbiont = null;
+                spawnScorePopup(player.x, player.y, 'Symbios över');
+            }
+        }
+
+        // Update entities
+        for (let i = entities.length - 1; i >= 0; i--) {
+            const e = entities[i];
+            // Instinkt slows toxins
+            let eSpeed = scrollSpeed;
+            if (e.type === 'toxin') eSpeed = instinktActive ? scrollSpeed * 0.3 : scrollSpeed * 0.7;
+            e.x -= eSpeed * dt;
+            if (e.floaty) e.y += Math.sin(gameTime * 3 + e.phase) * 0.5;
+
+            // Remove off-screen
+            if (e.x < -50) { entities.splice(i, 1); continue; }
+
+            // Collision with player (scaled by growth)
+            const scaledSize = PLAYER_SIZE * growthFactor;
+            const ph = player.ducking ? scaledSize * 0.5 : scaledSize;
+            const py = player.ducking ? player.y + scaledSize * 0.25 : player.y;
+            if (rectCollide(player.x, py, scaledSize, ph, e.x, e.y, e.w, e.h)) {
+                if (e.type === 'collect') {
+                    // Detox mode blocks food collection
+                    if (isDetoxing) continue;
+                    // Three food types: clean, rich (gold), toxic (purple)
+                    const eGain = e.rich ? 3 : 1;
+                    const tGain = e.toxic ? 8 : (e.rich ? 5 : 0);
+                    energy += eGain;
+                    totalCollected += eGain; // Track for growth
+                    if (tGain > 0) toxin += tGain;
+                    const comboMult = Math.min(comboCount + 1, 5);
+                    const basePts = e.rich ? (30 + currentLevel * 20) : (10 + currentLevel * 15);
+                    const pts = basePts * comboMult;
+                    score += pts;
+                    comboCount++;
+                    comboTimer = 2;
+                    sfx('collect');
+                    const label = e.toxic ? '☠️+' + pts : (e.rich ? '⭐+' + pts : '+' + pts);
+                    spawnScorePopup(e.x, e.y, label);
+                    const pColor = e.toxic ? '#a855f7' : (e.rich ? '#fbbf24' : lvl.collectColor);
+                    spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, pColor);
+                    entities.splice(i, 1);
+
+                    // Check level completion
+                    if (energy >= lvl.energyNeeded) {
+                        energy = 0;
+                        if (currentLevel < 3) {
+                            gameState = 'LEVELUP';
+                            showLevelUp();
+                        } else {
+                            // WIN!
+                            score += 2000;
+                            gameState = 'WIN';
+                            showWin();
+                        }
+                        return;
+                    }
+                } else if (e.type === 'hazard') {
+                    // Camouflage makes hazards ignore you
+                    if (camoActive) {
+                        continue;
+                    } else if (immuneTimer > 0) {
+                        continue; // Immune after losing a life
+                    } else if (shieldActive) {
+                        shieldHits--;
+                        if (shieldHits <= 0) shieldActive = false;
+                        spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, '#60a5fa');
+                        spawnScorePopup(e.x, e.y, '🛡️');
+                        entities.splice(i, 1);
+                    } else {
+                        // Hazards drain ENERGY (not score)
+                        const eDrain = 2 + currentLevel;
+                        energy = Math.max(0, energy - eDrain);
+                        screenShake = 0.3;
+                        sfx('hit');
+                        spawnScorePopup(e.x, e.y, '-' + eDrain + '⚡');
+                        spawnHitParticles(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2);
+                        entities.splice(i, 1);
+                        // Check life loss from energy depletion
+                        if (energy <= 0) {
+                            popCount--;
+                            if (popCount <= 0) {
+                                gameState = 'GAMEOVER';
+                                showGameOver('population');
+                                return;
+                            }
+                            energy = Math.floor(lvl.energyNeeded * 0.2);
+                            toxin = Math.floor(toxin * 0.5);
+                            growthFactor = 0.6;
+                            totalCollected = 0;
+                            immuneTimer = 2.0;
+                            screenShake = 0.4;
+                            spawnScorePopup(player.x, player.y - 10, '💀 -1 POP');
+                        }
+                    }
+                } else if (e.type === 'toxin') {
+                    if (immuneTimer > 0) {
+                        continue;
+                    } else if (shieldActive) {
+                        shieldHits--;
+                        if (shieldHits <= 0) shieldActive = false;
+                        spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, '#60a5fa');
+                        spawnScorePopup(e.x, e.y, '🛡️');
+                        entities.splice(i, 1);
+                    } else {
+                        let toxinDamage = 8 + currentLevel * 4;
+                        if (activeSymbiont && activeSymbiont.effect === 'detox') {
+                            toxinDamage = Math.round(toxinDamage * 0.7);
+                        }
+                        toxin += toxinDamage;
+                        screenShake = 0.2;
+                        sfx('toxin');
+                        spawnScorePopup(e.x, e.y, '☠️+' + toxinDamage + '%');
+                        spawnToxinParticles(e.x + e.w/2, e.y + e.h/2);
+                        entities.splice(i, 1);
+
+                        const threshold = resistensActive ? TOXIN_THRESHOLD_RESISTENS : TOXIN_THRESHOLD_BASE;
+                        if (toxin >= threshold) {
+                            // Bioaccumulation: lose a population member
+                            popCount--;
+                            if (popCount <= 0) {
+                                gameState = 'GAMEOVER';
+                                showGameOver('bioaccumulation');
+                                return;
+                            }
+                            toxin = 20;
+                            energy = Math.floor(lvl.energyNeeded * 0.2);
+                            growthFactor = 0.6;
+                            totalCollected = 0;
+                            immuneTimer = 2.0;
+                            screenShake = 0.4;
+                            sfx('hit');
+                        }
+                    }
+                } else if (e.type === 'powerup') {
+                    // Powerup collected!
+                    score += 200;
+                    entities.splice(i, 1);
+                    if (e.powerType === 'resistens') {
+                        resistensActive = true;
+                        resistensTimer = 10;
+                        spawnScorePopup(e.x, e.y, '🧬 RESISTENS!');
+                        spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, '#22d3ee');
+                    } else if (e.powerType === 'instinkt') {
+                        instinktActive = true;
+                        instinktTimer = 8;
+                        spawnScorePopup(e.x, e.y, '⚠️ INSTINKT!');
+                        spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, '#fbbf24');
+                    }
+                } else if (e.type === 'symbiont') {
+                    // Collect symbiont companion!
+                    activeSymbiont = {
+                        emoji: e.symData.emoji,
+                        name: e.symData.name,
+                        effect: e.symData.effect,
+                        desc: e.symData.desc,
+                        x: player.x - 20,
+                        y: player.y - 5,
+                    };
+                    symbiontTimer = 0;
+                    symbiontLifeTimer = 30; // 30 seconds duration
+                    score += 300;
+                    sfx('symbiont');
+                    spawnScorePopup(e.x, e.y, e.symData.emoji + ' SYMBIOS!');
+                    spawnCollectParticles(e.x + e.w/2, e.y + e.h/2, '#a78bfa');
+                    entities.splice(i, 1);
+                }
+            }
+        }
+
+        // Update particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 300 * dt;
+            p.life -= dt;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // Screen shake decay
+        if (screenShake > 0) screenShake -= dt * 2;
+
+        // Score from distance
+        if (frameCount % 6 === 0) score += 1;
+
+        // Update HUD
+        updateHUD();
+    }
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+    function render() {
+        ctx.save();
+
+        // Screen shake
+        if (screenShake > 0) {
+            const sx = (Math.random() - 0.5) * screenShake * 12;
+            const sy = (Math.random() - 0.5) * screenShake * 12;
+            ctx.translate(sx, sy);
+        }
+
+        const lvl = LEVELS[currentLevel];
+
+        // Background gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, GAME_H);
+        bgGrad.addColorStop(0, lvl.bgColors[0]);
+        bgGrad.addColorStop(0.5, lvl.bgColors[1]);
+        bgGrad.addColorStop(1, lvl.bgColors[2]);
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+        // Background particles/stars
+        ctx.globalAlpha = 0.4;
+        for (const s of bgStars) {
+            s.x -= scrollSpeed * s.speed * 0.003;
+            if (s.x < 0) s.x = GAME_W;
+            ctx.fillStyle = currentLevel >= 2 ? 'rgba(56,189,248,' + s.alpha + ')' : 'rgba(52,211,153,' + s.alpha + ')';
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Ground
+        ctx.fillStyle = lvl.groundColor;
+        ctx.fillRect(0, GROUND_Y + PLAYER_SIZE + 4, GAME_W, GAME_H - GROUND_Y);
+
+        // Ground detail
+        ctx.fillStyle = lvl.groundAccent;
+        for (let i = 0; i < 20; i++) {
+            const gx = ((i * 50 - (gameTime * scrollSpeed * 0.3) % 50) % GAME_W + GAME_W) % GAME_W;
+            ctx.fillRect(gx, GROUND_Y + PLAYER_SIZE + 4, 25, 3);
+        }
+
+        // Ground line
+        const groundLineY = GROUND_Y + PLAYER_SIZE + 4;
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, groundLineY);
+        ctx.lineTo(GAME_W, groundLineY);
+        ctx.stroke();
+
+        // Entities
+        for (const e of entities) {
+            ctx.save();
+            if (e.type === 'collect') {
+                const pulse = Math.sin(gameTime * 4 + e.phase) * 0.15 + 0.85;
+                ctx.globalAlpha = pulse;
+                if (e.rich) {
+                    // Rich food: gold pulsing ring + larger
+                    ctx.shadowColor = '#fbbf24';
+                    ctx.shadowBlur = 18 + Math.sin(gameTime * 6) * 6;
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Gold ring
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2 + 3, 0, Math.PI * 2);
+                    ctx.stroke();
+                    // Star marker
+                    ctx.globalAlpha = 1;
+                    ctx.font = '10px "Press Start 2P"';
+                    ctx.fillStyle = '#fff';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('⭐', e.x + e.w/2, e.y - 4);
+                } else if (e.toxic) {
+                    // Toxic food: purple glow + skull marker
+                    ctx.shadowColor = '#a855f7';
+                    ctx.shadowBlur = 15 + Math.sin(gameTime * 5) * 5;
+                    ctx.fillStyle = '#c084fc';
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Skull marker
+                    ctx.globalAlpha = 0.7 + Math.sin(gameTime * 4) * 0.3;
+                    ctx.font = '10px "Press Start 2P"';
+                    ctx.fillStyle = '#fff';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('☠️', e.x + e.w/2, e.y - 4);
+                } else {
+                    // Normal collectible
+                    ctx.shadowColor = lvl.collectColor;
+                    ctx.shadowBlur = 12;
+                    ctx.fillStyle = lvl.collectColor;
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Inner shine
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2 - 3, e.y + e.h/2 - 3, e.w * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+            } else if (e.type === 'hazard') {
+                // Dangerous entity (Predator)
+                // Draw pulsating warning aura
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; // Red aura
+                ctx.shadowColor = lvl.hazardColor;
+                ctx.shadowBlur = 15 + Math.sin(gameTime * 10) * 10;
+                ctx.beginPath();
+                ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Draw the actual predator emoji
+                ctx.globalAlpha = 1;
+                ctx.font = Math.floor(e.w) + 'px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const bounce = Math.sin(gameTime * 8 + e.x) * 3;
+                ctx.fillText(lvl.hazardEmoji, e.x + e.w/2, e.y + e.h/2 + bounce);
+            } else if (e.type === 'toxin') {
+                // Toxic cloud — brighter when instinkt active or warn symbiont
+                const warnActive = activeSymbiont && activeSymbiont.effect === 'warn';
+                const toxAlpha = (instinktActive || warnActive) ? 1.0 : (0.7 + Math.sin(gameTime * 5) * 0.2);
+                ctx.globalAlpha = toxAlpha;
+                ctx.fillStyle = (instinktActive || warnActive) ? '#e879f9' : '#a855f7';
+                ctx.shadowColor = (instinktActive || warnActive) ? '#f0abfc' : '#a855f7';
+                ctx.shadowBlur = (instinktActive || warnActive) ? 25 : 15;
+                ctx.beginPath();
+                ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
+                ctx.fill();
+                // Warning ring when instinkt active
+                if (instinktActive) {
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2 + 6 + Math.sin(gameTime * 6) * 3, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                // Skull symbol
+                ctx.fillStyle = '#fff';
+                ctx.font = `${e.w * 0.7}px serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('☠', e.x + e.w/2, e.y + e.h/2);
+                ctx.shadowBlur = 0;
+            } else if (e.type === 'powerup') {
+                // Powerup orb
+                const pulse = Math.sin(gameTime * 5 + e.phase) * 0.15 + 0.85;
+                ctx.globalAlpha = pulse;
+                ctx.shadowColor = e.powerType === 'resistens' ? '#22d3ee' : '#fbbf24';
+                ctx.shadowBlur = 18;
+                ctx.fillStyle = e.powerType === 'resistens' ? '#22d3ee' : '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
+                ctx.fill();
+                // Inner icon
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+                ctx.font = '12px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(e.powerType === 'resistens' ? '🧬' : '⚠️', e.x + e.w/2, e.y + e.h/2 + 1);
+            } else if (e.type === 'symbiont') {
+                // Symbiont orb with pulsing glow
+                const pulse = 0.7 + Math.sin(gameTime * 4 + e.phase) * 0.3;
+                ctx.globalAlpha = pulse;
+                ctx.shadowColor = '#a78bfa';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = '#a78bfa';
+                ctx.beginPath();
+                ctx.arc(e.x + e.w/2, e.y + e.h/2, e.w/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+                ctx.font = '14px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(e.symData.emoji, e.x + e.w/2, e.y + e.h/2 + 1);
+            }
+            ctx.restore();
+        }
+
+        // Player
+        if (gameState === 'PLAYING' || gameState === 'PAUSED' || gameState === 'LEVELUP' || gameState === 'QUIZ') {
+            // Camouflage visual: make player translucent when camo
+            if (camoActive) ctx.globalAlpha = 0.25;
+            // Draw population followers based on popCount
+            if (followers.length > 0) {
+                for (let fi = 1; fi < popCount; fi++) {
+                    const delay = fi * 7;
+                    const fIdx = Math.max(0, followers.length - delay);
+                    const alpha = 0.15 + 0.2 / fi;
+                    drawFollower(followers[fIdx], alpha);
+                }
+            }
+
+            // Immune blink: skip drawing player every other frame
+            if (immuneTimer <= 0 || Math.floor(gameTime * 10) % 2 === 0) {
+                drawPlayer();
+            }
+            ctx.globalAlpha = 1;
+
+            // Draw symbiont follower
+            if (activeSymbiont) {
+                const bob = Math.sin(gameTime * 5) * 3;
+                ctx.font = '16px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = '#a78bfa';
+                ctx.shadowBlur = 10;
+                ctx.fillText(activeSymbiont.emoji, activeSymbiont.x, activeSymbiont.y + bob);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // Biotop visual effects overlay
+        const lvlNow = LEVELS[currentLevel];
+        if (lvlNow.biotop === 'vatten' && (gameState === 'PLAYING' || gameState === 'PAUSED')) {
+            // Water wave overlay
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.06)';
+            for (let wx = 0; wx < GAME_W; wx += 40) {
+                const wy = Math.sin(waterPhase + wx * 0.03) * 8;
+                ctx.fillRect(wx, GAME_H * 0.3 + wy, 40, GAME_H * 0.7 - wy);
+            }
+        }
+        if (lvlNow.biotop === 'fält' && (gameState === 'PLAYING' || gameState === 'PAUSED')) {
+            // Day/night overlay
+            const nightAmount = Math.max(0, Math.sin(dayNightPhase * Math.PI * 2) * 0.45);
+            if (nightAmount > 0.05) {
+                ctx.fillStyle = `rgba(0, 0, 20, ${nightAmount})`;
+                ctx.fillRect(0, 0, GAME_W, GAME_H);
+            }
+        }
+        // Biotop particles (wind etc)
+        for (const bp of biotopParticles) {
+            ctx.globalAlpha = bp.life / bp.maxLife * 0.5;
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(bp.x, bp.y, 12, 1);
+        }
+        ctx.globalAlpha = 1;
+
+        // Particles
+        for (const p of particles) {
+            ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Energy bar on-screen (big, visible)
+        if (gameState === 'PLAYING' || gameState === 'PAUSED') {
+            const lvl = LEVELS[currentLevel];
+            const barW = 160;
+            const barH = 10;
+            const barX = GAME_W / 2 - barW / 2;
+            const barY = 14;
+            const pct = Math.min(energy / lvl.energyNeeded, 1);
+
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.beginPath();
+            ctx.roundRect(barX - 2, barY - 2, barW + 4, barH + 4, 6);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW, barH, 4);
+            ctx.fill();
+
+            const grad = ctx.createLinearGradient(barX, 0, barX + barW * pct, 0);
+            grad.addColorStop(0, lvl.playerColor);
+            grad.addColorStop(1, lvl.collectColor);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(barX, barY, barW * pct, barH, 4);
+            ctx.fill();
+
+            // Energy text
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.font = '600 9px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${energy}/${lvl.energyNeeded} Energi`, GAME_W / 2, barY + barH + 14);
+
+            // Toxin bar (if applicable)
+            if (currentLevel >= 2) {
+                const tBarX = GAME_W - 100;
+                const tBarY = 14;
+                const tPct = Math.min(toxin / 100, 1);
+
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath();
+                ctx.roundRect(tBarX - 2, tBarY - 2, 84, barH + 4, 6);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(255,255,255,0.08)';
+                ctx.beginPath();
+                ctx.roundRect(tBarX, tBarY, 80, barH, 4);
+                ctx.fill();
+
+                ctx.fillStyle = tPct > 0.7 ? '#ef4444' : '#a855f7';
+                ctx.beginPath();
+                ctx.roundRect(tBarX, tBarY, 80 * tPct, barH, 4);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.font = '600 8px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`☠ Gift ${Math.round(toxin)}%`, tBarX + 40, tBarY + barH + 13);
+            }
+
+            // Score
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = '12px "Press Start 2P"';
+            ctx.textAlign = 'left';
+            ctx.fillText(score.toLocaleString(), 16, 28);
+
+
+            // Level badge
+            ctx.fillStyle = 'rgba(16,185,129,0.3)';
+            const badgeText = `${lvl.emoji} ${lvl.name}`;
+            ctx.font = '700 10px Inter';
+            const badgeW = ctx.measureText(badgeText).width + 16;
+            ctx.beginPath();
+            ctx.roundRect(GAME_W - badgeW - 12, GAME_H - 28, badgeW, 20, 6);
+            ctx.fill();
+            ctx.fillStyle = '#34d399';
+            ctx.textAlign = 'center';
+            ctx.fillText(badgeText, GAME_W - 12 - badgeW / 2, GAME_H - 15);
+
+            // Combo indicator
+            if (comboCount > 1) {
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = '10px "Press Start 2P"';
+                ctx.textAlign = 'left';
+                const comboY = 48;
+                ctx.globalAlpha = 0.5 + Math.sin(gameTime * 8) * 0.3;
+                ctx.fillText(`x${comboCount} COMBO!`, 16, comboY);
+                ctx.globalAlpha = 1;
+            }
+
+            // Population display (POP: count/carrying capacity)
+            ctx.font = '8px "Press Start 2P"';
+            ctx.fillStyle = '#a78bfa';
+            ctx.textAlign = 'right';
+            const popLabel = 'POP:' + popCount + '/' + LEVELS[currentLevel].maxPop;
+            ctx.fillText(popLabel, GAME_W - 12, 18);
+            // Growth bar (small bar showing growth toward reproduction)
+            const growthPct = Math.min(1, (growthFactor - 0.6) / (1.2 - 0.6));
+            const gbX = GAME_W - 90, gbY = 22, gbW = 78, gbH = 5;
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(gbX, gbY, gbW, gbH);
+            ctx.fillStyle = growthPct >= 1.0 ? '#fbbf24' : '#a78bfa';
+            ctx.fillRect(gbX, gbY, gbW * growthPct, gbH);
+            ctx.font = '5px "Press Start 2P"';
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.textAlign = 'right';
+            ctx.fillText('TILLVÄXT', GAME_W - 12, 35);
+
+            // Shield indicator (shows remaining hits)
+            if (shieldActive) {
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+                ctx.strokeStyle = `rgba(56, 189, 248, ${0.3 + Math.sin(gameTime * 4) * 0.2})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2, PLAYER_SIZE + 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                // Shield hits remaining
+                ctx.font = '700 10px Inter';
+                ctx.fillStyle = '#60a5fa';
+                ctx.textAlign = 'center';
+                ctx.fillText('🛡️×' + shieldHits, player.x + PLAYER_SIZE/2, player.y - 12);
+            }
+
+            // Resistens indicator
+            if (resistensActive) {
+                ctx.strokeStyle = `rgba(34, 211, 238, ${0.4 + Math.sin(gameTime * 3) * 0.2})`;
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.arc(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2, PLAYER_SIZE + 14, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.font = '9px Inter';
+                ctx.fillStyle = '#22d3ee';
+                ctx.textAlign = 'center';
+                ctx.fillText(`🧬 ${Math.ceil(resistensTimer)}s`, player.x + PLAYER_SIZE/2, player.y - 22);
+            }
+
+            // Instinkt indicator
+            if (instinktActive) {
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.08)';
+                ctx.fillRect(0, 0, GAME_W, GAME_H);
+                ctx.font = '700 11px Inter';
+                ctx.fillStyle = '#fbbf24';
+                ctx.textAlign = 'right';
+                ctx.fillText(`⚠️ INSTINKT ${Math.ceil(instinktTimer)}s`, GAME_W - 12, 48);
+            }
+
+            // Toxin vignette (red pulsing border when toxin high)
+            if (currentLevel >= 2 && toxin > 30) {
+                const threshold = resistensActive ? TOXIN_THRESHOLD_RESISTENS : TOXIN_THRESHOLD_BASE;
+                const intensity = Math.min((toxin - 30) / (threshold - 30), 1.0);
+                const pulse = toxin > 60 ? (0.7 + Math.sin(gameTime * 4) * 0.3) : 1.0;
+                const vigAlpha = intensity * 0.4 * pulse;
+                const grad = ctx.createRadialGradient(
+                    GAME_W/2, GAME_H/2, GAME_H * 0.3,
+                    GAME_W/2, GAME_H/2, GAME_H * 0.85
+                );
+                grad.addColorStop(0, 'transparent');
+                grad.addColorStop(1, `rgba(220, 38, 38, ${vigAlpha})`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, GAME_W, GAME_H);
+            }
+
+            // Survival Rush overlay
+            if (rushActive) {
+                // Flash border
+                ctx.strokeStyle = `rgba(251, 191, 36, ${0.3 + Math.sin(gameTime * 6) * 0.3})`;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(2, 2, GAME_W - 4, GAME_H - 4);
+                // RUSH! text
+                ctx.font = '14px "Press Start 2P"';
+                ctx.fillStyle = '#fbbf24';
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = 0.6 + Math.sin(gameTime * 8) * 0.4;
+                ctx.fillText('RUSH!', GAME_W / 2, 28);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        ctx.restore();
+    }
+
+    function renderOnboarding() {
+        // Progressive onboarding: level 0 = movement, level 2 = food choice & detox
+        if (currentLevel > 2) return;
+        if (currentLevel === 1) return; // Skip level 1, nothing new to teach
+        
+        ctx.save();
+
+        if (currentLevel === 0) {
+            // Step 1: Jump (0-2s)
+            if (gameTime < 2.5) {
+                const alpha = gameTime < 2.0 ? 0.9 : Math.max(0, 1.0 - (gameTime - 2.0) * 2);
+                ctx.globalAlpha = alpha;
+                const bounce = Math.sin(gameTime * 6) * 5;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.beginPath();
+                ctx.roundRect(player.x - 20, player.y - 55 + bounce, 140, 30, 8);
+                ctx.fill();
+                ctx.font = '8px "Press Start 2P"';
+                ctx.fillStyle = '#34d399';
+                ctx.textAlign = 'left';
+                ctx.fillText('↑ SPACE=HOPPA', player.x - 12, player.y - 35 + bounce);
+            }
+
+        // Step 2: Duck (2-4.5s)
+        if (gameTime > 2.0 && gameTime < 4.5) {
+            const alpha = gameTime < 2.5 ? (gameTime - 2.0) * 2 : (gameTime > 4.0 ? Math.max(0, 1.0 - (gameTime - 4.0) * 2) : 0.9);
+            ctx.globalAlpha = alpha;
+            const bounce = Math.sin(gameTime * 6) * 4;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.beginPath();
+            ctx.roundRect(player.x - 20, player.y + PLAYER_SIZE + 8 + bounce, 130, 30, 8);
+            ctx.fill();
+            ctx.font = '8px "Press Start 2P"';
+            ctx.fillStyle = '#fbbf24';
+            ctx.textAlign = 'left';
+            ctx.fillText('↓ S/NER=DUCKA', player.x - 12, player.y + PLAYER_SIZE + 28 + bounce);
+        }
+
+        // Step 3: Collect/Avoid (4-6s)
+        if (gameTime > 4.0 && gameTime < 6.5) {
+            const alpha = gameTime < 4.5 ? (gameTime - 4.0) * 2 : (gameTime > 6.0 ? Math.max(0, 1.0 - (gameTime - 6.0) * 2) : 0.85);
+            ctx.globalAlpha = alpha;
+            const lvl = LEVELS[currentLevel];
+            // Collect indicator
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.beginPath();
+            ctx.roundRect(GAME_W - 160, GROUND_Y - 120, 150, 28, 8);
+            ctx.fill();
+            ctx.font = '7px "Press Start 2P"';
+            ctx.fillStyle = lvl.collectColor;
+            ctx.textAlign = 'left';
+            ctx.fillText('SAMLA ' + lvl.collectEmoji + ' ←', GAME_W - 152, GROUND_Y - 102);
+            // Avoid indicator
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.beginPath();
+            ctx.roundRect(GAME_W - 160, GROUND_Y - 50, 150, 28, 8);
+            ctx.fill();
+            ctx.fillStyle = '#ef4444';
+            ctx.fillText('UNDVIK ' + lvl.hazardEmoji + ' ←', GAME_W - 152, GROUND_Y - 32);
+            // Growth hint
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.beginPath();
+            ctx.roundRect(GAME_W - 160, GROUND_Y + 10, 150, 28, 8);
+            ctx.fill();
+            ctx.fillStyle = '#a78bfa';
+            ctx.fillText('ÄT → VÄX → DELA DIG!', GAME_W - 152, GROUND_Y + 28);
+        }
+
+        } else if (currentLevel === 2) {
+            // Level 2 onboarding: toxic food + gold food + detox
+            // Step 1: Toxic food warning (0-3s)
+            if (gameTime < 3.5) {
+                const alpha = gameTime < 2.5 ? 0.95 : Math.max(0, 1.0 - (gameTime - 2.5) * 1.5);
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.beginPath();
+                ctx.roundRect(GAME_W/2 - 140, 35, 280, 35, 10);
+                ctx.fill();
+                ctx.font = '7px "Press Start 2P"';
+                ctx.fillStyle = '#a855f7';
+                ctx.textAlign = 'center';
+                ctx.fillText('\u2620\ufe0f LILA MAT = GIFTIG! UNDVIK?', GAME_W/2, 58);
+            }
+            // Step 2: Gold food (2-5s)
+            if (gameTime > 1.5 && gameTime < 5.5) {
+                const alpha = gameTime < 2.5 ? Math.min(1, (gameTime - 1.5)) :
+                              gameTime > 4.5 ? Math.max(0, 1.0 - (gameTime - 4.5) * 1.5) : 0.95;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.beginPath();
+                ctx.roundRect(GAME_W/2 - 140, 78, 280, 35, 10);
+                ctx.fill();
+                ctx.font = '7px "Press Start 2P"';
+                ctx.fillStyle = '#fbbf24';
+                ctx.textAlign = 'center';
+                ctx.fillText('\u2b50 GULD = +3 ENERGI MEN GIFT', GAME_W/2, 100);
+            }
+            // Step 3: Detox (4-7s)
+            if (gameTime > 3.5 && gameTime < 7.5) {
+                const alpha = gameTime < 4.5 ? Math.min(1, (gameTime - 3.5) * 1.5) :
+                              gameTime > 6.5 ? Math.max(0, 1.0 - (gameTime - 6.5) * 1.5) : 0.95;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.beginPath();
+                ctx.roundRect(GAME_W/2 - 130, 120, 260, 35, 10);
+                ctx.fill();
+                ctx.font = '7px "Press Start 2P"';
+                ctx.fillStyle = '#22c55e';
+                ctx.textAlign = 'center';
+                ctx.fillText('H\u00c5LL D = DETOX (KOSTAR \u26a1)', GAME_W/2, 142);
+            }
+        }
+
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    // ============================================================
+    // DRAWING HELPERS
+    // ============================================================
+    function drawPlayer() {
+        const lvl = LEVELS[currentLevel];
+        // Toxin weakness visual: tremor at high toxin
+        let tremX = 0, tremY = 0;
+        if (toxin > 50) tremX = Math.sin(gameTime * 20) * (toxin > 75 ? 2 : 0.8);
+        if (toxin > 75) tremY = Math.cos(gameTime * 18) * 1.5;
+        const px = player.x + tremX;
+        const py = (player.ducking ? player.y + PLAYER_SIZE * 0.3 : player.y) + tremY;
+        const pw = PLAYER_SIZE;
+        const ph = player.ducking ? PLAYER_SIZE * 0.5 : PLAYER_SIZE;
+
+        ctx.save();
+
+        // Scale by growth factor (centered on player)
+        const cx = px + pw/2;
+        const cy = py + ph/2;
+        ctx.translate(cx, cy);
+        ctx.scale(growthFactor, growthFactor);
+        ctx.translate(-cx, -cy);
+
+        // Split animation: brief flash
+        if (splitAnim > 0) {
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 30;
+        }
+
+        // Detox visual: green pulsing glow
+        if (isDetoxing) {
+            ctx.globalAlpha = 0.6 + Math.sin(gameTime * 8) * 0.2;
+            ctx.shadowColor = '#22c55e';
+            ctx.shadowBlur = 25 + Math.sin(gameTime * 6) * 10;
+            // Green detox ring
+            ctx.strokeStyle = `rgba(34, 197, 94, ${0.5 + Math.sin(gameTime * 6) * 0.3})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(px + pw/2, py + ph/2, pw/2 + 10, 0, Math.PI * 2);
+            ctx.stroke();
+            // Detox label
+            ctx.font = '7px "Press Start 2P"';
+            ctx.fillStyle = '#22c55e';
+            ctx.textAlign = 'center';
+            ctx.fillText('DETOX', px + pw/2, py - 10);
+        } else {
+            // Normal glow
+            ctx.shadowColor = lvl.playerGlow;
+            ctx.shadowBlur = 16;
+        }
+
+        ctx.fillStyle = lvl.playerColor;
+
+        if (currentLevel === 0) {
+            // Algae: simple circle
+            ctx.beginPath();
+            ctx.arc(px + pw/2, py + ph/2, pw/2, 0, Math.PI * 2);
+            ctx.fill();
+            // Small leaves
+            ctx.fillStyle = '#86efac';
+            for (let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2 + gameTime * 2;
+                const lx = px + pw/2 + Math.cos(angle) * (pw/2 + 4);
+                const ly = py + ph/2 + Math.sin(angle) * (ph/2 + 4);
+                ctx.beginPath();
+                ctx.arc(lx, ly, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else if (currentLevel === 1) {
+            // Insect: oval body + antennae
+            ctx.beginPath();
+            ctx.ellipse(px + pw/2, py + ph/2, pw/2, ph/2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Eyes
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(px + pw * 0.7, py + ph * 0.35, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(px + pw * 0.72, py + ph * 0.35, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            // Antennae
+            ctx.strokeStyle = lvl.playerColor;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(px + pw * 0.8, py + ph * 0.2);
+            ctx.lineTo(px + pw + 5, py - 5 + Math.sin(gameTime * 6) * 3);
+            ctx.stroke();
+        } else if (currentLevel === 2) {
+            // Bird: triangle body + wing
+            ctx.beginPath();
+            ctx.moveTo(px + pw, py + ph/2);
+            ctx.lineTo(px, py + ph * 0.2);
+            ctx.lineTo(px + pw * 0.1, py + ph/2);
+            ctx.lineTo(px, py + ph * 0.8);
+            ctx.closePath();
+            ctx.fill();
+            // Wing
+            ctx.fillStyle = '#0ea5e9';
+            ctx.beginPath();
+            ctx.moveTo(px + pw * 0.3, py + ph * 0.4);
+            ctx.lineTo(px + pw * 0.2, py - 3 + Math.sin(gameTime * 8) * 5);
+            ctx.lineTo(px + pw * 0.6, py + ph * 0.35);
+            ctx.closePath();
+            ctx.fill();
+            // Eye
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(px + pw * 0.75, py + ph * 0.4, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (currentLevel === 3) {
+            // Fox: larger shape
+            ctx.beginPath();
+            ctx.ellipse(px + pw/2, py + ph * 0.6, pw/2, ph * 0.35, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Head
+            ctx.beginPath();
+            ctx.arc(px + pw * 0.8, py + ph * 0.35, pw * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(px + pw * 0.7, py + ph * 0.15);
+            ctx.lineTo(px + pw * 0.65, py - 2);
+            ctx.lineTo(px + pw * 0.8, py + ph * 0.2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(px + pw * 0.9, py + ph * 0.15);
+            ctx.lineTo(px + pw * 0.95, py - 2);
+            ctx.lineTo(px + pw, py + ph * 0.2);
+            ctx.closePath();
+            ctx.fill();
+            // Eye
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(px + pw * 0.85, py + ph * 0.35, 2, 0, Math.PI * 2);
+            ctx.fill();
+            // Tail
+            ctx.strokeStyle = lvl.playerColor;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(px, py + ph * 0.5);
+            ctx.quadraticCurveTo(px - 10, py + ph * 0.2 + Math.sin(gameTime * 4) * 5, px - 5, py + ph * 0.6);
+            ctx.stroke();
+        }
+
+        ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+
+    function drawSpiky(cx, cy, r, spikes) {
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+            const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI/2;
+            const rad = i % 2 === 0 ? r : r * 0.5;
+            const x = cx + Math.cos(angle) * rad;
+            const y = cy + Math.sin(angle) * rad;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawFollower(pos, alpha) {
+        if (!pos) return;
+        const lvl = LEVELS[currentLevel];
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const scale = 0.7;
+        const px = pos.x - 10;
+        const py = pos.ducking ? pos.y + PLAYER_SIZE * 0.3 - 5 : pos.y - 5;
+        const pw = PLAYER_SIZE * scale;
+        const ph = pos.ducking ? PLAYER_SIZE * 0.5 * scale : PLAYER_SIZE * scale;
+        ctx.fillStyle = lvl.playerColor;
+        ctx.shadowColor = lvl.playerGlow;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(px + pw/2, py + ph/2, pw/2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+
+    // ============================================================
+    // ENTITY SPAWNING
+    // ============================================================
+    function spawnCollectible() {
+        const y = GROUND_Y - Math.random() * 120 - 20;
+        let isRich = false, isToxic = false;
+        if (currentLevel >= 2) {
+            const roll = Math.random();
+            if (roll < 0.20) isRich = true;
+            else if (roll < 0.50) isToxic = true;
+        }
+        entities.push({
+            type: 'collect',
+            x: GAME_W + 20,
+            y: y,
+            w: isRich ? 24 : 18,
+            h: isRich ? 24 : 18,
+            phase: Math.random() * Math.PI * 2,
+            floaty: true,
+            rich: isRich,
+            toxic: isToxic,
+        });
+    }
+
+    function spawnHazard() {
+        // Grace period: no hazards first 8 seconds of a level
+        if (gameTime < 8) return;
+        
+        // Cap max hazards on screen to prevent overwhelming walls
+        const maxHazards = currentLevel === 0 ? 1 : currentLevel === 1 ? 2 : 3;
+        let currentHazards = 0;
+        for (let i = 0; i < entities.length; i++) {
+            if (entities[i].type === 'hazard') currentHazards++;
+        }
+        if (currentHazards >= maxHazards) return;
+
+        const roll = Math.random();
+        let y, h, w, floaty;
+        
+        if (roll < 0.45) {
+            // Ground hazard: sits on ground, must JUMP over
+            y = GROUND_Y - 5;
+            w = 22 + currentLevel * 3;
+            h = 22 + currentLevel * 3;
+            floaty = false;
+        } else if (roll < 0.85) {
+            // High sweeper: flies at head height, must DUCK under
+            y = GROUND_Y - PLAYER_SIZE + 2; // Just above duck height
+            w = 30 + currentLevel * 2;
+            h = 14;
+            floaty = false;
+        } else {
+            // Flying hazard: high in air, jump to avoid or let pass
+            y = GROUND_Y - 70 - Math.random() * 60;
+            w = 20 + currentLevel * 2;
+            h = 20 + currentLevel * 2;
+            floaty = true;
+        }
+        
+        entities.push({
+            type: 'hazard',
+            x: GAME_W + 20,
+            y: y,
+            w: w,
+            h: h,
+            phase: Math.random() * Math.PI * 2,
+            floaty: floaty,
+        });
+    }
+
+    function spawnPowerup() {
+        const types = ['resistens', 'instinkt'];
+        const powerType = types[Math.floor(Math.random() * types.length)];
+        const y = GROUND_Y - 60 - Math.random() * 100;
+        entities.push({
+            type: 'powerup',
+            powerType: powerType,
+            x: GAME_W + 20,
+            y: y,
+            w: 22,
+            h: 22,
+            phase: Math.random() * Math.PI * 2,
+            floaty: true,
+        });
+    }
+
+    function spawnSymbiont() {
+        const lvl = LEVELS[currentLevel];
+        if (!lvl.symbiont) return;
+        const y = GROUND_Y - 50 - Math.random() * 80;
+        entities.push({
+            type: 'symbiont',
+            symData: lvl.symbiont,
+            x: GAME_W + 20,
+            y: y,
+            w: 24,
+            h: 24,
+            phase: Math.random() * Math.PI * 2,
+            floaty: true,
+        });
+    }
+
+    function spawnToxin() {
+        // Spawn at fixed heights so player can dodge: ground (duck under) or air (jump over)
+        const isGround = Math.random() < 0.5;
+        const y = isGround ? GROUND_Y - 15 : GROUND_Y - 110;
+        entities.push({
+            type: 'toxin',
+            x: GAME_W + 20,
+            y: y,
+            w: 20,
+            h: 20,
+            phase: Math.random() * Math.PI * 2,
+            floaty: !isGround, // Only air toxins float
+        });
+    }
+
+    // ============================================================
+    // PARTICLES
+    // ============================================================
+    function spawnCollectParticles(x, y, color) {
+        for (let i = 0; i < 10; i++) {
+            particles.push({
+                x, y,
+                vx: (Math.random() - 0.5) * 200,
+                vy: (Math.random() - 0.5) * 200 - 80,
+                size: Math.random() * 3 + 1,
+                color,
+                life: 0.6 + Math.random() * 0.3,
+                maxLife: 0.9,
+            });
+        }
+    }
+
+    function spawnHitParticles(x, y) {
+        for (let i = 0; i < 15; i++) {
+            particles.push({
+                x, y,
+                vx: (Math.random() - 0.5) * 250,
+                vy: (Math.random() - 0.5) * 250,
+                size: Math.random() * 3 + 1,
+                color: '#ef4444',
+                life: 0.5 + Math.random() * 0.3,
+                maxLife: 0.8,
+            });
+        }
+    }
+
+    function spawnToxinParticles(x, y) {
+        for (let i = 0; i < 12; i++) {
+            particles.push({
+                x, y,
+                vx: (Math.random() - 0.5) * 150,
+                vy: (Math.random() - 0.5) * 150 - 50,
+                size: Math.random() * 4 + 2,
+                color: '#a855f7',
+                life: 0.8 + Math.random() * 0.4,
+                maxLife: 1.2,
+            });
+        }
+    }
+
+    function spawnScorePopup(x, y, text) {
+        const el = document.createElement('div');
+        el.className = 'score-popup';
+        el.textContent = text;
+        const container = document.getElementById('gameContainer');
+        const rect = canvas.getBoundingClientRect();
+        const sx = rect.width / GAME_W;
+        const sy = rect.height / GAME_H;
+        el.style.left = (rect.left + x * sx) + 'px';
+        el.style.top = (rect.top + y * sy) + 'px';
+        if (text.startsWith('-') || text.includes('☠')) el.style.color = '#ef4444';
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    // ============================================================
+    // PLAYER ACTIONS
+    // ============================================================
+    function jump() {
+        if (player.jumpCount < 2) {
+            const isDoubleJump = player.jumpCount === 1;
+            // Toxin weakness: reduces jump height
+            let jumpMult = 1.0;
+            if (toxin > 75) jumpMult = 0.75;
+            else if (toxin > 50) jumpMult = 0.88;
+            // Energy strength: well-fed = slightly better
+            if (energy >= 15) jumpMult *= 1.06;
+            player.vy = JUMP_FORCE * (isDoubleJump ? 0.8 : 1) * jumpMult;
+            player.grounded = false;
+            player.jumpCount++;
+            sfx('jump');
+            // Double-jump visual feedback
+            if (isDoubleJump) {
+                const lvl = LEVELS[currentLevel];
+                const cx = player.x + PLAYER_SIZE / 2;
+                const cy = player.y + PLAYER_SIZE;
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    particles.push({
+                        x: cx, y: cy,
+                        vx: Math.cos(angle) * 120 + (Math.random() - 0.5) * 60,
+                        vy: Math.sin(angle) * 80 + 40,
+                        size: Math.random() * 3 + 1.5,
+                        color: lvl.playerColor,
+                        life: 0.5 + Math.random() * 0.3,
+                        maxLife: 0.8,
+                    });
+                }
+            }
+        }
+    }
+
+    // ============================================================
+    // COLLISION DETECTION
+    // ============================================================
+    function rectCollide(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+    }
+
+    // ============================================================
+    // HUD UPDATE
+    // ============================================================
+    function updateHUD() {
+        const lvl = LEVELS[currentLevel];
+        document.getElementById('hudLevel').textContent = `Nivå ${currentLevel + 1}: ${lvl.name}`;
+        document.getElementById('hudEnergy').style.width = Math.min(energy / lvl.energyNeeded * 100, 100) + '%';
+        document.getElementById('hudScore').textContent = score.toLocaleString();
+        // Toxin bar (visible on all levels, active on 3+)
+        const toxinWrap = document.getElementById('hudToxinWrap');
+        const toxinBar = document.getElementById('hudToxin');
+        const toxinPct = document.getElementById('hudToxinPct');
+        if (currentLevel >= 2) {
+            toxinWrap.style.opacity = '1';
+            const threshold = resistensActive ? TOXIN_THRESHOLD_RESISTENS : TOXIN_THRESHOLD_BASE;
+            const pct = Math.min(toxin / threshold * 100, 100);
+            toxinBar.style.width = pct + '%';
+            // Color codes weakness tiers
+            toxinBar.style.background = toxin > 75 ? '#dc2626' : toxin > 50 ? '#f59e0b' : toxin > 25 ? '#84cc16' : '#22c55e';
+            toxinPct.textContent = Math.round(toxin) + '%';
+            toxinPct.style.color = toxin > 70 ? '#ef4444' : toxin > 40 ? '#f59e0b' : 'var(--text-muted)';
+        } else {
+            toxinWrap.style.opacity = '0.3';
+            toxinBar.style.width = '0%';
+            toxinPct.textContent = '--';
+        }
+
+        // Symbiont display
+        const symEl = document.getElementById('hudSymbiont');
+        if (activeSymbiont) {
+            symEl.style.display = '';
+            document.getElementById('hudSymName').textContent = activeSymbiont.emoji + ' ' + activeSymbiont.name;
+        } else {
+            symEl.style.display = 'none';
+        }
+    }
+
+    // ============================================================
+    // GAME STATE MANAGEMENT
+    // ============================================================
+    function startGame() {
+        playerName = document.getElementById('playerName').value.trim();
+        if (!playerName) {
+            document.getElementById('playerName').style.borderColor = '#ef4444';
+            document.getElementById('playerName').focus();
+            return;
+        }
+
+        // Reset game state
+        score = 0;
+        energy = 3; // Starting energy so first seconds aren't empty
+        toxin = 0;
+        currentLevel = 0;
+        gameTime = 0;
+        frameCount = 0;
+        entities = [];
+        particles = [];
+        comboCount = 0;
+        comboTimer = 0;
+        shieldActive = false;
+        shieldHits = 0;
+        resistensActive = false;
+        resistensTimer = 0;
+        instinktActive = false;
+        instinktTimer = 0;
+        scrollSpeed = LEVELS[0].baseSpeed;
+        usedQuestions.clear();
+        highscoreSubmitted = false;
+        activeSymbiont = null;
+        symbiontTimer = 0;
+        camoTimer = 0;
+        camoActive = false;
+        windGust = 0;
+        windTimer = 0;
+        dayNightPhase = 0;
+        waterPhase = 0;
+        biotopParticles = [];
+        rushActive = false;
+        symbiontSpawned = false;
+        lives = 3;
+        followers = [];
+        immuneTimer = 0;
+        growthFactor = 0.6;
+        popCount = 1;
+        totalCollected = 0;
+        splitAnim = 0;
+
+        // Init player
+        player = {
+            x: 80,
+            y: GROUND_Y,
+            vy: 0,
+            grounded: true,
+            jumpCount: 0,
+            ducking: false,
+        };
+
+        gameState = 'PLAYING';
+        hideAllOverlays();
+        document.getElementById('hud').classList.remove('hidden');
+        initAudio();
+        startBGM();
+    }
+
+    function restartGame() {
+        gameState = 'MENU';
+        hideAllOverlays();
+        showOverlay('menuOverlay');
+        document.getElementById('hud').classList.add('hidden');
+    }
+
+    function showLevelUp() {
+        hideAllOverlays();
+        sfx('levelup');
+        const nextLvl = LEVELS[currentLevel + 1];
+        document.getElementById('levelUpEmoji').textContent = nextLvl.emoji;
+        document.getElementById('levelUpTitle').textContent = `Evolution! → ${nextLvl.name}`;
+        document.getElementById('levelUpDesc').textContent = nextLvl.description;
+        showOverlay('levelUpOverlay');
+        score += 1000 * (currentLevel + 1);
+    }
+
+    function startQuiz() {
+        hideAllOverlays();
+        showOverlay('quizOverlay');
+        gameState = 'QUIZ';
+        quizAnswered = false;
+        document.getElementById('quizNextBtn').style.display = 'none';
+        document.getElementById('quizFeedback').className = 'quiz-feedback';
+
+        // Pick random unused question
+        let qIdx;
+        const available = [];
+        for (let i = 0; i < ecoQuestions.length; i++) {
+            if (!usedQuestions.has(i)) available.push(i);
+        }
+        if (available.length === 0) {
+            usedQuestions.clear();
+            qIdx = Math.floor(Math.random() * ecoQuestions.length);
+        } else {
+            qIdx = available[Math.floor(Math.random() * available.length)];
+        }
+        usedQuestions.add(qIdx);
+
+        const q = ecoQuestions[qIdx];
+        currentQuizQuestion = q;
+        document.getElementById('quizQuestion').textContent = q.q;
+
+        // Shuffle options
+        const opts = [q.correct, ...q.wrong].sort(() => Math.random() - 0.5);
+        const letters = ['A', 'B', 'C', 'D'];
+        const container = document.getElementById('quizOptions');
+        container.innerHTML = '';
+
+        opts.forEach((opt, i) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-opt';
+            div.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+            div.dataset.answer = opt;
+            div.dataset.correct = q.correct;
+            div.onclick = () => answerQuiz(div, opt === q.correct, q.correct);
+            container.appendChild(div);
+        });
+    }
+
+    function answerQuiz(el, isCorrect, correctAnswer) {
+        if (quizAnswered) return;
+        quizAnswered = true;
+
+        const allOpts = document.querySelectorAll('.quiz-opt');
+        allOpts.forEach(o => {
+            o.style.pointerEvents = 'none';
+            if (o.dataset.answer === correctAnswer) o.classList.add('correct');
+            else o.classList.add('wrong');
+        });
+
+        const explanation = currentQuizQuestion ? currentQuizQuestion.explanation : '';
+        const fb = document.getElementById('quizFeedback');
+        if (isCorrect) {
+            pendingSymbiosis = true;
+            fb.textContent = `✅ Rätt! ${explanation} Du vann nivåns SYMBIOS!`;
+            fb.className = 'quiz-feedback show ok';
+            score += 500;
+        } else {
+            fb.textContent = `❌ Fel! Rätt svar var: ${correctAnswer}. ${explanation}`;
+            fb.className = 'quiz-feedback show nok';
+        }
+
+        document.getElementById('quizNextBtn').style.display = 'block';
+    }
+
+    function quizContinue() {
+        currentLevel++;
+        energy = 0;
+        entities = [];
+        gameTime = 0;
+        activeSymbiont = null;
+        symbiontTimer = 0;
+        camoTimer = 0;
+        camoActive = false;
+        windGust = 0;
+        windTimer = 0;
+        biotopParticles = [];
+        rushActive = false;
+        symbiontSpawned = false;
+        immuneTimer = 0;
+        followers = [];
+        growthFactor = 0.6;
+        popCount = 1;
+        totalCollected = 0;
+        splitAnim = 0;
+
+        scrollSpeed = LEVELS[currentLevel].baseSpeed;
+        
+        if (pendingSymbiosis) {
+            nextSymbiontSpawn = 15 + Math.random() * 15;
+            pendingSymbiosis = false;
+        }
+
+        gameState = 'PLAYING';
+        hideAllOverlays();
+    }
+
+    function showGameOver(reason) {
+        hideAllOverlays();
+        sfx('gameover');
+        document.getElementById('hud').classList.add('hidden');
+
+        if (reason === 'bioaccumulation') {
+            document.getElementById('goEmoji').textContent = '☠️🧪';
+            document.getElementById('goTitle').textContent = 'Bioackumulation!';
+            document.getElementById('goSubtitle').textContent = 'Gifterna ackumulerades genom näringskedjan och blev dödliga!';
+        } else if (reason === 'population') {
+            document.getElementById('goEmoji').textContent = '💀🪦';
+            document.getElementById('goTitle').textContent = 'Populationen dog ut!';
+            document.getElementById('goSubtitle').textContent = 'Alla individer i populationen gick under. Resurser och rovdjur avgjorde.';
+        } else {
+            document.getElementById('goEmoji').textContent = '💀';
+            document.getElementById('goTitle').textContent = 'Game Over';
+            document.getElementById('goSubtitle').textContent = 'Näringskedjan tog slut!';
+        }
+
+        document.getElementById('goScore').textContent = score.toLocaleString();
+        document.getElementById('goLevel').textContent = `Nådde: Nivå ${currentLevel + 1}: ${LEVELS[currentLevel].name}`;
+
+        showOverlay('gameOverOverlay');
+        submitHighscore();
+    }
+
+    function showWin() {
+        sfx('levelup');
+        hideAllOverlays();
+        document.getElementById('hud').classList.add('hidden');
+        document.getElementById('winScore').textContent = score.toLocaleString();
+        showOverlay('winOverlay');
+        submitHighscore();
+    }
+
+    // ============================================================
+    // HIGHSCORE SYSTEM (Immanuel KV API)
+    // ============================================================
+    async function submitHighscore() {
+        if (highscoreSubmitted) return;
+        highscoreSubmitted = true;
+        try {
+            await new Promise(r => setTimeout(r, Math.random() * 600));
+            const hsKey = `HS_${currentClass}`;
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${hsKey}?t=${Date.now()}`, { cache: 'no-store' });
+            let text = await res.text();
+            let scores = [];
+
+            if (text && text !== '0' && !text.includes('not found')) {
+                text = text.replace(/"/g, '');
+                scores = text.split('|').map(s => {
+                    const [n, sc, lv] = s.split(':');
+                    return { name: n, score: parseInt(sc) || 0, level: parseInt(lv) || 1 };
+                }).filter(s => s.name);
+            }
+
+            scores.push({ name: playerName, score, level: currentLevel + 1 });
+            scores.sort((a, b) => b.score - a.score);
+            scores = scores.slice(0, 25);
+
+            const encoded = encodeURIComponent(scores.map(s => `${s.name}:${s.score}:${s.level}`).join('|'));
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encoded}`, { method: 'POST', cache: 'no-store' });
+        } catch (e) {
+            console.warn('Highscore submit failed:', e);
+        }
+    }
+
+    async function getHighscores() {
+        try {
+            const hsKey = `HS_${currentClass}`;
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${hsKey}?t=${Date.now()}`, { cache: 'no-store' });
+            let text = await res.text();
+            if (!text || text === '0' || text.includes('not found')) return [];
+            text = text.replace(/"/g, '');
+            return text.split('|').map(s => {
+                const [n, sc, lv] = s.split(':');
+                return { name: n, score: parseInt(sc) || 0, level: parseInt(lv) || 1 };
+            }).filter(s => s.name).sort((a, b) => b.score - a.score);
+        } catch (e) {
+            console.warn('Get highscores failed:', e);
+            return [];
+        }
+    }
+
+    async function showHighscores() {
+        gameState = 'HIGHSCORES';
+        hideAllOverlays();
+        showOverlay('hsOverlay');
+        document.getElementById('hsTableWrap').innerHTML = '<p style="color:var(--text-muted);" class="pulse">Laddar...</p>';
+
+        const scores = await getHighscores();
+        renderHighscoreTable(scores, 'hsTableWrap');
+    }
+
+    function renderHighscoreTable(scores, containerId) {
+        const wrap = document.getElementById(containerId);
+        if (scores.length === 0) {
+            wrap.innerHTML = '<p style="color:var(--text-muted);">Inga highscores ännu. Bli den första! 🏆</p>';
+            return;
+        }
+
+        const levelEmojis = ['🌿', '🐛', '🐸', '🦊'];
+        let html = `<table class="hs-table">
+            <thead><tr><th>#</th><th style="text-align:left;">Namn</th><th>Poäng</th><th>Nivå</th></tr></thead>
+            <tbody>`;
+
+        scores.slice(0, 20).forEach((s, i) => {
+            const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+            const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+            const isYou = s.name === playerName ? 'hs-you' : '';
+            html += `<tr class="${isYou}">
+                <td class="hs-rank ${rankClass}">${rankIcon}</td>
+                <td class="hs-name">${escapeHtml(s.name)}</td>
+                <td class="hs-score">${s.score.toLocaleString()}</td>
+                <td class="hs-level">${levelEmojis[Math.min(s.level - 1, 3)]} ${LEVELS[Math.min(s.level - 1, 3)].name}</td>
+            </tr>`;
+        });
+
+        html += '</tbody></table>';
+        wrap.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    async function resetHighscores() {
+        if (!confirm(`Nollställ alla highscores för ${currentClass}?`)) return;
+        try {
+            const hsKey = `HS_${currentClass}`;
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encodeURIComponent('_')}`, { method: 'POST' });
+            document.getElementById('teacherHsWrap').innerHTML = '<p style="color:var(--correct);">✅ Nollställt!</p>';
+            updateTeacherDashboard();
+        } catch (e) {
+            console.warn('Reset failed:', e);
+        }
+    }
+
+    // ============================================================
+    // TEACHER DASHBOARD
+    // ============================================================
+    let teacherInterval = null;
+
+    function selectClass(cls) {
+        currentClass = cls;
+        document.querySelectorAll('.class-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.cls === cls);
+        });
+        updateTeacherDashboard();
+    }
+
+    function startTeacherPolling() {
+        updateTeacherDashboard();
+        teacherInterval = setInterval(updateTeacherDashboard, 3000);
+    }
+
+    async function updateTeacherDashboard() {
+        const scores = await getHighscores();
+        renderHighscoreTable(scores, 'teacherHsWrap');
+
+        // Stats
+        const numPlayers = scores.length;
+        const highest = scores.length > 0 ? scores[0].score : 0;
+        const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b.score, 0) / scores.length) : 0;
+        const maxLvl = scores.length > 0 ? Math.max(...scores.map(s => s.level)) : 0;
+
+        document.getElementById('tStatPlayers').textContent = numPlayers;
+        document.getElementById('tStatHighest').textContent = highest.toLocaleString();
+        document.getElementById('tStatAvg').textContent = avg.toLocaleString();
+        document.getElementById('tStatMaxLvl').textContent = maxLvl > 0 ? `${LEVELS[Math.min(maxLvl-1,3)].emoji} ${maxLvl}` : '—';
+    }
+
+    function copyUrl() {
+        const url = document.getElementById('teacherUrlText').textContent;
+        navigator.clipboard.writeText(url).then(() => {
+            const el = document.getElementById('teacherUrl');
+            el.querySelector('.label').textContent = '✅ Kopierad!';
+            setTimeout(() => el.querySelector('.label').textContent = 'Elevlänk (klicka för att kopiera)', 2000);
+        });
+    }
+
+    // ============================================================
+    // PAUSE SYSTEM
+    // ============================================================
+    function togglePause() {
+        if (gameState === 'PLAYING') {
+            gameState = 'PAUSED';
+            const po = document.getElementById('pauseOverlay');
+            po.classList.remove('hidden');
+            po.classList.add('visible');
+        } else if (gameState === 'PAUSED') {
+            gameState = 'PLAYING';
+            const po = document.getElementById('pauseOverlay');
+            po.classList.remove('visible');
+            po.classList.add('hidden');
+        }
+    }
+
+    // ============================================================
+    // CLASS SELECTOR (Menu)
+    // ============================================================
+    function selectMenuClass(cls) {
+        currentClass = cls;
+        document.querySelectorAll('#menuClassSelector .class-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.cls === cls);
+        });
+    }
+
+    // ============================================================
+    // OVERLAY MANAGEMENT
+    // ============================================================
+    function hideAllOverlays() {
+        document.querySelectorAll('.overlay').forEach(o => {
+            o.classList.remove('visible');
+            o.classList.add('hidden');
+        });
+        // Also hide pause overlay
+        const po = document.getElementById('pauseOverlay');
+        if (po) {
+            po.classList.remove('visible');
+            po.classList.add('hidden');
+        }
+    }
+
+    function showOverlay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('hidden');
+        // Force reflow for animation
+        el.offsetHeight;
+        el.classList.add('visible');
+    }
+
+    function backToMenu() {
+        gameState = 'MENU';
+        hideAllOverlays();
+        showOverlay('menuOverlay');
+    }
+
+    // ============================================================
+    // INTRO SCREEN
+    // ============================================================
+    function skipIntro() {
+        const intro = document.getElementById('introScreen');
+        intro.style.transition = 'opacity 0.5s ease';
+        intro.style.opacity = '0';
+        setTimeout(() => {
+            intro.classList.add('hidden');
+            intro.style.opacity = '';
+            intro.style.transition = '';
+            gameState = 'MENU';
+            showOverlay('menuOverlay');
+            document.getElementById('playerName').focus();
+        }, 500);
+    }
+
+    function replayIntro() {
+        const intro = document.getElementById('introScreen');
+        intro.classList.remove('hidden');
+        intro.style.opacity = '1';
+        hideAllOverlays();
+        gameState = 'CRAWL';
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+
+        // If not teacher mode, show intro first
+        if (!isTeacher) {
+            document.getElementById('menuOverlay').classList.remove('visible');
+            document.getElementById('menuOverlay').classList.add('hidden');
+        }
+    });
+    </script>
+</body>
+</html>
