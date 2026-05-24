@@ -1033,7 +1033,7 @@ function launchSnake(){document.getElementById('readyScreen').classList.add('hid
 // ============================================================
 const CELL_TARGET = 28; // target cell size in px
 const MIN_CELLS = 14;
-const MAX_CELLS = 30;
+const MAX_CELLS = 50;
 let gridCols = 20;
 let gridRows = 15;
 let snakeCanvas, snakeCtx;
@@ -1079,19 +1079,27 @@ function initSnake() {
     snakeCanvas=document.getElementById('snakeCanvas');
     snakeCtx=snakeCanvas.getContext('2d');
 
-    // === RESPONSIVE RECTANGULAR GRID ===
-    // Calculate available space from window, not wrapper (which may not have layout yet)
+    // === FILL SCREEN AS LANDSCAPE RECTANGLE ===
     const header = document.getElementById('gameHeader');
     const info = document.querySelector('.snake-info');
     const headerH = header ? header.offsetHeight : 50;
     const infoH = info ? info.offsetHeight : 50;
-    const appPad = 16; // .app padding + gaps
-    const availW = window.innerWidth - appPad;
-    const availH = window.innerHeight - headerH - infoH - appPad * 3;
-    // Compute cell size and grid dimensions to fill the space
-    const cellSize = Math.max(16, Math.min(CELL_TARGET, Math.floor(Math.min(availW, availH) / MIN_CELLS)));
-    gridCols = Math.min(MAX_CELLS, Math.max(MIN_CELLS, Math.floor(availW / cellSize)));
-    gridRows = Math.min(MAX_CELLS, Math.max(10, Math.floor(availH / cellSize)));
+    const pad = 12;
+    const availW = window.innerWidth - pad * 2;
+    const availH = window.innerHeight - headerH - infoH - pad * 4;
+    // Pick cell size so grid fills both dimensions
+    // Try target size first, fall back smaller if needed
+    let cellSize = CELL_TARGET;
+    let cols = Math.floor(availW / cellSize);
+    let rows = Math.floor(availH / cellSize);
+    // If too few cells, shrink cell size
+    if (cols < MIN_CELLS || rows < 10) {
+        cellSize = Math.max(14, Math.min(Math.floor(availW / MIN_CELLS), Math.floor(availH / 10)));
+        cols = Math.floor(availW / cellSize);
+        rows = Math.floor(availH / cellSize);
+    }
+    gridCols = Math.min(MAX_CELLS, Math.max(MIN_CELLS, cols));
+    gridRows = Math.min(MAX_CELLS, Math.max(10, rows));
     snakeCanvas.width = gridCols * cellSize;
     snakeCanvas.height = gridRows * cellSize;
     snakeCanvas.dataset.cellSize = cellSize;
