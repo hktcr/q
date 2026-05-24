@@ -1086,7 +1086,7 @@ function initSnake() {
     const infoH = info ? info.offsetHeight : 50;
     const pad = 12;
     const availW = window.innerWidth - pad * 2;
-    const availH = window.innerHeight - headerH - infoH - pad * 4;
+    const availH = window.innerHeight - headerH - infoH - pad * 4 - CELL_TARGET;
     // Pick cell size so grid fills both dimensions
     // Try target size first, fall back smaller if needed
     let cellSize = CELL_TARGET;
