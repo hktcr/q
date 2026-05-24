@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EkoSnake v1 🐍 — Korsord + Snake</title>
+    <meta name="description" content="EkoSnake v1 — lös korsordet och samla bokstäverna i Snake! Ett ekologi-ordspel.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --bg: #0a0f1a;
+            --surface: rgba(15, 23, 42, 0.85);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --correct: #10b981;
+            --incorrect: #ef4444;
+            --gold: #f59e0b;
+            --accent: #3b82f6;
+            --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* === LAYOUT === */
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            gap: 0.5rem;
+            overflow: hidden;
+        }
+
+        /* === HEADER === */
+        .header {
+            text-align: center;
+            padding: 0.6rem 1rem;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #34d399, #3b82f6, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .phase-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .phase-crossword .phase-badge { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+        .phase-snake .phase-badge { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .header .stats {
+            display: flex;
+            gap: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .header .stats span { color: var(--gold); }
+
+        /* === NAME SCREEN === */
+        .name-screen {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            margin-top: 15vh;
+        }
+        .name-screen h2 { margin-bottom: 0.5rem; font-weight: 700; font-size: 1.8rem; }
+        .name-screen input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            font-size: 1.1rem;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 1rem;
+        }
+        .name-screen input:focus { border-color: var(--primary); }
+
+        /* === BUTTONS === */
+        .btn {
+            font-family: inherit; font-size: 1rem; font-weight: 700;
+            padding: 0.7rem 1.3rem; border-radius: 12px; border: none;
+            cursor: pointer; transition: all 0.2s ease; color: white;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #d97706); }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); }
+        .btn-sm { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+        .btn-group { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+
+        .crossword-section {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 1rem;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .crossword-layout {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 1rem;
+            align-items: start;
+            height: 100%;
+        }
+        @media (max-width: 800px) { .crossword-layout { grid-template-columns: 1fr; } }
+        .cw-grid-wrap {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y pinch-zoom;
+            height: 100%;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 0.5rem;
+            position: relative;
+        }
+        .cw-grid-wrap.zoomed .cw-grid { transform-origin: 0 0; }
+        .cw-zoom-out {
+            position: sticky; top: 4px; left: 4px; z-index: 10;
+            font-size: 0.75rem; padding: 0.3rem 0.7rem;
+            border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15,23,42,0.9); color: var(--text); cursor: pointer;
+            backdrop-filter: blur(8px); display: none; margin-bottom: 0.3rem;
+        }
+        .cw-grid-wrap.zoomed .cw-zoom-out { display: inline-block; }
+        .cw-grid { display: grid; gap: 2px; width: max-content; margin: 0 auto; }
+        .cw-cell { aspect-ratio: 1/1; position: relative; display: flex; align-items: center; justify-content: center; }
+        .cw-cell.active {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+        .cw-cell.active:hover { background: rgba(255,255,255,0.12); }
+        .cw-cell.hl-word { background: rgba(59,130,246,0.25); border-color: var(--accent); }
+        .cw-cell.hl-focus { background: rgba(16,185,129,0.5); border-color: #fff; box-shadow: 0 0 8px var(--primary); transform: scale(1.05); z-index: 5; }
+        .cw-cell.cw-correct { background: rgba(16,185,129,0.4); border-color: var(--correct); }
+        .cw-cell.cw-wrong { background: rgba(239,68,68,0.4); border-color: var(--incorrect); animation: cwShake 0.4s ease; }
+        .cw-cell .cw-num { position: absolute; top: 1px; left: 3px; font-size: clamp(6px, 1.2vw, 10px); color: var(--text-muted); pointer-events: none; font-weight: 700; }
+        .cw-cell input {
+            width: 100%; height: 100%;
+            background: transparent; border: none;
+            text-align: center;
+            font-size: clamp(12px, 2.5vw, 1.3rem);
+            font-weight: 700; color: white;
+            font-family: inherit;
+            text-transform: uppercase;
+            outline: none; cursor: pointer;
+            caret-color: transparent;
+        }
+        @keyframes cwShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+        .cw-sidebar h3 { color: var(--accent); font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .cw-clue { font-size: 1.15rem; line-height: 1.6; color: var(--text-muted); min-height: 50px; margin-bottom: 0.8rem; }
+        .cw-clue strong { color: var(--text); }
+        .cw-progress { margin-bottom: 0.8rem; }
+        .cw-progress .bar-bg { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+        .cw-progress .bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; transition: width 0.5s ease; }
+        .cw-progress .bar-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem; }
+        .word-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.8rem; }
+        .word-chip {
+            padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700;
+            background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer; transition: all 0.15s ease;
+        }
+        .word-chip:hover:not(.solved) { background: rgba(59,130,246,0.2); border-color: var(--accent); }
+        .word-chip.solved { background: rgba(16,185,129,0.2); color: #6ee7b7; border-color: rgba(16,185,129,0.3); }
+
+        /* === SNAKE SECTION — FILLS THE SCREEN === */
+        .snake-section {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            min-height: 0;
+        }
+        .snake-info {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            width: 100%;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .snake-clue { font-size: 0.95rem; color: var(--text); margin-bottom: 0.3rem; }
+        .snake-word-display { display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; }
+        .snake-letter-box {
+            width: 28px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 5px; font-size: 1rem; font-weight: 900;
+            border: 2px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .snake-letter-box.collected { background: rgba(16,185,129,0.3); border-color: var(--primary); color: white; transform: scale(1.08); }
+        .snake-letter-box.next { border-color: var(--gold); box-shadow: 0 0 8px rgba(245,158,11,0.4); animation: letterPulse 1s ease infinite; }
+        @keyframes letterPulse { 0%,100%{box-shadow:0 0 8px rgba(245,158,11,0.4)} 50%{box-shadow:0 0 16px rgba(245,158,11,0.6)} }
+
+        .snake-canvas-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 0;
+        }
+        canvas#snakeCanvas {
+            display: block;
+            border-radius: 4px;
+            background: #060a14;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), inset 0 0 30px rgba(0,0,0,0.5);
+            touch-action: none;
+        }
+
+        /* === READY SCREEN === */
+        .ready-screen {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%; max-width: 550px;
+            text-align: center;
+            margin-top: 10vh;
+        }
+        .ready-screen h2 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+        .ready-screen .ready-word { font-size: 1.8rem; font-weight: 900; color: var(--gold); margin: 0.8rem 0; }
+        .ready-rules { text-align: left; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; list-style: none; }
+        .ready-rules li { margin-bottom: 0.5rem; color: var(--text-muted); line-height: 1.4; }
+        .ready-rules li strong { color: var(--text); }
+
+        /* === OVERLAYS === */
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; padding: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+        .overlay.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .overlay .glass {
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 550px; width: 100%;
+            max-height: 85vh; overflow-y: auto;
+            text-align: center;
+        }
+        .hs-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        .hs-table th { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .hs-table td { padding: 0.5rem 0.4rem; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .hs-rank.gold { color: #fbbf24; }
+        .hs-rank.silver { color: #cbd5e1; }
+        .hs-rank.bronze { color: #d97706; }
+        .hs-name { text-align: left; font-weight: 700; }
+        .hs-score { color: var(--gold); font-weight: 700; }
+        .hs-you { background: rgba(16,185,129,0.1); }
+
+        /* Score popup */
+        .score-popup {
+            position: fixed;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--gold);
+            pointer-events: none;
+            z-index: 200;
+            text-shadow: 0 0 8px rgba(245,158,11,0.6);
+            animation: scoreFloat 1s ease-out forwards;
+        }
+        @keyframes scoreFloat { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-60px) scale(1.4)} }
+
+        /* Learning receipt */
+        .learn-receipt {
+            position: fixed;
+            bottom: 2rem; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.4);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: #6ee7b7;
+            font-weight: 700;
+            font-size: 0.95rem;
+            z-index: 150;
+            animation: receiptIn 0.4s ease, receiptOut 0.4s ease 2.5s forwards;
+            max-width: 90vw;
+            text-align: center;
+        }
+        @keyframes receiptIn { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+        @keyframes receiptOut { to{opacity:0;transform:translateX(-50%) translateY(-20px)} }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="app" id="app">
+
+    <!-- NAME SCREEN -->
+    <div id="nameScreen" class="name-screen">
+        <div style="font-size:3rem; margin-bottom:0.5rem;">🐍🌿</div>
+        <h2>EkoSnake v1</h2>
+        <p style="color:var(--text-muted); margin-bottom:1.5rem;">Lös korsordet → Samla bokstäver i Snake!</p>
+        <input type="text" id="playerNameInput" placeholder="Skriv ditt namn..." maxlength="20" autocomplete="off">
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="startGame()">🎮 Starta</button>
+            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+        </div>
+    </div>
+
+    <!-- COMPACT HEADER (during game) -->
+    <div id="gameHeader" class="header hidden">
+        <h1>EkoSnake v1</h1>
+        <div id="phaseBadge" class="phase-badge">📝 KORSORD</div>
+        <div class="stats">
+            <div>⭐ <span id="statScore">0</span></div>
+            <div>📝 <span id="statWords">0</span> ord</div>
+        </div>
+    </div>
+
+    <!-- CROSSWORD SECTION -->
+    <div id="crosswordSection" class="crossword-section hidden">
+        <div class="crossword-layout">
+            <div class="cw-grid-wrap">
+                <button class="cw-zoom-out" onclick="cwZoomOut()">🔍 Visa hela korsordet</button>
+                <div id="cwGrid" class="cw-grid"></div>
+            </div>
+            <div class="cw-sidebar">
+                <h3>💡 Ledtråd</h3>
+                <div id="cwClue" class="cw-clue">Klicka på ett ord för att se ledtråden.</div>
+                <div class="cw-progress">
+                    <div class="bar-bg"><div id="cwProgressBar" class="bar-fill" style="width:0%"></div></div>
+                    <div class="bar-label"><span id="cwProgressLabel">0 / 0 ord lösta</span></div>
+                </div>
+                <div id="wordChips" class="word-chips"></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-sm" onclick="checkCurrentWord()">✅ Kolla ord</button>
+                    <button class="btn btn-gold btn-sm" onclick="cwHint()">💡 Ledtråd</button>
+                    <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- READY SCREEN -->
+    <div id="readyScreen" class="ready-screen hidden">
+        <div style="font-size:3rem; margin-bottom:0.5rem;">🐍</div>
+        <h2>Dags för Snake!</h2>
+        <div id="readyWord" class="ready-word"></div>
+        <div id="readyClue" style="color:var(--text-muted); margin-bottom:1rem; white-space:pre-line;"></div>
+        <ul class="ready-rules">
+            <li>🎯 Samla bokstäverna i <strong>rätt ordning</strong> — den gyllene lyser!</li>
+            <li>🧱 Undvik <strong>hinder</strong> och <strong>kanterna</strong></li>
+            <li>⬆️⬇️⬅️➡️ Styr med <strong>piltangenter / WASD</strong> eller <strong>swipa</strong></li>
+            <li>⏸ Tryck <strong>Escape</strong> för paus</li>
+        </ul>
+        <button class="btn btn-primary" onclick="launchSnake()" style="width:100%;">▶ Kör igång!</button>
+    </div>
+
+    <!-- SNAKE SECTION — uses all remaining space -->
+    <div id="snakeSection" class="snake-section hidden">
+        <div class="snake-info">
+            <div id="snakeWordLabel" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.2rem;"></div>
+            <div id="snakeWordDisplay" class="snake-word-display"></div>
+        </div>
+        <div class="snake-canvas-wrap">
+            <canvas id="snakeCanvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- OVERLAYS -->
+<div id="hsOverlay" class="overlay hidden">
+    <div class="glass">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">🏆</div>
+        <h2 style="margin-bottom:1rem;">Topplista — EkoSnake</h2>
+        <div id="hsTableWrap"><p style="color:var(--text-muted);">Laddar...</p></div>
+        <div class="btn-group" style="margin-top:1rem;">
+            <button class="btn btn-secondary btn-sm" onclick="closeOverlay()">← Tillbaka</button>
+        </div>
+    </div>
+</div>
+
+<div id="pauseOverlay" class="overlay hidden">
+    <div class="glass">
+        <div style="font-size:3rem; margin-bottom:0.5rem;">⏸️</div>
+        <h2>Paus</h2>
+        <p style="color:var(--text-muted); margin-bottom:1.5rem;">Tryck Escape eller klicka för att fortsätta</p>
+        <button class="btn btn-primary" onclick="togglePause()">▶ Fortsätt</button>
+    </div>
+</div>
+
+<div id="wordAnnounceOverlay" class="overlay hidden">
+    <div class="glass">
+        <div style="font-size:2.5rem; margin-bottom:0.3rem;">🎯</div>
+        <p id="announceProgress" style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.3rem;">Ord 1 av 3</p>
+        <h2 style="margin-bottom:0.3rem;">Nästa ord:</h2>
+        <div id="announceWordText" style="font-size:2.2rem; font-weight:900; color:var(--gold); margin:0.5rem 0; letter-spacing:2px;"></div>
+        <p id="announceClueText" style="color:var(--text-muted); margin-bottom:1.5rem; line-height:1.5;"></p>
+        <button class="btn btn-primary" onclick="dismissWordAnnouncement()" style="width:100%;">🐍 Samla bokstäverna!</button>
+    </div>
+</div>
+
+<div id="gameOverOverlay" class="overlay hidden">
+    <div class="glass">
+        <div style="font-size:3rem; margin-bottom:0.5rem;" id="goEmoji">💀</div>
+        <h2 id="goTitle">Snake Avslutad!</h2>
+        <p style="color:var(--text-muted); margin-bottom:0.5rem;" id="goSubtitle"></p>
+        <div style="font-size:2.5rem; font-weight:900; color:var(--gold); margin:0.8rem 0;" id="goScore">0</div>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;" id="goWords"></p>
+        <div id="goSummary" style="text-align:left; margin-bottom:1rem;"></div>
+        <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" id="btnGoSubmit" onclick="submitHighscoreBtn(this)">💾 Spara resultat</button>
+            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆</button>
+        </div>
+        <div class="btn-group" style="margin-top:0.75rem;">
+            <button class="btn btn-primary" onclick="returnToCrossword()">📝 Tillbaka till korsordet</button>
+        </div>
+    </div>
+</div>
+
+<div id="winOverlay" class="overlay hidden">
+    <div class="glass">
+        <div style="font-size:3rem; margin-bottom:0.5rem;">🎉🐍</div>
+        <h2>Alla ord klara!</h2>
+        <p style="color:var(--text-muted); margin-bottom:0.5rem;">Du samlade alla bokstäver i Snake!</p>
+        <div style="font-size:2.5rem; font-weight:900; color:var(--gold); margin:0.8rem 0;" id="winScore">0</div>
+        <div id="winSummary" style="text-align:left; margin-bottom:1rem;"></div>
+        <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" id="btnWinSubmit" onclick="submitHighscoreBtn(this)">💾 Spara resultat</button>
+            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆</button>
+        </div>
+        <div class="btn-group" style="margin-top:0.75rem;">
+            <button class="btn btn-primary" onclick="returnToCrossword()">📝 Fortsätt med korsordet</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// WORD DATA (science-reviewed)
+// ============================================================
+const ALL_WORDS = [
+    // ═══ LÄXA 1: Ekosystem & begrepp (L14b, 14 april) ═══
+    { answer: "EKOLOGI", clue: "Läran om hur växter, djur och allt annat i naturen lever tillsammans." },
+    { answer: "EKOSYSTEM", clue: "Ett avgränsat område i naturen där du studerar alla djur och växter som lever där." },
+    { answer: "BIOTOP", clue: "En naturtyp där vissa växter eller djur trivs. Kan vara en skog, en sjö eller en stubbe." },
+    { answer: "POPULATION", clue: "Alla individer av samma art inom ett ekosystem. Alla abborrar i en sjö, till exempel." },
+    { answer: "SAMHÄLLE", clue: "Alla populationer av olika arter som lever tillsammans i ett ekosystem." },
+    { answer: "BIOTISKA", clue: "Så kallas de levande delarna i ett ekosystem (växter, djur, svampar)." },
+    { answer: "ABIOTISKA", clue: "Så kallas de icke-levande delarna i ett ekosystem (temperatur, vind, solljus)." },
+    { answer: "MÅNGFALD", clue: "Rikedomen av arter och livsmiljöer (biologisk ...)." },
+
+    // ═══ LÄXA 2: Producent, konsument & kretslopp (L17, 21 april) ═══
+    { answer: "PRODUCENT", clue: "En organism som tillverkar sin egen energirika näring, till exempel en växt." },
+    { answer: "KONSUMENT", clue: "En organism som måste skaffa energi genom att äta andra organismer." },
+    { answer: "NÄRINGSKEDJA", clue: "En enkel, rak modell som visar vem som äter vem i naturen." },
+    { answer: "NÄRINGSVÄV", clue: "Flera näringskedjor som flätas samman till ett komplext nät." },
+    { answer: "TOPPKONSUMENT", clue: "Den konsument som befinner sig allra högst upp i näringskedjan och saknar naturliga fiender." },
+    { answer: "NEDBRYTARE", clue: "Svampar, bakterier och småkryp som bryter ner dött material och återför näringen till kretsloppet." },
+    { answer: "KRETSLOPP", clue: "Naturens egen återvinning. Ämnen (som kol eller vatten) går runt och används om och om igen." },
+
+    // ═══ LÄXA 3: Symbios, nisch & miljögifter (L18/v.19) ═══
+    { answer: "SYMBIOS", clue: "Samlingsnamnet för nära samlevnad mellan två arter. Det finns tre typer: mutualism, kommensalism och parasitism." },
+    { answer: "NISCH", clue: "En arts roll eller \"yrke\" i ekosystemet (ekologisk ...)." },
+    { answer: "KONKURRENS", clue: "När organismer tävlar om samma begränsade resurser, som mat eller boplatser." },
+    { answer: "BIOACKUMULATION", clue: "När miljögifter ansamlas i allt högre halter uppåt i näringskedjan." },
+    { answer: "NÄRINGSPYRAMID", clue: "En modell som visar att energin minskar för varje steg uppåt i näringskedjan." },
+
+    // ═══ FOTOSYNTES & CELLANDNING (kursens kärna) ═══
+    { answer: "FOTOSYNTES", clue: "Processen där växter tillverkar socker med hjälp av solenergi, koldioxid och vatten." },
+    { answer: "KLOROFYLL", clue: "Det gröna färgämnet i växternas blad som fångar solljuset." },
+    { answer: "CELLANDNING", clue: "Processen där celler bryter ner socker och frigör energi. Syre förbrukas." },
+    { answer: "KOLDIOXID", clue: "Gasen som växter tar in och som du andas ut." },
+    { answer: "SYRE", clue: "Gasen som växter släpper ut och som du behöver för att leva." },
+
+    // ═══ ÖVRIGA KURSBEGREPP (häftet kap. 14) ═══
+    { answer: "BIOSFÄR", clue: "Den del av jordklotet där allt levande finns." },
+    { answer: "BIOM", clue: "Ett stort ekosystem, till exempel regnskog, öken eller tundra." },
+    { answer: "BIOMASSA", clue: "Den sammanlagda mängden liv i ett ekosystem." },
+    { answer: "TROFINIVÅ", clue: "Varje steg i en näringskedja." },
+    { answer: "PLANKTON", clue: "Små organismer (växt- och djurplankton) som driver fritt i vatten." },
+    { answer: "FRIDLYST", clue: "En art som är skyddad och ska få leva i fred." },
+    { answer: "FÖRNA", clue: "Det översta lagret på skogsmarken, med döda växter, löv och smådjur." },
+    { answer: "HUMUS", clue: "Nedbrutet organiskt material som finns i jordmånen." },
+];
+
+// ============================================================
+// HIGHSCORE (Immanuel KV API)
+// ============================================================
+const APP_KEY = "HakanEkoSnake_Ekologi2026_v1";
+const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+let highscoreSubmitted = false;
+
+async function submitHighscoreBtn(btn) {
+    if (!btn || btn.disabled) return;
+    btn.disabled = true; btn.textContent = 'Sparar...';
+    await submitHighscore();
+    btn.textContent = '✅ Sparat!';
+}
+async function submitHighscore() {
+    if (highscoreSubmitted) return;
+    highscoreSubmitted = true;
+    try {
+        await new Promise(r => setTimeout(r, Math.random() * 500));
+        const hsKey = 'HS_EKOSNAKE';
+        const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${hsKey}?t=${Date.now()}`, { cache: 'no-store' });
+        let text = await res.text();
+        let scores = [];
+        if (text && text !== '0' && !text.includes('not found')) {
+            text = text.replace(/"/g, '');
+            scores = text.split('|').map(s => { const [n,sc,w]=s.split('_'); return {name:n, score:parseInt(sc)||0, words:parseInt(w)||0}; }).filter(s=>s.name);
+        }
+        const safeName = playerName.replace(/[_:|]/g,'').trim()||'Spelare';
+        scores.push({ name: safeName, score: totalScore, words: solvedWords.length });
+        scores.sort((a,b)=>b.score-a.score);
+        scores = scores.slice(0, 25);
+        const encoded = encodeURIComponent(scores.map(s=>`${s.name}_${s.score}_${s.words}`).join('|'));
+        await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encoded}`, { method:'POST', body:'', cache:'no-store' });
+    } catch(e) { console.warn('HS fail:', e); }
+}
+async function getHighscores() {
+    try {
+        const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/HS_EKOSNAKE?t=${Date.now()}`, { cache:'no-store' });
+        let text = await res.text();
+        if (!text || text==='0' || text.includes('not found')) return [];
+        text = text.replace(/"/g,'');
+        return text.split('|').map(s=>{const[n,sc,w]=s.split('_');return{name:n,score:parseInt(sc)||0,words:parseInt(w)||0}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
+    } catch(e) { return []; }
+}
+async function showHighscores() {
+    document.getElementById('hsOverlay').classList.remove('hidden');
+    document.getElementById('hsTableWrap').innerHTML='<p style="color:var(--text-muted)">Laddar...</p>';
+    const scores = await getHighscores();
+    const wrap = document.getElementById('hsTableWrap');
+    if (!scores.length) { wrap.innerHTML='<p style="color:var(--text-muted)">Inga resultat ännu. Bli den första! 🏆</p>'; return; }
+    let html=`<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Poäng</th><th>Ord</th></tr></thead><tbody>`;
+    scores.slice(0,20).forEach((s,i)=>{
+        const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+        const ri=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+        const me=s.name===playerName?'hs-you':'';
+        html+=`<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td class="hs-score">${s.score}</td><td>${s.words}</td></tr>`;
+    });
+    wrap.innerHTML = html+'</tbody></table>';
+}
+function escHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function closeOverlay(){document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'))}
+
+// ============================================================
+// CROSSWORD ENGINE
+// ============================================================
+class Crossword {
+    constructor(words) {
+        this.words = words.map(w=>({...w, answer:w.answer.toUpperCase()}));
+        this.grid = {}; this.placedWords = [];
+        this.minX=0; this.maxX=0; this.minY=0; this.maxY=0;
+    }
+
+    generate() {
+        const TRIALS = 60;
+        let bestState = null, bestScore = -Infinity;
+        const sorted = [...this.words].sort((a,b) => b.answer.length - a.answer.length);
+        // Try top 3 longest words as anchors
+        const anchorCandidates = sorted.slice(0, Math.min(3, sorted.length));
+
+        for (let t = 0; t < TRIALS; t++) {
+            const anchorIdx = t % anchorCandidates.length;
+            const anchorDir = (t % 6 < 3) ? 0 : 1; // alternate H/V
+            const state = this._tryOnce(t === 0, anchorCandidates[anchorIdx], anchorDir);
+            const score = this._scoreLayout(state);
+            if (score > bestScore) { bestScore = score; bestState = state; }
+        }
+
+        // Apply best state
+        this.grid = bestState.grid;
+        this.placedWords = bestState.placed;
+        this.minX = bestState.minX; this.maxX = bestState.maxX;
+        this.minY = bestState.minY; this.maxY = bestState.maxY;
+        // Re-number
+        this.placedWords.sort((a,b) => a.y === b.y ? a.x - b.x : a.y - b.y);
+        this.placedWords.forEach((w,i) => w.number = i + 1);
+    }
+
+    _tryOnce(deterministic, anchorWord, anchorDir) {
+        const g = {}, placed = [];
+
+        const rest = this.words.filter(w => w.answer.toUpperCase() !== anchorWord.answer.toUpperCase());
+        if (!deterministic) this._shuffle(rest);
+
+        // Place anchor at origin
+        const anchorCopy = {...anchorWord, answer: anchorWord.answer.toUpperCase()};
+        this._place(anchorCopy, 0, 0, anchorDir || 0, g, placed);
+
+        // Two passes: first try all, collect failures, retry failures
+        const failed = [];
+        for (const wObj of rest) {
+            const copy = {...wObj};
+            const best = this._findBest(copy.answer, g, placed);
+            if (best) {
+                this._place(copy, best.x, best.y, best.dir, g, placed);
+            } else {
+                failed.push(copy);
+            }
+        }
+
+        // Retry failed words (some may now have intersections available)
+        const stillFailed = [];
+        for (const wObj of failed) {
+            const best = this._findBest(wObj.answer, g, placed);
+            if (best) {
+                this._place(wObj, best.x, best.y, best.dir, g, placed);
+            } else {
+                stillFailed.push(wObj);
+            }
+        }
+
+        // Last resort: place remaining disconnected
+        for (const wObj of stillFailed) {
+            // Find current bounds
+            let cMinY = Infinity, cMaxY = -Infinity;
+            for (const pos in g) {
+                const py = parseInt(pos.split(',')[1]);
+                if (py < cMinY) cMinY = py;
+                if (py > cMaxY) cMaxY = py;
+            }
+            this._place(wObj, 0, (cMaxY || 0) + 2, 0, g, placed);
+        }
+
+        // Compute bounds
+        let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
+        for (const pos in g) {
+            const [px,py] = pos.split(',').map(Number);
+            if (px<minX)minX=px; if(px>maxX)maxX=px;
+            if (py<minY)minY=py; if(py>maxY)maxY=py;
+        }
+
+        return { grid: g, placed, minX, maxX, minY, maxY };
+    }
+
+    _scoreLayout(state) {
+        // Count intersections (cells shared by 2+ words)
+        let intersections = 0, totalCells = 0;
+        for (const pos in state.grid) {
+            totalCells++;
+            if (state.grid[pos].wordRefs.length > 1) intersections++;
+        }
+        const width = state.maxX - state.minX + 1;
+        const height = state.maxY - state.minY + 1;
+        const area = width * height;
+        const aspectPenalty = Math.abs(width / height - 1.5) * 5; // Prefer ~3:2 aspect
+        const disconnected = state.placed.filter(w => {
+            let shared = false;
+            for (let i = 0; i < w.answer.length; i++) {
+                const cx = w.dir===0 ? w.x+i : w.x, cy = w.dir===1 ? w.y+i : w.y;
+                if (state.grid[`${cx},${cy}`].wordRefs.length > 1) { shared = true; break; }
+            }
+            return !shared;
+        }).length;
+
+        return intersections * 50
+            - area * 0.3
+            - aspectPenalty
+            - disconnected * 200
+            + state.placed.length * 10;
+    }
+
+    _findBest(word, grid, placed) {
+        let best = null, bestScore = -Infinity;
+        for (let i = 0; i < word.length; i++) {
+            for (const pos in grid) {
+                if (grid[pos].char !== word[i]) continue;
+                const [cx,cy] = pos.split(',').map(Number);
+                for (let dir = 0; dir <= 1; dir++) {
+                    const sx = dir===0 ? cx-i : cx;
+                    const sy = dir===1 ? cy-i : cy;
+                    if (this._canPlace(word, sx, sy, dir, grid)) {
+                        const ints = this._countInts(word, sx, sy, dir, grid);
+                        // Better scoring: reward intersections heavily,
+                        // penalize distance from center, reward compactness
+                        const sc = ints * 20
+                            - (Math.abs(sx) + Math.abs(sy)) * 0.5
+                            + (dir === 1 ? 2 : 0); // Slight vertical preference for balance
+                        if (sc > bestScore) { bestScore = sc; best = {x:sx, y:sy, dir}; }
+                    }
+                }
+            }
+        }
+        return best;
+    }
+
+    _canPlace(w, x, y, dir, grid) {
+        // Check before/after the word for adjacency
+        if (dir===0) {
+            if (grid[`${x-1},${y}`] || grid[`${x+w.length},${y}`]) return false;
+        } else {
+            if (grid[`${x},${y-1}`] || grid[`${x},${y+w.length}`]) return false;
+        }
+        for (let i = 0; i < w.length; i++) {
+            const cx = dir===0 ? x+i : x, cy = dir===1 ? y+i : y;
+            const cell = grid[`${cx},${cy}`];
+            if (cell) {
+                if (cell.char !== w[i]) return false;
+            } else {
+                // No parallel adjacency allowed (except at intersections)
+                if (dir===0 && (grid[`${cx},${cy-1}`] || grid[`${cx},${cy+1}`])) return false;
+                if (dir===1 && (grid[`${cx-1},${cy}`] || grid[`${cx+1},${cy}`])) return false;
+            }
+        }
+        return true;
+    }
+
+    _countInts(w, x, y, dir, grid) {
+        let c = 0;
+        for (let i = 0; i < w.length; i++) {
+            const cx = dir===0 ? x+i : x, cy = dir===1 ? y+i : y;
+            if (grid[`${cx},${cy}`]) c++;
+        }
+        return c;
+    }
+
+    _place(wObj, x, y, dir, grid, placed) {
+        wObj.x = x; wObj.y = y; wObj.dir = dir;
+        wObj.number = placed.length + 1;
+        placed.push(wObj);
+        for (let i = 0; i < wObj.answer.length; i++) {
+            const cx = dir===0 ? x+i : x, cy = dir===1 ? y+i : y;
+            const pos = `${cx},${cy}`;
+            if (!grid[pos]) grid[pos] = { char: wObj.answer[i], wordRefs: [] };
+            grid[pos].wordRefs.push(wObj);
+        }
+    }
+
+    _shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+}
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let playerName = '';
+let totalScore = 0;
+let cw = null;
+let cwInputs = {};
+let cwActiveWord = null;
+let solvedWords = [];
+let currentPhase = 'NAME';
+
+// ============================================================
+// GAME FLOW
+// ============================================================
+function startGame() {
+    playerName = document.getElementById('playerNameInput').value.trim();
+    if (!playerName) { document.getElementById('playerNameInput').focus(); return; }
+    document.getElementById('nameScreen').classList.add('hidden');
+    document.getElementById('gameHeader').classList.remove('hidden');
+    initCrossword();
+}
+
+function initCrossword() {
+    currentPhase = 'CROSSWORD';
+    document.getElementById('crosswordSection').classList.remove('hidden');
+    document.getElementById('snakeSection').classList.add('hidden');
+    document.getElementById('readyScreen').classList.add('hidden');
+    document.getElementById('phaseBadge').textContent = '📝 KORSORD';
+    document.getElementById('gameHeader').className = 'header phase-crossword';
+    if (!cw) {
+        try {
+            cw = new Crossword(ALL_WORDS);
+            cw.generate();
+            renderCrossword();
+            renderWordChips();
+            updateProgress();
+        } catch(e) {
+            console.error('Crossword init failed:', e);
+            alert('Korsord-fel: ' + e.message);
+        }
+    }
+}
+
+function renderCrossword() {
+    const container = document.getElementById('cwGrid');
+    container.innerHTML = ''; cwInputs = {};
+    const cols = cw.maxX - cw.minX + 1;
+    const rows = cw.maxY - cw.minY + 1;
+    // Responsive cell size based on available space
+    const wrap = document.querySelector('.cw-grid-wrap');
+    const availW = wrap ? wrap.clientWidth - 20 : 600;
+    const availH = wrap ? wrap.clientHeight - 20 : 500;
+    const cellW = Math.floor(availW / cols);
+    const cellH = Math.floor(availH / rows);
+    const cellSize = Math.max(22, Math.min(40, Math.min(cellW, cellH)));
+    container.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+    for (let y=cw.minY;y<=cw.maxY;y++) {
+        for (let x=cw.minX;x<=cw.maxX;x++) {
+            const pos=`${x},${y}`, cellData=cw.grid[pos];
+            const div = document.createElement('div');
+            div.className = 'cw-cell';
+            if (cellData) {
+                div.classList.add('active');
+                const inp = document.createElement('input');
+                inp.maxLength=2; inp.dataset.x=x; inp.dataset.y=y;
+                cellData.wordRefs.forEach(w=>{
+                    if(w.x===x&&w.y===y&&!div.querySelector('.cw-num')){
+                        const num=document.createElement('span');num.className='cw-num';num.textContent=w.number;div.appendChild(num);
+                    }
+                });
+                inp.addEventListener('focus',e=>cwFocus(e,x,y,cellData));
+                inp.addEventListener('click',()=>cwClick(x,y,cellData));
+                inp.addEventListener('input',e=>cwInput(e,x,y));
+                inp.addEventListener('keydown',e=>cwKeyDown(e,x,y));
+                div.appendChild(inp); cwInputs[pos]=inp;
+            }
+            container.appendChild(div);
+        }
+    }
+}
+
+function cwFocus(e,x,y,cd){
+    document.querySelectorAll('.cw-cell.hl-focus').forEach(c=>c.classList.remove('hl-focus'));
+    e.target.parentElement.classList.add('hl-focus');
+    if(cd.wordRefs.length===1)setActiveWord(cd.wordRefs[0]);
+    else if(!cwActiveWord||!cd.wordRefs.includes(cwActiveWord))setActiveWord(cd.wordRefs[0]);
+}
+function cwClick(x,y,cd){if(cd.wordRefs.length>1)setActiveWord(cwActiveWord===cd.wordRefs[0]?cd.wordRefs[1]:cd.wordRefs[0])}
+function setActiveWord(w){
+    cwActiveWord=w;
+    document.getElementById('cwClue').innerHTML=`<strong>${w.number} ${w.dir===0?'(Vågrätt)':'(Lodrätt)'}:</strong> ${w.clue}`;
+    document.querySelectorAll('.cw-cell.hl-word').forEach(c=>c.classList.remove('hl-word'));
+    for(let i=0;i<w.answer.length;i++){
+        const cx=w.dir===0?w.x+i:w.x,cy=w.dir===1?w.y+i:w.y;
+        if(cwInputs[`${cx},${cy}`])cwInputs[`${cx},${cy}`].parentElement.classList.add('hl-word');
+    }
+    // Zoom to word area
+    cwZoomToWord(w);
+}
+function cwZoomToWord(w) {
+    const wrap = document.querySelector('.cw-grid-wrap');
+    const grid = document.getElementById('cwGrid');
+    if (!wrap || !grid) return;
+    const scale = 1.8;
+    grid.style.transform = `scale(${scale})`;
+    grid.style.transformOrigin = '0 0';
+    wrap.classList.add('zoomed');
+    // Calculate position from grid coordinates (not DOM rects which are post-transform)
+    const cols = cw.maxX - cw.minX + 1;
+    const cellPx = parseInt(grid.style.gridTemplateColumns.match(/(\d+)px/)?.[1] || 30);
+    const gap = 2;
+    // Word's pixel position in the unscaled grid
+    const wordCol = w.x - cw.minX;
+    const wordRow = w.y - cw.minY;
+    const wordPxX = wordCol * (cellPx + gap);
+    const wordPxY = wordRow * (cellPx + gap);
+    // Center the word in the visible area (accounting for scale)
+    const targetX = wordPxX * scale - wrap.clientWidth / 2 + cellPx * scale;
+    const targetY = wordPxY * scale - wrap.clientHeight / 2 + cellPx * scale;
+    wrap.scrollTo({
+        left: Math.max(0, targetX),
+        top: Math.max(0, targetY),
+        behavior: 'smooth'
+    });
+}
+function cwZoomOut() {
+    const wrap = document.querySelector('.cw-grid-wrap');
+    const grid = document.getElementById('cwGrid');
+    if (!wrap || !grid) return;
+    wrap.classList.remove('zoomed');
+    grid.style.transform = '';
+    wrap.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+}
+function cwInput(e,x,y){
+    const inp=e.target;
+    if(inp.value.length>1)inp.value=inp.value.slice(-1);
+    inp.value=inp.value.toUpperCase();
+    inp.parentElement.classList.remove('cw-wrong','cw-correct');
+    if(inp.value!==''&&cwActiveWord){
+        const idx=getIdx(x,y,cwActiveWord);
+        if(idx!==-1&&idx<cwActiveWord.answer.length-1){
+            const nx=cwActiveWord.dir===0?cwActiveWord.x+idx+1:cwActiveWord.x;
+            const ny=cwActiveWord.dir===1?cwActiveWord.y+idx+1:cwActiveWord.y;
+            if(cwInputs[`${nx},${ny}`])cwInputs[`${nx},${ny}`].focus();
+        }
+    }
+}
+function cwKeyDown(e,x,y){
+    if(e.key==='Enter'){e.preventDefault();checkCurrentWord();return}
+    if(e.key==='Backspace'&&e.target.value===''&&cwActiveWord){
+        const idx=getIdx(x,y,cwActiveWord);
+        if(idx>0){
+            const px=cwActiveWord.dir===0?cwActiveWord.x+idx-1:cwActiveWord.x;
+            const py=cwActiveWord.dir===1?cwActiveWord.y+idx-1:cwActiveWord.y;
+            if(cwInputs[`${px},${py}`]){cwInputs[`${px},${py}`].focus();e.preventDefault()}
+        }
+    } else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
+        let nx=x,ny=y;
+        if(e.key==='ArrowUp')ny--;if(e.key==='ArrowDown')ny++;
+        if(e.key==='ArrowLeft')nx--;if(e.key==='ArrowRight')nx++;
+        if(cwInputs[`${nx},${ny}`]){cwInputs[`${nx},${ny}`].focus();e.preventDefault()}
+    }
+}
+function getIdx(x,y,w){for(let i=0;i<w.answer.length;i++){const cx=w.dir===0?w.x+i:w.x,cy=w.dir===1?w.y+i:w.y;if(cx===x&&cy===y)return i}return-1}
+
+// === HINT in crossword: reveal first unrevealed letter ===
+function cwHint() {
+    if (!cwActiveWord || solvedWords.includes(cwActiveWord)) return;
+    const w = cwActiveWord;
+    const cost = 30;
+    for (let i = 0; i < w.answer.length; i++) {
+        const cx = w.dir===0 ? w.x+i : w.x, cy = w.dir===1 ? w.y+i : w.y;
+        const inp = cwInputs[`${cx},${cy}`];
+        if (inp && inp.value.toUpperCase() !== w.answer[i]) {
+            inp.value = w.answer[i];
+            inp.parentElement.classList.add('cw-correct');
+            totalScore = Math.max(0, totalScore - cost);
+            updateUI();
+            showScorePopup(inp, `-${cost}`, '#ef4444');
+            return;
+        }
+    }
+}
+
+function checkCurrentWord() {
+    if (!cwActiveWord) return;
+    const w = cwActiveWord;
+    if (solvedWords.includes(w)) return;
+    let allCorrect=true, allFilled=true;
+    for(let i=0;i<w.answer.length;i++){
+        const cx=w.dir===0?w.x+i:w.x,cy=w.dir===1?w.y+i:w.y;
+        const inp=cwInputs[`${cx},${cy}`];
+        if(!inp)continue;
+        inp.parentElement.classList.remove('cw-correct','cw-wrong');
+        if(inp.value===''){allFilled=false;allCorrect=false}
+        else if(inp.value.toUpperCase()!==w.answer[i]){allCorrect=false;inp.parentElement.classList.add('cw-wrong')}
+        else inp.parentElement.classList.add('cw-correct');
+    }
+    if (allCorrect && allFilled) {
+        solvedWords.push(w);
+        totalScore += w.answer.length * 10;
+        updateUI(); renderWordChips(); updateProgress();
+        for(let i=0;i<w.answer.length;i++){
+            const cx=w.dir===0?w.x+i:w.x,cy=w.dir===1?w.y+i:w.y;
+            const inp=cwInputs[`${cx},${cy}`];
+            if(inp){inp.disabled=true;inp.style.color='#6ee7b7'}
+        }
+        setTimeout(()=>showReadyScreen(),800);
+    }
+}
+
+function updateUI() {
+    document.getElementById('statScore').textContent = totalScore;
+    document.getElementById('statWords').textContent = solvedWords.length;
+}
+function renderWordChips(){
+    const wrap=document.getElementById('wordChips');wrap.innerHTML='';
+    cw.placedWords.forEach(w=>{
+        const chip=document.createElement('span');
+        chip.className='word-chip'+(solvedWords.includes(w)?' solved':'');
+        chip.textContent=solvedWords.includes(w)?w.answer:`${w.number}.`;
+        chip.addEventListener('click', () => {
+            setActiveWord(w);
+            const firstInp = cwInputs[`${w.x},${w.y}`];
+            if (firstInp && !firstInp.disabled) firstInp.focus();
+        });
+        wrap.appendChild(chip);
+    });
+}
+function updateProgress(){
+    const total=cw.placedWords.length,done=solvedWords.length;
+    document.getElementById('cwProgressBar').style.width=(done/total*100)+'%';
+    document.getElementById('cwProgressLabel').textContent=`${done} / ${total} ord lösta`;
+}
+
+function returnToCrossword(){closeOverlay();initCrossword()}
+
+function showReadyScreen() {
+    currentPhase='READY';
+    document.getElementById('crosswordSection').classList.add('hidden');
+    document.getElementById('snakeSection').classList.add('hidden');
+    document.getElementById('readyScreen').classList.remove('hidden');
+    document.getElementById('phaseBadge').textContent='🐍 SNAKE';
+    document.getElementById('gameHeader').className='header phase-snake';
+    const word=solvedWords[solvedWords.length-1];
+    document.getElementById('readyWord').textContent=word.answer;
+    let clueText = word.clue;
+    if(solvedWords.length>1) clueText+='\n\n📦 Du har '+(solvedWords.length)+' ord att samla totalt!';
+    document.getElementById('readyClue').textContent=clueText;
+}
+
+function launchSnake(){document.getElementById('readyScreen').classList.add('hidden');startSnakePhase()}
+
+// ============================================================
+// SNAKE ENGINE — rectangular responsive grid
+// ============================================================
+const CELL_TARGET = 28; // target cell size in px
+const MIN_CELLS = 14;
+const MAX_CELLS = 30;
+let gridCols = 20;
+let gridRows = 15;
+let snakeCanvas, snakeCtx;
+let snake = [];
+let snakeDir = { x:1, y:0 };
+let nextDir = { x:1, y:0 };
+let snakeInterval = null;
+let letterItems = [];
+let obstacles = [];
+let currentSnakeWords = [];
+let currentWordIdx = 0;
+let currentLetterIdx = 0;
+let snakeAlive = true;
+let snakePaused = false;
+let snakeSpeed = 300; // constant — challenge comes from snake length
+let swipeSetup = false;
+let wordMarkers = []; // indices in snake[] where a word-divider sits
+let starItem = null; // { x, y, timer } — power-up that resets snake length
+let starTimeout = null;
+const WORD_COLORS = [
+    '#3b82f6','#f59e0b','#ec4899','#8b5cf6','#14b8a6',
+    '#ef4444','#06b6d4','#84cc16','#f97316','#6366f1',
+    '#d946ef','#22d3ee','#a3e635','#fb923c','#818cf8',
+    '#f472b6','#2dd4bf','#facc15','#38bdf8','#c084fc',
+    '#34d399','#fb7185','#a78bfa','#fbbf24','#4ade80',
+    '#e879f9','#67e8f9','#bef264','#fdba74','#a5b4fc',
+    '#f0abfc','#5eead4','#fde047','#7dd3fc','#c4b5fd'
+];
+
+function startSnakePhase() {
+    currentPhase='SNAKE';
+    document.getElementById('crosswordSection').classList.add('hidden');
+    document.getElementById('snakeSection').classList.remove('hidden');
+    document.getElementById('phaseBadge').textContent='🐍 SNAKE';
+    document.getElementById('gameHeader').className='header phase-snake';
+    // Newest word first, then older words
+    currentSnakeWords=[...solvedWords].reverse();
+    currentWordIdx=0; currentLetterIdx=0;
+    initSnake();
+}
+
+function initSnake() {
+    snakeCanvas=document.getElementById('snakeCanvas');
+    snakeCtx=snakeCanvas.getContext('2d');
+
+    // === RESPONSIVE RECTANGULAR GRID ===
+    // Calculate available space from window, not wrapper (which may not have layout yet)
+    const header = document.getElementById('gameHeader');
+    const info = document.querySelector('.snake-info');
+    const headerH = header ? header.offsetHeight : 50;
+    const infoH = info ? info.offsetHeight : 50;
+    const appPad = 16; // .app padding + gaps
+    const availW = window.innerWidth - appPad;
+    const availH = window.innerHeight - headerH - infoH - appPad * 3;
+    // Compute cell size and grid dimensions to fill the space
+    const cellSize = Math.max(16, Math.min(CELL_TARGET, Math.floor(Math.min(availW, availH) / MIN_CELLS)));
+    gridCols = Math.min(MAX_CELLS, Math.max(MIN_CELLS, Math.floor(availW / cellSize)));
+    gridRows = Math.min(MAX_CELLS, Math.max(10, Math.floor(availH / cellSize)));
+    snakeCanvas.width = gridCols * cellSize;
+    snakeCanvas.height = gridRows * cellSize;
+    snakeCanvas.dataset.cellSize = cellSize;
+
+    // Reset
+    const midX=Math.floor(gridCols/2), midY=Math.floor(gridRows/2);
+    snake=[{x:midX,y:midY},{x:midX-1,y:midY},{x:midX-2,y:midY}];
+    snakeDir={x:1,y:0}; nextDir={x:1,y:0};
+    snakeAlive=true; snakePaused=false;
+    letterItems=[]; obstacles=[]; wordMarkers=[]; starItem=null;
+    if(starTimeout){clearTimeout(starTimeout);starTimeout=null}
+
+    // Constant speed — the growing snake IS the challenge
+    snakeSpeed=300;
+
+    setupSnakeRound();
+    if(snakeInterval) clearInterval(snakeInterval);
+    snakeInterval=setInterval(snakeTick, snakeSpeed);
+
+    // Input — use addEventListener with named fn for cleanup
+    document.removeEventListener('keydown', snakeKeyHandler);
+    document.addEventListener('keydown', snakeKeyHandler);
+    if(!swipeSetup){setupSwipe();swipeSetup=true}
+}
+
+function setupSnakeRound() {
+    const word=currentSnakeWords[currentWordIdx];
+    document.getElementById('snakeWordLabel').textContent=`Ord ${currentWordIdx+1} av ${currentSnakeWords.length}: ${word.answer}`;
+    updateSnakeWordDisplay();
+
+    letterItems=[];
+    placeLetters(word.answer);
+
+    // Obstacles: few, static
+    obstacles=[];
+    const wallCount = Math.min(2 + Math.floor(currentSnakeWords.length * 1.2), 12);
+    for(let i=0;i<wallCount;i++){
+        const pos=findFreeCell();
+        if(pos) obstacles.push({x:pos.x, y:pos.y});
+    }
+
+    // Show word announcement (pause until player clicks)
+    showWordAnnouncement(word);
+}
+
+function showWordAnnouncement(word) {
+    snakePaused = true;
+    const overlay = document.getElementById('wordAnnounceOverlay');
+    document.getElementById('announceWordText').textContent = word.answer;
+    document.getElementById('announceClueText').textContent = word.clue;
+    const wordNum = currentWordIdx + 1;
+    const totalWords = currentSnakeWords.length;
+    document.getElementById('announceProgress').textContent = `Ord ${wordNum} av ${totalWords}`;
+    overlay.classList.remove('hidden');
+}
+
+function dismissWordAnnouncement() {
+    document.getElementById('wordAnnounceOverlay').classList.add('hidden');
+    snakePaused = false;
+}
+
+function placeLetters(word){
+    for(let i=0;i<word.length;i++){
+        const pos=findFreeCell();
+        if(pos) letterItems.push({x:pos.x,y:pos.y,char:word[i],idx:i,isTarget:i===currentLetterIdx});
+    }
+}
+
+function findFreeCell(){
+    for(let a=0;a<300;a++){
+        const x=Math.floor(Math.random()*(gridCols-2))+1;
+        const y=Math.floor(Math.random()*(gridRows-2))+1;
+        if(snake.some(s=>s.x===x&&s.y===y))continue;
+        if(letterItems.some(l=>l.x===x&&l.y===y))continue;
+        if(obstacles.some(o=>o.x===x&&o.y===y))continue;
+        if(starItem&&starItem.x===x&&starItem.y===y)continue;
+        return {x,y};
+    }
+    return null;
+}
+
+// === STAR POWER-UP: resets snake length ===
+function spawnStar(){
+    if(starItem) return; // already one out there
+    const pos=findFreeCell();
+    if(!pos) return;
+    starItem={x:pos.x, y:pos.y};
+    // Disappears after 5 seconds
+    starTimeout=setTimeout(()=>{ starItem=null; starTimeout=null; }, 5000);
+}
+
+function updateSnakeWordDisplay(){
+    const word=currentSnakeWords[currentWordIdx];
+    const container=document.getElementById('snakeWordDisplay');
+    container.innerHTML='';
+    for(let i=0;i<word.answer.length;i++){
+        const box=document.createElement('div');
+        box.className='snake-letter-box';
+        if(i<currentLetterIdx){box.classList.add('collected');box.textContent=word.answer[i]}
+        else if(i===currentLetterIdx){box.classList.add('next');box.textContent='?'}
+        else box.textContent='';
+        container.appendChild(box);
+    }
+}
+
+// === HINT in Snake: briefly highlight path to target ===
+
+
+// === PAUSE ===
+function togglePause() {
+    if (currentPhase !== 'SNAKE') return;
+    snakePaused = !snakePaused;
+    if (snakePaused) {
+        document.getElementById('pauseOverlay').classList.remove('hidden');
+    } else {
+        document.getElementById('pauseOverlay').classList.add('hidden');
+    }
+}
+
+function snakeTick() {
+    if (!snakeAlive || snakePaused) return;
+    snakeDir={...nextDir};
+    const head={x:snake[0].x+snakeDir.x, y:snake[0].y+snakeDir.y};
+
+    // Wall collision
+    if(head.x<0||head.x>=gridCols||head.y<0||head.y>=gridRows){snakeDie('Du åkte in i kanten!');return}
+    // Self
+    if(snake.some(s=>s.x===head.x&&s.y===head.y)){snakeDie('Du åkte in i dig själv!');return}
+    // Obstacle
+    if(obstacles.some(o=>o.x===head.x&&o.y===head.y)){snakeDie('Du träffade ett hinder! 🧱');return}
+
+    snake.unshift(head);
+
+    const word=currentSnakeWords[currentWordIdx];
+    const hit=letterItems.find(l=>l.x===head.x&&l.y===head.y);
+
+    if(hit){
+        if(hit.idx===currentLetterIdx){
+            // Correct!
+            const pts = 50*(currentWordIdx+1);
+            totalScore += pts;
+            letterItems=letterItems.filter(l=>l!==hit);
+            currentLetterIdx++;
+            updateSnakeWordDisplay(); updateUI();
+            showScorePopup(snakeCanvas, `+${pts}`);
+            // Mark next target
+            const nt=letterItems.find(l=>l.idx===currentLetterIdx);
+            if(nt) nt.isTarget=true;
+            // Word complete?
+            if(currentLetterIdx>=word.answer.length){
+                const bonus=200*(currentWordIdx+1);
+                totalScore+=bonus; updateUI();
+                showLearningReceipt(word);
+                // Add a colored word-marker at current head position
+                wordMarkers.push({ idx: snake.length-1, wordNum: currentWordIdx, color: WORD_COLORS[currentWordIdx % WORD_COLORS.length] });
+                currentWordIdx++; currentLetterIdx=0;
+                if(currentWordIdx>=currentSnakeWords.length){
+                    snakeAlive=false;clearInterval(snakeInterval);
+                    setTimeout(showWin, 2000);
+                    return;
+                }
+                // Spawn star every 2nd completed word
+                if(currentWordIdx % 2 === 0) spawnStar();
+                setupSnakeRound();
+            }
+            // Grow (don't pop tail)
+        } else {
+            // Wrong letter
+            totalScore=Math.max(0,totalScore-20); updateUI();
+            snake.pop();
+        }
+    } else {
+        snake.pop();
+    }
+
+    // Check star pickup
+    if(starItem && head.x===starItem.x && head.y===starItem.y){
+        // Reset snake to length 3!
+        const kept = snake.slice(0, 3);
+        snake = kept;
+        wordMarkers = []; // clear markers since body is reset
+        starItem = null;
+        if(starTimeout){clearTimeout(starTimeout);starTimeout=null}
+        totalScore += 100;
+        updateUI();
+        showScorePopup(snakeCanvas, '⭐ +100 Rensat!');
+    }
+
+    drawSnake();
+}
+
+function snakeDie(reason){
+    snakeAlive=false; clearInterval(snakeInterval);
+    document.getElementById('goSubtitle').textContent=reason;
+    document.getElementById('goScore').textContent=totalScore;
+    const word=currentSnakeWords[currentWordIdx];
+    document.getElementById('goWords').textContent=`Samlade ${currentLetterIdx} / ${word.answer.length} bokstäver av "${word.answer}"`;
+    document.getElementById('goEmoji').textContent='💀';
+    document.getElementById('goTitle').textContent='Snake Avslutad!';
+    buildSummary('goSummary');
+    highscoreSubmitted=false;
+    const btn=document.getElementById('btnGoSubmit'); btn.disabled=false; btn.textContent='💾 Spara resultat';
+    document.getElementById('gameOverOverlay').classList.remove('hidden');
+}
+
+function showWin(){
+    document.getElementById('winScore').textContent=totalScore;
+    buildSummary('winSummary');
+    highscoreSubmitted=false;
+    const btn=document.getElementById('btnWinSubmit'); btn.disabled=false; btn.textContent='💾 Spara resultat';
+    document.getElementById('winOverlay').classList.remove('hidden');
+}
+
+function buildSummary(containerId) {
+    const wrap = document.getElementById(containerId);
+    if (!solvedWords.length) { wrap.innerHTML = ''; return; }
+    let html = '<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;"><strong style="color:var(--text)">Dina samlade begrepp:</strong><ul style="margin-top:0.3rem; padding-left:1.2rem;">';
+    solvedWords.forEach(w => { html += `<li><strong style="color:#6ee7b7">${w.answer}</strong> — ${w.clue}</li>`; });
+    html += '</ul></div>';
+    wrap.innerHTML = html;
+}
+
+// === VISUAL FEEDBACK ===
+function showScorePopup(el, text, color) {
+    const popup = document.createElement('div');
+    popup.className = 'score-popup';
+    popup.textContent = text;
+    if (color) popup.style.color = color;
+    const rect = el.getBoundingClientRect ? el.getBoundingClientRect() : {left:window.innerWidth/2, top:window.innerHeight/2};
+    popup.style.left = (rect.left + rect.width/2 - 20) + 'px';
+    popup.style.top = (rect.top - 10) + 'px';
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 1100);
+}
+
+function showLearningReceipt(word) {
+    const el = document.createElement('div');
+    el.className = 'learn-receipt';
+    el.innerHTML = `✅ <strong>${word.answer}</strong> — ${word.clue}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+}
+
+// === DRAW ===
+function drawSnake(){
+    const cs=parseInt(snakeCanvas.dataset.cellSize);
+    const ctx=snakeCtx, w=snakeCanvas.width, h=snakeCanvas.height;
+
+    // BG
+    ctx.fillStyle='#060a14'; ctx.fillRect(0,0,w,h);
+
+    // Subtle grid
+    ctx.strokeStyle='rgba(255,255,255,0.025)'; ctx.lineWidth=1;
+    for(let c=0;c<=gridCols;c++){ctx.beginPath();ctx.moveTo(c*cs,0);ctx.lineTo(c*cs,h);ctx.stroke()}
+    for(let r=0;r<=gridRows;r++){ctx.beginPath();ctx.moveTo(0,r*cs);ctx.lineTo(w,r*cs);ctx.stroke()}
+
+    // Border glow (shows the wall)
+    ctx.strokeStyle='rgba(16,185,129,0.25)'; ctx.lineWidth=2;
+    ctx.strokeRect(1,1,w-2,h-2);
+
+    // Obstacles
+    obstacles.forEach(o=>{
+        ctx.fillStyle='rgba(100,70,40,0.7)';
+        const r=cs*0.4;
+        ctx.beginPath(); ctx.arc(o.x*cs+cs/2, o.y*cs+cs/2, r, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(200,150,100,0.6)'; ctx.font=`${cs*0.55}px serif`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('🧱', o.x*cs+cs/2, o.y*cs+cs/2);
+    });
+
+    // Star power-up
+    if(starItem){
+        const sx=starItem.x*cs+cs/2, sy=starItem.y*cs+cs/2;
+        ctx.shadowColor='#fbbf24'; ctx.shadowBlur=18;
+        ctx.fillStyle='rgba(251,191,36,0.25)';
+        ctx.beginPath(); ctx.arc(sx,sy,cs*0.5,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+        ctx.font=`${cs*0.7}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('⭐', sx, sy);
+    }
+
+    // Letters
+    letterItems.forEach(l=>{
+        const flash = l.hintFlash && l.hintFlash > 0;
+        if (flash) l.hintFlash--;
+
+        if(l.isTarget || flash){
+            ctx.shadowColor='#f59e0b'; ctx.shadowBlur= flash ? 20 : 12;
+            ctx.fillStyle=flash ? 'rgba(245,158,11,0.4)' : 'rgba(245,158,11,0.2)';
+            ctx.beginPath(); ctx.arc(l.x*cs+cs/2,l.y*cs+cs/2,cs*0.45,0,Math.PI*2); ctx.fill();
+            ctx.shadowBlur=0;
+            ctx.fillStyle='#fbbf24'; ctx.font=`bold ${cs*0.65}px 'Outfit',sans-serif`;
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText(l.char, l.x*cs+cs/2, l.y*cs+cs/2);
+        } else {
+            ctx.fillStyle='rgba(148,163,184,0.25)';
+            ctx.font=`bold ${cs*0.5}px 'Outfit',sans-serif`;
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText(l.char, l.x*cs+cs/2, l.y*cs+cs/2);
+        }
+    });
+
+    // Snake body
+    // Build a map of which body indices are word-markers
+    const markerMap = {};
+    wordMarkers.forEach(m => { if(m.idx < snake.length) markerMap[m.idx] = m.color; });
+
+    snake.forEach((s,i)=>{
+        const alpha=1-(i/snake.length)*0.5;
+        if(i===0){
+            // Head
+            ctx.shadowColor='#10b981'; ctx.shadowBlur=12;
+            ctx.fillStyle=`rgba(16,185,129,${alpha})`;
+            ctx.beginPath(); ctx.arc(s.x*cs+cs/2,s.y*cs+cs/2,cs*0.45,0,Math.PI*2); ctx.fill();
+            ctx.shadowBlur=0;
+            // Eyes
+            ctx.fillStyle='#000';
+            const er=cs*0.09, ox=snakeDir.x*cs*0.15, oy=snakeDir.y*cs*0.15;
+            ctx.beginPath(); ctx.arc(s.x*cs+cs/2+ox-cs*0.12, s.y*cs+cs/2+oy-cs*0.08, er, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(s.x*cs+cs/2+ox+cs*0.12, s.y*cs+cs/2+oy+cs*0.08, er, 0, Math.PI*2); ctx.fill();
+        } else if(markerMap[i]){
+            // Word-divider: unique colored segment, slightly bigger
+            ctx.shadowColor=markerMap[i]; ctx.shadowBlur=8;
+            ctx.fillStyle=markerMap[i];
+            ctx.beginPath(); ctx.arc(s.x*cs+cs/2,s.y*cs+cs/2,cs*0.42,0,Math.PI*2); ctx.fill();
+            ctx.shadowBlur=0;
+        } else {
+            // Normal body
+            ctx.fillStyle=`rgba(52,211,153,${alpha*0.6})`;
+            ctx.beginPath(); ctx.arc(s.x*cs+cs/2,s.y*cs+cs/2,cs*0.35,0,Math.PI*2); ctx.fill();
+        }
+    });
+}
+
+// === INPUT ===
+function snakeKeyHandler(e){
+    if(currentPhase!=='SNAKE') return;
+    if(e.key==='Escape'){e.preventDefault();togglePause();return}
+
+    if(!snakeAlive||snakePaused) return;
+    if(e.key==='ArrowUp'||e.key==='w'||e.key==='W'){if(snakeDir.y!==1)nextDir={x:0,y:-1};e.preventDefault()}
+    if(e.key==='ArrowDown'||e.key==='s'||e.key==='S'){if(snakeDir.y!==-1)nextDir={x:0,y:1};e.preventDefault()}
+    if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){if(snakeDir.x!==1)nextDir={x:-1,y:0};e.preventDefault()}
+    if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){if(snakeDir.x!==-1)nextDir={x:1,y:0};e.preventDefault()}
+}
+
+function setSnakeDir(dx,dy){
+    if(!snakeAlive||snakePaused)return;
+    if(dx!==0&&snakeDir.x!==-dx)nextDir={x:dx,y:0};
+    if(dy!==0&&snakeDir.y!==-dy)nextDir={x:0,y:dy};
+}
+
+function setupSwipe(){
+    let sx=0,sy=0;
+    const c=document.getElementById('snakeCanvas');
+    c.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+    c.addEventListener('touchmove',e=>{
+        e.preventDefault();
+        const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+        if(Math.abs(dx)+Math.abs(dy)<25)return;
+        if(Math.abs(dx)>Math.abs(dy))setSnakeDir(dx>0?1:-1,0);
+        else setSnakeDir(0,dy>0?1:-1);
+        sx=e.touches[0].clientX;sy=e.touches[0].clientY;
+    },{passive:false});
+}
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('playerNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')startGame()});
+});
+</script>
+</body>
+</html>
