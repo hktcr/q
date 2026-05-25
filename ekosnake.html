@@ -1063,7 +1063,7 @@ function showCwDefinition(w, onDismiss) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
     el.id = 'activeReceipt';
-    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">💾 Säkra din poäng på topplistan</button>`;
+    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">Säkra din poäng på topplistan</button>`;
     document.body.appendChild(el);
 }
 function dismissReceipt() {
@@ -1472,7 +1472,7 @@ function showLearningReceipt(word) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
     el.id = 'activeSnakeReceipt';
-    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">💾 Säkra din poäng på topplistan</button>`;
+    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">Säkra din poäng på topplistan</button>`;
     document.body.appendChild(el);
 }
 function dismissSnakeReceipt() {
