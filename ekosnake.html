@@ -512,6 +512,7 @@ const ALL_WORDS = [
     { answer: "CELLANDNING", clue: "Processen där celler bryter ner socker och frigör energi. Syre förbrukas." },
     { answer: "KOLDIOXID", clue: "Gasen som växter tar in och som du andas ut." },
     { answer: "SYRE", clue: "Gasen som växter släpper ut och som du behöver för att leva." },
+    { answer: "GLUKOS", clue: "Sockret som bildas vid fotosyntes och bryts ner vid cellandning. Kallas också druvsocker." },
 
     // ═══ ÖVRIGA KURSBEGREPP (häftet kap. 14) ═══
     { answer: "BIOSFÄR", clue: "Den del av jordklotet där allt levande finns." },
@@ -984,8 +985,18 @@ function checkCurrentWord() {
             const inp=cwInputs[`${cx},${cy}`];
             if(inp){inp.disabled=true;inp.style.color='#6ee7b7'}
         }
-        setTimeout(()=>showReadyScreen(),800);
+        // Show definition popup
+        showCwDefinition(w);
+        setTimeout(()=>showReadyScreen(),2500);
     }
+}
+
+function showCwDefinition(w) {
+    const el = document.createElement('div');
+    el.className = 'learn-receipt';
+    el.innerHTML = `✅ <strong>${w.answer}</strong> — ${w.clue}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2400);
 }
 
 function updateUI() {
@@ -1052,6 +1063,7 @@ let snakeAlive = true;
 let snakePaused = false;
 let snakeSpeed = 150; // fast pace — real challenge
 let snakeDeathCount = 0; // track deaths per word for skip-button
+let snakeFlashRed = 0; // frames of red flash on wrong letter
 let swipeSetup = false;
 let wordMarkers = []; // indices in snake[] where a word-divider sits
 let starItem = null; // { x, y, timer } — power-up that resets snake length
@@ -1273,10 +1285,12 @@ function snakeTick() {
             }
             // Grow (don't pop tail)
         } else {
-            // Wrong letter — clear visual feedback
+            // Wrong letter — flash entire snake red
             totalScore=Math.max(0,totalScore-20); updateUI();
             showScorePopup(snakeCanvas, '-20 Fel bokstav!', '#ef4444');
             snakeCanvas.style.borderColor='rgba(239,68,68,0.8)';
+            // Flash snake body red for a few frames
+            snakeFlashRed = 6;
             setTimeout(()=>{ snakeCanvas.style.borderColor='rgba(16,185,129,0.3)'; }, 300);
             snake.pop();
         }
@@ -1446,7 +1460,11 @@ function drawSnake(){
 
     snake.forEach((s,i)=>{
         const alpha=1-(i/snake.length)*0.5;
-        if(i===0){
+        if(snakeFlashRed > 0 && i > 0){
+            // Flash body red
+            ctx.fillStyle=`rgba(239,68,68,${alpha*0.8})`;
+            ctx.beginPath(); ctx.arc(s.x*cs+cs/2,s.y*cs+cs/2,cs*0.38,0,Math.PI*2); ctx.fill();
+        } else if(i===0){
             // Head
             ctx.shadowColor='#10b981'; ctx.shadowBlur=12;
             ctx.fillStyle=`rgba(16,185,129,${alpha})`;
@@ -1469,6 +1487,7 @@ function drawSnake(){
             ctx.beginPath(); ctx.arc(s.x*cs+cs/2,s.y*cs+cs/2,cs*0.35,0,Math.PI*2); ctx.fill();
         }
     });
+    if(snakeFlashRed > 0) snakeFlashRed--;
 }
 
 // === INPUT ===
