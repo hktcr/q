@@ -81,29 +81,58 @@
 
         /* === NAME SCREEN === */
         .name-screen {
-            background: var(--surface);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: var(--radius);
-            padding: 2rem;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            margin-top: 15vh;
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: url('assets/ekosnake_splash.png') center center / cover no-repeat;
+            padding: 1.5rem;
         }
-        .name-screen h2 { margin-bottom: 0.5rem; font-weight: 700; font-size: 1.8rem; }
+        .name-screen::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center, rgba(6,10,20,0.5) 0%, rgba(6,10,20,0.85) 100%);
+            z-index: 0;
+        }
+        .name-screen > * { position: relative; z-index: 1; }
+        .name-screen .splash-title {
+            font-size: clamp(2.4rem, 7vw, 4.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #34d399, #3b82f6, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+            text-shadow: none;
+            letter-spacing: -0.02em;
+        }
+        .name-screen .splash-sub {
+            color: rgba(255,255,255,0.75);
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            margin-bottom: clamp(1.5rem, 4vh, 3rem);
+            font-weight: 500;
+        }
+        .name-screen .splash-card {
+            background: rgba(15,23,42,0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius);
+            padding: clamp(1.2rem, 3vw, 2rem);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
         .name-screen input {
             width: 100%;
-            padding: 0.8rem 1rem;
+            padding: clamp(0.6rem, 1.5vw, 0.9rem) 1rem;
             border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.07);
             color: var(--text);
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
             font-family: inherit;
             outline: none;
             margin-bottom: 1rem;
         }
         .name-screen input:focus { border-color: var(--primary); }
+        .name-screen input::placeholder { color: rgba(255,255,255,0.3); }
 
         /* === BUTTONS === */
         .btn {
@@ -369,13 +398,14 @@
 
     <!-- NAME SCREEN -->
     <div id="nameScreen" class="name-screen">
-        <div style="font-size:3rem; margin-bottom:0.5rem;">🐍🌿</div>
-        <h2>EkoSnake v1</h2>
-        <p style="color:var(--text-muted); margin-bottom:1.5rem;">Lös korsordet → Samla bokstäver i Snake!</p>
-        <input type="text" id="playerNameInput" placeholder="Skriv ditt namn..." maxlength="20" autocomplete="off">
-        <div class="btn-group">
-            <button class="btn btn-primary" onclick="startGame()">🎮 Starta</button>
-            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Highscores</button>
+        <div class="splash-title">EkoSnake</div>
+        <div class="splash-sub">Lös korsordet. Samla bokstäverna i Snake!</div>
+        <div class="splash-card">
+            <input type="text" id="playerNameInput" placeholder="Skriv ditt namn..." maxlength="20" autocomplete="off">
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="startGame()">Starta</button>
+                <button class="btn btn-secondary btn-sm" onclick="showHighscores()">Highscores</button>
+            </div>
         </div>
     </div>
 
@@ -441,6 +471,41 @@
 </div>
 
 <!-- OVERLAYS -->
+<div id="instructionsOverlay" class="overlay hidden">
+    <div class="glass">
+        <div style="font-size:3rem; margin-bottom:0.5rem;">🐍</div>
+        <h2 style="margin-bottom:1rem;">Hur man spelar EkoSnake</h2>
+        <div style="text-align:left; background:rgba(255,255,255,0.04); border-radius:12px; padding:1.2rem 1.5rem; margin-bottom:1.5rem; line-height:1.6; color:rgba(255,255,255,0.85);">
+            <p style="margin-bottom:1rem;">Välkommen till <strong>EkoSnake</strong>! Här tränar du på begrepp inom ekologi inför det kommande provet.</p>
+            <p style="margin-bottom:1.2rem; font-weight: 500;">Spelet har två spännande faser:</p>
+            <ul style="list-style: none; padding:0; margin:0;">
+                <li style="margin-bottom:1rem; display:flex; align-items:flex-start;">
+                    <span style="font-size:1.5rem; margin-right:0.8rem; line-height:1;">📝</span>
+                    <div>
+                        <strong>1. Korsordet:</strong>
+                        <div style="color:var(--text-muted); font-size:0.95rem; margin-top:0.2rem;">
+                            Klicka på ett ord i korsordet för att se dess ledtråd. Skriv in rätt begrepp bokstav för bokstav.
+                        </div>
+                    </div>
+                </li>
+                <li style="margin-bottom:1rem; display:flex; align-items:flex-start;">
+                    <span style="font-size:1.5rem; margin-right:0.8rem; line-height:1;">🎮</span>
+                    <div>
+                        <strong>2. Snake-jakten:</strong>
+                        <div style="color:var(--text-muted); font-size:0.95rem; margin-top:0.2rem;">
+                            När du fyllt i ett ord rätt startar Snake! Styr ormen för att samla bokstäverna i ordet i rätt ordning. Nästa bokstav du ska ta lyser gult på spelplanen.
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <p style="margin-top:1.2rem; font-size:0.9rem; color:var(--gold); border-top:1px solid rgba(255,255,255,0.08); padding-top:0.8rem;">
+                Tryck på piltangenterna eller WASD på datorn, eller svep (swipe) på mobiltelefonen för att styra ormen.
+            </p>
+        </div>
+        <button class="btn btn-primary" onclick="dismissInstructions()" style="width:100%;">Kör igång</button>
+    </div>
+</div>
+
 <div id="hsOverlay" class="overlay hidden">
     <div class="glass">
         <div style="font-size:2rem; margin-bottom:0.5rem;">🏆</div>
@@ -863,6 +928,11 @@ function startGame() {
     playerName = document.getElementById('playerNameInput').value.trim();
     if (!playerName) { document.getElementById('playerNameInput').focus(); return; }
     document.getElementById('nameScreen').classList.add('hidden');
+    document.getElementById('instructionsOverlay').classList.remove('hidden');
+}
+
+function dismissInstructions() {
+    document.getElementById('instructionsOverlay').classList.add('hidden');
     document.getElementById('gameHeader').classList.remove('hidden');
     initCrossword();
 }
