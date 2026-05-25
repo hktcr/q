@@ -312,17 +312,32 @@
             position: fixed;
             bottom: 2rem; left: 50%;
             transform: translateX(-50%);
-            background: rgba(16,185,129,0.15);
+            background: rgba(10, 25, 50, 0.95);
             border: 1px solid rgba(16,185,129,0.4);
-            border-radius: 12px;
-            padding: 0.8rem 1.5rem;
-            color: #6ee7b7;
-            font-weight: 700;
-            font-size: 0.95rem;
+            border-radius: 16px;
+            padding: 1.2rem 1.8rem;
+            color: #e2e8f0;
             z-index: 150;
-            animation: receiptIn 0.4s ease, receiptOut 0.4s ease 2.5s forwards;
-            max-width: 90vw;
-            text-align: center;
+            animation: receiptIn 0.4s ease, receiptOut 0.5s ease 3s forwards;
+            max-width: 500px;
+            width: 90vw;
+            text-align: left;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .learn-receipt .lr-word {
+            font-size: 1.3rem; font-weight: 900; color: #6ee7b7;
+            margin-bottom: 0.3rem;
+        }
+        .learn-receipt .lr-clue {
+            font-size: 1rem; color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .learn-receipt .lr-context {
+            font-size: 0.95rem; color: #cbd5e1;
+            line-height: 1.5;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 0.5rem;
         }
         @keyframes receiptIn { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
         @keyframes receiptOut { to{opacity:0;transform:translateX(-50%) translateY(-20px)} }
@@ -481,48 +496,82 @@
 // ============================================================
 const ALL_WORDS = [
     // ═══ LÄXA 1: Ekosystem & begrepp (L14b, 14 april) ═══
-    { answer: "EKOLOGI", clue: "Läran om hur växter, djur och allt annat i naturen lever tillsammans." },
-    { answer: "EKOSYSTEM", clue: "Ett avgränsat område i naturen där du studerar alla djur och växter som lever där." },
-    { answer: "BIOTOP", clue: "En naturtyp där vissa växter eller djur trivs. Kan vara en skog, en sjö eller en stubbe." },
-    { answer: "POPULATION", clue: "Alla individer av samma art inom ett ekosystem. Alla abborrar i en sjö, till exempel." },
-    { answer: "SAMHÄLLE", clue: "Alla populationer av olika arter som lever tillsammans i ett ekosystem." },
-    { answer: "BIOTISKA", clue: "Så kallas de levande delarna i ett ekosystem (växter, djur, svampar)." },
-    { answer: "ABIOTISKA", clue: "Så kallas de icke-levande delarna i ett ekosystem (temperatur, vind, solljus)." },
-    { answer: "MÅNGFALD", clue: "Rikedomen av arter och livsmiljöer (biologisk ...)." },
+    { answer: "EKOLOGI", clue: "Läran om hur växter, djur och allt annat i naturen lever tillsammans.",
+      context: "Ekologi handlar om samspelet mellan organismer och deras miljö. Du kan studera ekologi i en hel skog eller i en enda vattenpöl." },
+    { answer: "EKOSYSTEM", clue: "Ett avgränsat område i naturen där du studerar alla djur och växter som lever där.",
+      context: "En sjö, en skog eller till och med en komposthög kan vara ett ekosystem. Det viktiga är att du tittar på allt som lever där och hur det hänger ihop." },
+    { answer: "BIOTOP", clue: "En naturtyp där vissa växter eller djur trivs. Kan vara en skog, en sjö eller en stubbe.",
+      context: "Olika biotoper har olika förutsättningar. En lav trivs på en klippa, en groda trivs i en damm. Biotopen bestämmer vilka arter som finns där." },
+    { answer: "POPULATION", clue: "Alla individer av samma art inom ett ekosystem. Alla abborrar i en sjö, till exempel.",
+      context: "Om du räknar alla rådjur i en skog har du en population. Populationen kan växa om det finns gott om mat, eller krympa vid sjukdom." },
+    { answer: "SAMHÄLLE", clue: "Alla populationer av olika arter som lever tillsammans i ett ekosystem.",
+      context: "I ett biologiskt samhälle lever växter, djur, svampar och bakterier sida vid sida. Alla påverkar varandra." },
+    { answer: "BIOTISKA", clue: "Så kallas de levande delarna i ett ekosystem (växter, djur, svampar).",
+      context: "Allt som lever eller har levt räknas som biotiskt. Träd, maskar, bakterier. Motsatsen är abiotiska faktorer." },
+    { answer: "ABIOTISKA", clue: "Så kallas de icke-levande delarna i ett ekosystem (temperatur, vind, solljus).",
+      context: "Temperatur, nederbörd och jordmån är abiotiska faktorer. De bestämmer vilka arter som kan leva på en plats." },
+    { answer: "MÅNGFALD", clue: "Rikedomen av arter och livsmiljöer (biologisk ...).",
+      context: "Biologisk mångfald gör ekosystem starkare. Ju fler arter som finns, desto bättre klarar ekosystemet störningar som torka eller sjukdom." },
 
     // ═══ LÄXA 2: Producent, konsument & kretslopp (L17, 21 april) ═══
-    { answer: "PRODUCENT", clue: "En organism som tillverkar sin egen energirika näring, till exempel en växt." },
-    { answer: "KONSUMENT", clue: "En organism som måste skaffa energi genom att äta andra organismer." },
-    { answer: "NÄRINGSKEDJA", clue: "En enkel, rak modell som visar vem som äter vem i naturen." },
-    { answer: "NÄRINGSVÄV", clue: "Flera näringskedjor som flätas samman till ett komplext nät." },
-    { answer: "TOPPKONSUMENT", clue: "Den konsument som befinner sig allra högst upp i näringskedjan och saknar naturliga fiender." },
-    { answer: "NEDBRYTARE", clue: "Svampar, bakterier och småkryp som bryter ner dött material och återför näringen till kretsloppet." },
-    { answer: "KRETSLOPP", clue: "Naturens egen återvinning. Ämnen (som kol eller vatten) går runt och används om och om igen." },
+    { answer: "PRODUCENT", clue: "En organism som tillverkar sin egen energirika näring, till exempel en växt.",
+      context: "Gröna växter och alger är producenter. De använder solenergi för att bygga glukos. Utan producenter skulle inga andra organismer ha mat." },
+    { answer: "KONSUMENT", clue: "En organism som måste skaffa energi genom att äta andra organismer.",
+      context: "Du är en konsument. Det är också en hare, en räv och en fjäril. Konsumenter kan inte tillverka sin egen näring som växter gör." },
+    { answer: "NÄRINGSKEDJA", clue: "En enkel, rak modell som visar vem som äter vem i naturen.",
+      context: "Gräs → hare → räv är en näringskedja. Den visar hur energin flyttas från en organism till nästa. I verkligheten är det dock mer komplicerat." },
+    { answer: "NÄRINGSVÄV", clue: "Flera näringskedjor som flätas samman till ett komplext nät.",
+      context: "I verkligheten äter de flesta djur flera olika saker. Därför flätas näringskedjorna ihop till en väv. Om en art försvinner påverkas hela väven." },
+    { answer: "TOPPKONSUMENT", clue: "Den konsument som befinner sig allra högst upp i näringskedjan och saknar naturliga fiender.",
+      context: "Örnar, vargar och hajar är exempel på toppkonsumenter. De har inga naturliga fiender, men de är ändå beroende av allt som finns under dem i kedjan." },
+    { answer: "NEDBRYTARE", clue: "Svampar, bakterier och småkryp som bryter ner dött material och återför näringen till kretsloppet.",
+      context: "Utan nedbrytare skulle döda löv, djur och grenar bara bli kvar. Nedbrytarna ser till att näringsämnena återvänder till jorden så att nya växter kan använda dem." },
+    { answer: "KRETSLOPP", clue: "Naturens egen återvinning. Ämnen (som kol eller vatten) går runt och används om och om igen.",
+      context: "Kolatomen i din utandningsluft kan ha suttit i ett dinosaurieblad för miljoner år sedan. Ämnena förstörs aldrig, de bara cirkulerar." },
 
     // ═══ LÄXA 3: Symbios, nisch & miljögifter (L18/v.19) ═══
-    { answer: "SYMBIOS", clue: "Samlingsnamnet för nära samlevnad mellan två arter. Det finns tre typer: mutualism, kommensalism och parasitism." },
-    { answer: "NISCH", clue: "En arts roll eller \"yrke\" i ekosystemet (ekologisk ...)." },
-    { answer: "KONKURRENS", clue: "När organismer tävlar om samma begränsade resurser, som mat eller boplatser." },
-    { answer: "BIOACKUMULATION", clue: "När miljögifter ansamlas i allt högre halter uppåt i näringskedjan." },
-    { answer: "NÄRINGSPYRAMID", clue: "En modell som visar att energin minskar för varje steg uppåt i näringskedjan." },
+    { answer: "SYMBIOS", clue: "Samlingsnamnet för nära samlevnad mellan två arter. Det finns tre typer: mutualism, kommensalism och parasitism.",
+      context: "Bin och blommor lever i mutualism: biet får nektar, blomman blir pollinerad. En fästing lever i parasitism: den har nytta, men värden skadas." },
+    { answer: "NISCH", clue: "En arts roll eller \"yrke\" i ekosystemet (ekologisk ...).",
+      context: "Två arter kan inte ha exakt samma nisch på samma plats. Om de försöker uppstår konkurrens, och en av dem tvingas bort eller anpassar sig." },
+    { answer: "KONKURRENS", clue: "När organismer tävlar om samma begränsade resurser, som mat eller boplatser.",
+      context: "Konkurrens kan ske mellan arter, men också inom en art. Två tallar som växer nära varandra tävlar om solljus och vatten." },
+    { answer: "BIOACKUMULATION", clue: "När miljögifter ansamlas i allt högre halter uppåt i näringskedjan.",
+      context: "Kvicksilver i vatten tas upp av plankton. Fisken äter tusentals plankton och samlar på sig giftet. Rovfågeln äter många fiskar och får en ännu högre dos." },
+    { answer: "NÄRINGSPYRAMID", clue: "En modell som visar att energin minskar för varje steg uppåt i näringskedjan.",
+      context: "Det behövs massvis med gräs för att föda några harar, och många harar för att föda en räv. Därför ser pyramiden ut som en triangel." },
 
     // ═══ FOTOSYNTES & CELLANDNING (kursens kärna) ═══
-    { answer: "FOTOSYNTES", clue: "Processen där växter tillverkar socker med hjälp av solenergi, koldioxid och vatten." },
-    { answer: "KLOROFYLL", clue: "Det gröna färgämnet i växternas blad som fångar solljuset." },
-    { answer: "CELLANDNING", clue: "Processen där celler bryter ner socker och frigör energi. Syre förbrukas." },
-    { answer: "KOLDIOXID", clue: "Gasen som växter tar in och som du andas ut." },
-    { answer: "SYRE", clue: "Gasen som växter släpper ut och som du behöver för att leva." },
-    { answer: "GLUKOS", clue: "Sockret som bildas vid fotosyntes och bryts ner vid cellandning. Kallas också druvsocker." },
+    { answer: "FOTOSYNTES", clue: "Processen där växter tillverkar socker med hjälp av solenergi, koldioxid och vatten.",
+      context: "Fotosyntesen sker i kloroplasten i bladcellerna. Formeln: koldioxid + vatten + solenergi → glukos + syre. Det är grunden för nästan allt liv på jorden." },
+    { answer: "KLOROFYLL", clue: "Det gröna färgämnet i växternas blad som fångar solljuset.",
+      context: "Klorofyll sitter i kloroplasterna. Det absorberar rött och blått ljus men reflekterar grönt, och det är därför bladen ser gröna ut." },
+    { answer: "CELLANDNING", clue: "Processen där celler bryter ner socker och frigör energi. Syre förbrukas.",
+      context: "Cellandningen sker i alla levande celler, inte bara djur. Formeln: glukos + syre → koldioxid + vatten + energi. Den är fotosyntesens spegelvänd process." },
+    { answer: "KOLDIOXID", clue: "Gasen som växter tar in och som du andas ut.",
+      context: "Koldioxid är en växthusgas. Växter behöver den för fotosyntesen. Djur och människor producerar den vid cellandning. Den kemiska formeln är CO₂." },
+    { answer: "SYRE", clue: "Gasen som växter släpper ut och som du behöver för att leva.",
+      context: "Syre bildas som en restprodukt vid fotosyntesen. Du andas in det och använder det i cellandningen för att frigöra energi. Kemisk formel: O₂." },
+    { answer: "GLUKOS", clue: "Sockret som bildas vid fotosyntes och bryts ner vid cellandning. Kallas också druvsocker.",
+      context: "Glukos är cellernas bränsle. Växter bygger det av koldioxid och vatten. Djur får det genom maten. Det heter egentligen druvsocker, men i NO säger vi oftast glukos." },
 
     // ═══ ÖVRIGA KURSBEGREPP (häftet kap. 14) ═══
-    { answer: "BIOSFÄR", clue: "Den del av jordklotet där allt levande finns." },
-    { answer: "BIOM", clue: "Ett stort ekosystem, till exempel regnskog, öken eller tundra." },
-    { answer: "BIOMASSA", clue: "Den sammanlagda vikten av allt levande i ett ekosystem." },
-    { answer: "TROFINIVÅ", clue: "Varje steg i en näringskedja." },
-    { answer: "PLANKTON", clue: "Små organismer (växt- och djurplankton) som driver fritt i vatten." },
-    { answer: "FRIDLYST", clue: "En art som är skyddad och ska få leva i fred." },
-    { answer: "FÖRNA", clue: "Det översta lagret på skogsmarken, med döda växter, löv och smådjur." },
-    { answer: "HUMUS", clue: "Nedbrutet organiskt material som finns i jordmånen." },
+    { answer: "BIOSFÄR", clue: "Den del av jordklotet där allt levande finns.",
+      context: "Biosfären sträcker sig från havens djup till högt upp i atmosfären. Det är ett tunt skikt runt jorden där livet existerar." },
+    { answer: "BIOM", clue: "Ett stort ekosystem, till exempel regnskog, öken eller tundra.",
+      context: "Biom bestäms av klimatet. En regnskog och en tundra har helt olika temperaturer och nederbörd, och därför helt olika arter." },
+    { answer: "BIOMASSA", clue: "Den sammanlagda vikten av allt levande i ett ekosystem.",
+      context: "Producenterna har störst biomassa. Högre upp i näringspyramiden minskar biomassan, precis som energin." },
+    { answer: "TROFINIVÅ", clue: "Varje steg i en näringskedja.",
+      context: "Producenter är trofinivå 1. Förstahandskonsumenter (växtätare) är nivå 2. Andrahandskonsumenter (rovdjur) är nivå 3, och så vidare." },
+    { answer: "PLANKTON", clue: "Små organismer (växt- och djurplankton) som driver fritt i vatten.",
+      context: "Växtplankton är havens producenter. De står för ungefär hälften av all fotosyntes på jorden. Utan dem skulle haven vara döda." },
+    { answer: "FRIDLYST", clue: "En art som är skyddad och ska få leva i fred.",
+      context: "I Sverige är till exempel alla orkidéer, alla rovfåglar och alla fladdermöss fridlysta. Det betyder att du inte får döda, fånga eller störa dem." },
+    { answer: "FÖRNA", clue: "Det översta lagret på skogsmarken, med döda växter, löv och smådjur.",
+      context: "Förnan är det första steget i nedbrytningen. Här arbetar nedbrytarna med att bryta ner dött material innan det blir humus." },
+    { answer: "HUMUS", clue: "Nedbrutet organiskt material som finns i jordmånen.",
+      context: "Humus gör jorden mörk och näringsrik. Ju mer humus, desto bättre växer växter. Det är slutprodukten av nedbrytarnas arbete." },
 ];
 
 // ============================================================
@@ -987,16 +1036,16 @@ function checkCurrentWord() {
         }
         // Show definition popup
         showCwDefinition(w);
-        setTimeout(()=>showReadyScreen(),2500);
+        setTimeout(()=>showReadyScreen(),3800);
     }
 }
 
 function showCwDefinition(w) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
-    el.innerHTML = `✅ <strong>${w.answer}</strong> — ${w.clue}`;
+    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}`;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2400);
+    setTimeout(() => el.remove(), 3500);
 }
 
 function updateUI() {
@@ -1389,9 +1438,9 @@ function showScorePopup(el, text, color) {
 function showLearningReceipt(word) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
-    el.innerHTML = `✅ <strong>${word.answer}</strong> — ${word.clue}`;
+    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}`;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3200);
+    setTimeout(() => el.remove(), 3500);
 }
 
 // === DRAW ===
