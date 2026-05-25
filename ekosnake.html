@@ -991,6 +991,17 @@ function cwInput(e,x,y){
             if(cwInputs[`${nx},${ny}`])cwInputs[`${nx},${ny}`].focus();
         }
     }
+    // Auto-check when all cells for the active word are filled (critical for mobile)
+    if(cwActiveWord && !solvedWords.includes(cwActiveWord)){
+        let filled=true;
+        for(let i=0;i<cwActiveWord.answer.length;i++){
+            const cx=cwActiveWord.dir===0?cwActiveWord.x+i:cwActiveWord.x;
+            const cy=cwActiveWord.dir===1?cwActiveWord.y+i:cwActiveWord.y;
+            const ci=cwInputs[`${cx},${cy}`];
+            if(!ci||ci.value===''){filled=false;break}
+        }
+        if(filled) setTimeout(()=>checkCurrentWord(),100);
+    }
 }
 function cwKeyDown(e,x,y){
     if(e.key==='Enter'){e.preventDefault();checkCurrentWord();return}
