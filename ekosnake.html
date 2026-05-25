@@ -472,37 +472,42 @@
 
 <!-- OVERLAYS -->
 <div id="instructionsOverlay" class="overlay hidden">
-    <div class="glass">
-        <div style="font-size:3rem; margin-bottom:0.5rem;">🐍</div>
-        <h2 style="margin-bottom:1rem;">Hur man spelar EkoSnake</h2>
-        <div style="text-align:left; background:rgba(255,255,255,0.04); border-radius:12px; padding:1.2rem 1.5rem; margin-bottom:1.5rem; line-height:1.6; color:rgba(255,255,255,0.85);">
-            <p style="margin-bottom:1rem;">Välkommen till <strong>EkoSnake</strong>! Här tränar du på begrepp inom ekologi inför det kommande provet.</p>
-            <p style="margin-bottom:1.2rem; font-weight: 500;">Spelet har två spännande faser:</p>
-            <ul style="list-style: none; padding:0; margin:0;">
-                <li style="margin-bottom:1rem; display:flex; align-items:flex-start;">
-                    <span style="font-size:1.5rem; margin-right:0.8rem; line-height:1;">📝</span>
+    <div class="glass" style="max-width: 500px; padding: clamp(1.5rem, 4vw, 2.5rem);">
+        <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🐍</div>
+        <h2 style="margin-bottom: 1.2rem; font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 800;">Så spelar du</h2>
+        
+        <div style="text-align: left; background: rgba(255,255,255,0.04); border-radius: 16px; padding: clamp(1.2rem, 3vw, 1.8rem); margin-bottom: 1.8rem; line-height: 1.6; font-size: clamp(1rem, 2.5vw, 1.15rem); color: rgba(255,255,255,0.95);">
+            <p style="margin-bottom: 1.2rem;">
+                EkoSnake är ett spel där du tränar på ekologibegrepp inför provet. Du spelar i två steg:
+            </p>
+            
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 1.2rem; display: flex; align-items: flex-start;">
+                    <span style="font-size: 1.8rem; margin-right: 0.8rem; line-height: 1;">📝</span>
                     <div>
-                        <strong>1. Korsordet:</strong>
-                        <div style="color:var(--text-muted); font-size:0.95rem; margin-top:0.2rem;">
-                            Klicka på ett ord i korsordet för att se dess ledtråd. Skriv in rätt begrepp bokstav för bokstav.
+                        <strong style="color: var(--primary); font-size: 1.25rem;">1. Lös korsordet</strong>
+                        <div style="color: var(--text-muted); margin-top: 0.2rem; font-size: 1.05rem;">
+                            Klicka på ett ord i korsordet för att se ledtråden. Skriv in rätt ord bokstav för bokstav.
                         </div>
                     </div>
                 </li>
-                <li style="margin-bottom:1rem; display:flex; align-items:flex-start;">
-                    <span style="font-size:1.5rem; margin-right:0.8rem; line-height:1;">🎮</span>
+                <li style="margin-bottom: 1.2rem; display: flex; align-items: flex-start;">
+                    <span style="font-size: 1.8rem; margin-right: 0.8rem; line-height: 1;">🎮</span>
                     <div>
-                        <strong>2. Snake-jakten:</strong>
-                        <div style="color:var(--text-muted); font-size:0.95rem; margin-top:0.2rem;">
-                            När du fyllt i ett ord rätt startar Snake! Styr ormen för att samla bokstäverna i ordet i rätt ordning. Nästa bokstav du ska ta lyser gult på spelplanen.
+                        <strong style="color: var(--gold); font-size: 1.25rem;">2. Samla bokstäver i Snake</strong>
+                        <div style="color: var(--text-muted); margin-top: 0.2rem; font-size: 1.05rem;">
+                            När du har skrivit rätt ord startar Snake. Styr ormen för att äta bokstäverna i ordet i rätt ordningsföljd. Nästa bokstav du ska ta lyser gult.
                         </div>
                     </div>
                 </li>
             </ul>
-            <p style="margin-top:1.2rem; font-size:0.9rem; color:var(--gold); border-top:1px solid rgba(255,255,255,0.08); padding-top:0.8rem;">
-                Tryck på piltangenterna eller WASD på datorn, eller svep (swipe) på mobiltelefonen för att styra ormen.
-            </p>
+            
+            <div style="margin-top: 1.2rem; font-size: 1rem; color: var(--gold); border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.8rem;">
+                <strong>Styrning:</strong> Använd piltangenterna eller WASD på datorn. Svep på skärmen om du spelar på en mobiltelefon eller surfplatta.
+            </div>
         </div>
-        <button class="btn btn-primary" onclick="dismissInstructions()" style="width:100%;">Kör igång</button>
+        
+        <button class="btn btn-primary" onclick="dismissInstructions()" style="width: 100%; font-size: 1.2rem; padding: 0.9rem;">Kör igång</button>
     </div>
 </div>
 
