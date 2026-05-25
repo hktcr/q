@@ -401,7 +401,7 @@
         <div id="readyWord" class="ready-word"></div>
         <div id="readyClue" style="color:var(--text-muted); margin-bottom:1rem; white-space:pre-line;"></div>
         <ul class="ready-rules">
-            <li>🎯 Samla bokstäverna i <strong>rätt ordning</strong> — nästa bokstav lyser gult!</li>
+            <li>🎯 Samla bokstäverna i <strong>rätt ordning</strong>. Nästa bokstav lyser gult!</li>
             <li>🧱 Undvik <strong>hinder</strong> och <strong>kanterna</strong></li>
             <li>⬆️⬇️⬅️➡️ Styr med <strong>piltangenter / WASD</strong> eller <strong>swipa</strong></li>
             <li>⏸ Tryck <strong>Escape</strong> för paus</li>
@@ -425,7 +425,7 @@
 <div id="hsOverlay" class="overlay hidden">
     <div class="glass">
         <div style="font-size:2rem; margin-bottom:0.5rem;">🏆</div>
-        <h2 style="margin-bottom:1rem;">Topplista — EkoSnake</h2>
+        <h2 style="margin-bottom:1rem;">Topplista: EkoSnake</h2>
         <div id="hsTableWrap"><p style="color:var(--text-muted);">Laddar...</p></div>
         <div class="btn-group" style="margin-top:1rem;">
             <button class="btn btn-secondary btn-sm" onclick="closeOverlay()">← Tillbaka</button>
@@ -1416,7 +1416,7 @@ function buildSummary(containerId) {
     const wrap = document.getElementById(containerId);
     if (!solvedWords.length) { wrap.innerHTML = ''; return; }
     let html = '<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;"><strong style="color:var(--text)">Dina samlade begrepp:</strong><ul style="margin-top:0.3rem; padding-left:1.2rem;">';
-    solvedWords.forEach(w => { html += `<li><strong style="color:#6ee7b7">${w.answer}</strong> — ${w.clue}</li>`; });
+    solvedWords.forEach(w => { html += `<li><strong style="color:#6ee7b7">${w.answer}</strong>: ${w.clue}</li>`; });
     html += '</ul></div>';
     wrap.innerHTML = html;
 }
