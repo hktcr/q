@@ -318,7 +318,7 @@
             padding: 1.2rem 1.8rem;
             color: #e2e8f0;
             z-index: 150;
-            animation: receiptIn 0.4s ease, receiptOut 0.5s ease 3s forwards;
+            animation: receiptIn 0.4s ease;
             max-width: 500px;
             width: 90vw;
             text-align: left;
@@ -338,9 +338,18 @@
             line-height: 1.5;
             border-top: 1px solid rgba(255,255,255,0.1);
             padding-top: 0.5rem;
+            margin-bottom: 0.8rem;
         }
+        .learn-receipt .lr-btn {
+            display: block; width: 100%; margin-top: 0.8rem;
+            padding: 0.5rem; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, var(--primary), #059669);
+            color: white; font-weight: 700; font-size: 0.95rem;
+            font-family: inherit; cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .learn-receipt .lr-btn:hover { transform: translateY(-1px); }
         @keyframes receiptIn { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-        @keyframes receiptOut { to{opacity:0;transform:translateX(-50%) translateY(-20px)} }
 
         .hidden { display: none !important; }
     </style>
@@ -1033,18 +1042,24 @@ function checkCurrentWord() {
             const inp=cwInputs[`${cx},${cy}`];
             if(inp){inp.disabled=true;inp.style.color='#6ee7b7'}
         }
-        // Show definition popup
-        showCwDefinition(w);
-        setTimeout(()=>showReadyScreen(),3800);
+        // Show definition popup (waits for click)
+        showCwDefinition(w, () => showReadyScreen());
     }
 }
 
-function showCwDefinition(w) {
+let cwDefinitionCallback = null;
+function showCwDefinition(w, onDismiss) {
+    cwDefinitionCallback = onDismiss || null;
     const el = document.createElement('div');
     el.className = 'learn-receipt';
-    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}`;
+    el.id = 'activeReceipt';
+    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button>`;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3500);
+}
+function dismissReceipt() {
+    const el = document.getElementById('activeReceipt');
+    if (el) el.remove();
+    if (cwDefinitionCallback) { cwDefinitionCallback(); cwDefinitionCallback = null; }
 }
 
 function updateUI() {
@@ -1435,11 +1450,17 @@ function showScorePopup(el, text, color) {
 }
 
 function showLearningReceipt(word) {
+    snakePaused = true;
     const el = document.createElement('div');
     el.className = 'learn-receipt';
-    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}`;
+    el.id = 'activeSnakeReceipt';
+    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button>`;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3500);
+}
+function dismissSnakeReceipt() {
+    const el = document.getElementById('activeSnakeReceipt');
+    if (el) el.remove();
+    snakePaused = false;
 }
 
 // === DRAW ===
