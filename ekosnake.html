@@ -1048,7 +1048,7 @@ let currentWordIdx = 0;
 let currentLetterIdx = 0;
 let snakeAlive = true;
 let snakePaused = false;
-let snakeSpeed = 300; // constant — challenge comes from snake length
+let snakeSpeed = 150; // fast pace — real challenge
 let swipeSetup = false;
 let wordMarkers = []; // indices in snake[] where a word-divider sits
 let starItem = null; // { x, y, timer } — power-up that resets snake length
@@ -1113,7 +1113,7 @@ function initSnake() {
     if(starTimeout){clearTimeout(starTimeout);starTimeout=null}
 
     // Constant speed — the growing snake IS the challenge
-    snakeSpeed=300;
+    snakeSpeed=150;
 
     setupSnakeRound();
     if(snakeInterval) clearInterval(snakeInterval);
