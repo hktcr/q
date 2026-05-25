@@ -349,6 +349,16 @@
             transition: transform 0.15s ease;
         }
         .learn-receipt .lr-btn:hover { transform: translateY(-1px); }
+        .learn-receipt .lr-btn-save {
+            display: block; width: 100%; margin-top: 0.5rem;
+            padding: 0.45rem; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: transparent;
+            color: var(--text-muted); font-weight: 500; font-size: 0.8rem;
+            font-family: inherit; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .learn-receipt .lr-btn-save:hover { border-color: var(--gold); color: var(--gold); }
         @keyframes receiptIn { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 
         .hidden { display: none !important; }
@@ -1053,13 +1063,21 @@ function showCwDefinition(w, onDismiss) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
     el.id = 'activeReceipt';
-    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button>`;
+    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">💾 Säkra din poäng på topplistan</button>`;
     document.body.appendChild(el);
 }
 function dismissReceipt() {
     const el = document.getElementById('activeReceipt');
     if (el) el.remove();
     if (cwDefinitionCallback) { cwDefinitionCallback(); cwDefinitionCallback = null; }
+}
+async function checkpointSave(btn) {
+    if (!btn || btn.disabled) return;
+    btn.disabled = true; btn.textContent = 'Sparar...';
+    await submitHighscore();
+    btn.textContent = '✅ Sparat!';
+    btn.style.color = '#6ee7b7'; btn.style.borderColor = '#6ee7b7';
+    highscoreSubmitted = false; // allow saving again later
 }
 
 function updateUI() {
@@ -1454,7 +1472,7 @@ function showLearningReceipt(word) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
     el.id = 'activeSnakeReceipt';
-    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button>`;
+    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">💾 Säkra din poäng på topplistan</button>`;
     document.body.appendChild(el);
 }
 function dismissSnakeReceipt() {
