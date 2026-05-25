@@ -503,7 +503,6 @@
                     <button class="btn btn-gold btn-sm" onclick="cwHint()">💡 Ledtråd</button>
                     <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆</button>
                 </div>
-                <button id="btnStartSnake" class="btn btn-primary hidden" onclick="showReadyScreen()" style="width:100%; margin-top:0.75rem; background:#10b981; color:#042f1a; font-weight:800; border:none; padding:0.6rem; font-size:1rem; box-shadow:0 0 15px rgba(16,185,129,0.3); cursor:pointer; border-radius:12px; font-family:inherit;">Starta Snake-jakten</button>
             </div>
         </div>
     </div>
@@ -1019,17 +1018,6 @@ function initCrossword() {
     document.getElementById('readyScreen').classList.add('hidden');
     document.getElementById('phaseBadge').textContent = '📝 KORSORD';
     document.getElementById('gameHeader').className = 'header phase-crossword';
-    
-    // Toggle the "Starta Snake-jakten" button in the sidebar
-    const btnStartSnake = document.getElementById('btnStartSnake');
-    if (btnStartSnake) {
-        if (solvedWords.length > 0) {
-            btnStartSnake.classList.remove('hidden');
-            btnStartSnake.textContent = `Starta Snake-jakten (${solvedWords.length} ord)`;
-        } else {
-            btnStartSnake.classList.add('hidden');
-        }
-    }
 
     if (!cw) {
         try {
