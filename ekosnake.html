@@ -1245,6 +1245,9 @@ function snakeTick() {
             currentLetterIdx++;
             updateSnakeWordDisplay(); updateUI();
             showScorePopup(snakeCanvas, `+${pts}`);
+            // Progressive obstacle: add one each time a letter is collected
+            const newObs = findFreeCell();
+            if (newObs) obstacles.push({x: newObs.x, y: newObs.y});
             // Mark next target
             const nt=letterItems.find(l=>l.idx===currentLetterIdx);
             if(nt) nt.isTarget=true;
