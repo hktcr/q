@@ -758,7 +758,6 @@ const ALL_WORDS = [
 const APP_KEY = "HKES1";
 const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
 const IDX_SHARD_SIZE = 8;
-const IDX_MAX_SHARDS = 20; // 20 shards × 8 = 160 players max
 let _hsSaving = false;
 let _lastSavedScore = -1;
 
@@ -775,10 +774,10 @@ async function _kvSet(key, val) {
     return !(t.includes('Error')||t.includes('maxUrl')||t.includes('DOCTYPE'));
 }
 
-// Read all index shards → flat array of names
+// Read all index shards → flat array of names (no upper limit)
 async function _readAllNames() {
     const allNames = [];
-    for (let s = 0; s < IDX_MAX_SHARDS; s++) {
+    for (let s = 0; ; s++) {
         const shard = await _kvGet('IDX' + s);
         if (!shard) break;
         allNames.push(...shard.split('|').filter(n => n));
