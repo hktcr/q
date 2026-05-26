@@ -465,7 +465,25 @@
         <div class="splash-title">EkoSnake</div>
         <div class="splash-sub">Lös korsordet. Samla bokstäverna i Snake!</div>
         <div class="splash-card">
-            <input type="text" id="playerNameInput" placeholder="Skriv ditt namn..." maxlength="20" autocomplete="off" style="background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 1rem;">
+            <input type="text" id="playerNameInput" placeholder="Skriv ditt namn..." maxlength="20" autocomplete="off" style="background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 0.8rem;">
+            <div id="classSelector" style="width: 100%; margin-bottom: 1rem;">
+                <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600;">Vilken klass gar du i?</div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center;">
+                    <label style="display:flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0.45rem 0.7rem; cursor:pointer; font-size:0.9rem; color:rgba(255,255,255,0.85); transition:all 0.15s ease;">
+                        <input type="radio" name="playerClass" value="BJKA1-25" style="accent-color:#22c55e;"> BJKA1-25
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0.45rem 0.7rem; cursor:pointer; font-size:0.9rem; color:rgba(255,255,255,0.85); transition:all 0.15s ease;">
+                        <input type="radio" name="playerClass" value="BJKD1-25" style="accent-color:#22c55e;"> BJKD1-25
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0.45rem 0.7rem; cursor:pointer; font-size:0.9rem; color:rgba(255,255,255,0.85); transition:all 0.15s ease;">
+                        <input type="radio" name="playerClass" value="BJKE1-25" style="accent-color:#22c55e;"> BJKE1-25
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0.45rem 0.7rem; cursor:pointer; font-size:0.9rem; color:rgba(255,255,255,0.85); transition:all 0.15s ease;">
+                        <input type="radio" name="playerClass" value="Annan" style="accent-color:#22c55e;"> Annan
+                    </label>
+                </div>
+                <div id="classError" style="color:#ef4444; font-size:0.8rem; margin-top:0.3rem; display:none;">Valj din klass!</div>
+            </div>
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <button class="btn btn-secondary btn-sm" onclick="showHighscores()" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.12); padding: 0.65rem 1.4rem; font-size: 0.95rem; border-radius: 12px; font-family: inherit; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">Topplista</button>
                 <button class="btn btn-primary" onclick="startGame()" style="background: #22c55e; color: #022c22; font-weight: 800; border-radius: 14px; padding: 0.75rem 2.2rem; font-size: 1.1rem; box-shadow: 0 0 20px rgba(34, 197, 94, 0.45); border: none; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; font-family: inherit;">Starta</button>
@@ -621,8 +639,7 @@
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;" id="goWords"></p>
         <div id="goSummary" style="text-align:left; margin-bottom:1rem;"></div>
         <div class="btn-group">
-            <button class="btn btn-secondary btn-sm" id="btnGoSubmit" onclick="submitHighscoreBtn(this)">💾 Spara resultat</button>
-            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆</button>
+            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Topplista</button>
         </div>
         <div class="btn-group" style="margin-top:0.75rem; width:100%;">
             <button class="btn btn-primary" onclick="returnToCrossword()" style="width:100%; font-size:1.1rem; padding:0.8rem;">Tillbaka till korsordet</button>
@@ -639,8 +656,7 @@
         <div style="font-size:2.5rem; font-weight:900; color:var(--gold); margin:0.8rem 0;" id="winScore">0</div>
         <div id="winSummary" style="text-align:left; margin-bottom:1rem;"></div>
         <div class="btn-group">
-            <button class="btn btn-secondary btn-sm" id="btnWinSubmit" onclick="submitHighscoreBtn(this)">💾 Spara resultat</button>
-            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆</button>
+            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Topplista</button>
         </div>
         <div class="btn-group" style="margin-top:0.75rem;">
             <button class="btn btn-primary" onclick="returnToCrossword()">📝 Fortsätt med korsordet</button>
@@ -736,50 +752,55 @@ const ALL_WORDS = [
 // ============================================================
 const APP_KEY = "HakanEkoSnake_Ekologi2026_v1";
 const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
-let highscoreSubmitted = false;
+let _hsSaving = false; // mutex to prevent concurrent saves
+let _lastSavedScore = -1; // track last saved score to avoid unnecessary API calls
 
-async function submitHighscoreBtn(btn) {
-    if (!btn || btn.disabled) return;
-    btn.disabled = true; btn.textContent = 'Sparar...';
-    await submitHighscore();
-    btn.textContent = '✅ Sparat!';
-}
-async function submitHighscore() {
-    if (highscoreSubmitted) return;
-    highscoreSubmitted = true;
+async function autoSaveHighscore() {
+    if (!playerName || totalScore <= 0) return;
+    if (totalScore <= _lastSavedScore) return; // no improvement, skip
+    if (_hsSaving) return; // already saving
+    _hsSaving = true;
     try {
-        await new Promise(r => setTimeout(r, Math.random() * 500));
+        await new Promise(r => setTimeout(r, Math.random() * 400 + 100));
         const hsKey = 'HS_EKOSNAKE';
         const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${hsKey}?t=${Date.now()}`, { cache: 'no-store' });
         let text = await res.text();
         let scores = [];
         if (text && text !== '0' && !text.includes('not found')) {
             text = text.replace(/"/g, '');
-            scores = text.split('|').map(s => { const [n,sc,w]=s.split('_'); return {name:n, score:parseInt(sc)||0, words:parseInt(w)||0}; }).filter(s=>s.name);
+            scores = text.split('|').map(s => { const parts=s.split('_'); return {name:parts[0], score:parseInt(parts[1])||0, words:parseInt(parts[2])||0, cls:parts[3]||''}; }).filter(s=>s.name);
         }
         const safeName = playerName.replace(/[_:|]/g,'').trim()||'Spelare';
+        const safeClass = (playerClass||'').replace(/[_:|]/g,'').trim();
         const existingIdx = scores.findIndex(s => s.name.trim().toLowerCase() === safeName.toLowerCase());
         if (existingIdx !== -1) {
             if (totalScore > scores[existingIdx].score) {
                 scores[existingIdx].score = totalScore;
                 scores[existingIdx].words = solvedWords.length;
             }
+            if (safeClass) scores[existingIdx].cls = safeClass;
         } else {
-            scores.push({ name: safeName, score: totalScore, words: solvedWords.length });
+            scores.push({ name: safeName, score: totalScore, words: solvedWords.length, cls: safeClass });
         }
         scores.sort((a,b)=>b.score-a.score);
-        scores = scores.slice(0, 25);
-        const encoded = encodeURIComponent(scores.map(s=>`${s.name}_${s.score}_${s.words}`).join('|'));
+        scores = scores.slice(0, 30);
+        const encoded = encodeURIComponent(scores.map(s=>`${s.name}_${s.score}_${s.words}_${s.cls||''}`).join('|'));
         await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encoded}`, { method:'POST', body:'', cache:'no-store' });
-    } catch(e) { console.warn('HS fail:', e); }
+        _lastSavedScore = totalScore;
+    } catch(e) { console.warn('HS autosave fail:', e); }
+    _hsSaving = false;
 }
+// Legacy wrappers (kept for any remaining button references)
+async function submitHighscore() { await autoSaveHighscore(); }
+async function submitHighscoreBtn(btn) { if(btn){btn.disabled=true;btn.textContent='Sparar...'} await autoSaveHighscore(); if(btn)btn.textContent='Sparat!'; }
+
 async function getHighscores() {
     try {
         const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/HS_EKOSNAKE?t=${Date.now()}`, { cache:'no-store' });
         let text = await res.text();
         if (!text || text==='0' || text.includes('not found')) return [];
         text = text.replace(/"/g,'');
-        return text.split('|').map(s=>{const[n,sc,w]=s.split('_');return{name:n,score:parseInt(sc)||0,words:parseInt(w)||0}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
+        return text.split('|').map(s=>{const parts=s.split('_');return{name:parts[0],score:parseInt(parts[1])||0,words:parseInt(parts[2])||0,cls:parts[3]||''}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
     } catch(e) { return []; }
 }
 async function showHighscores() {
@@ -787,13 +808,15 @@ async function showHighscores() {
     document.getElementById('hsTableWrap').innerHTML='<p style="color:var(--text-muted)">Laddar...</p>';
     const scores = await getHighscores();
     const wrap = document.getElementById('hsTableWrap');
-    if (!scores.length) { wrap.innerHTML='<p style="color:var(--text-muted)">Inga resultat ännu. Bli den första! 🏆</p>'; return; }
-    let html=`<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Poäng</th><th>Ord</th></tr></thead><tbody>`;
-    scores.slice(0,20).forEach((s,i)=>{
+    if (!scores.length) { wrap.innerHTML='<p style="color:var(--text-muted)">Inga resultat annu. Bli den forsta! 🏆</p>'; return; }
+    let html=`<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Klass</th><th>Poang</th><th>Ord</th></tr></thead><tbody>`;
+    scores.slice(0,25).forEach((s,i)=>{
         const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
         const ri=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-        const me=s.name===playerName?'hs-you':'';
-        html+=`<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td class="hs-score">${s.score}</td><td>${s.words}</td></tr>`;
+        const safeName = playerName.replace(/[_:|]/g,'').trim()||'';
+        const me=s.name.trim().toLowerCase()===safeName.toLowerCase()?'hs-you':'';
+        const clsDisplay = s.cls || '';
+        html+=`<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td style="font-size:0.75rem;color:var(--text-muted);">${escHtml(clsDisplay)}</td><td class="hs-score">${s.score}</td><td>${s.words}</td></tr>`;
     });
     wrap.innerHTML = html+'</tbody></table>';
 }
@@ -996,6 +1019,7 @@ class Crossword {
 // GAME STATE
 // ============================================================
 let playerName = '';
+let playerClass = '';
 let totalScore = 0;
 let cw = null;
 let cwInputs = {};
@@ -1009,6 +1033,13 @@ let currentPhase = 'NAME';
 function startGame() {
     playerName = document.getElementById('playerNameInput').value.trim();
     if (!playerName) { document.getElementById('playerNameInput').focus(); return; }
+    const classRadio = document.querySelector('input[name="playerClass"]:checked');
+    if (!classRadio) {
+        document.getElementById('classError').style.display = 'block';
+        return;
+    }
+    document.getElementById('classError').style.display = 'none';
+    playerClass = classRadio.value;
     document.getElementById('nameScreen').classList.add('hidden');
     document.getElementById('instructionsOverlay').classList.remove('hidden');
 }
@@ -1211,6 +1242,7 @@ function checkCurrentWord() {
         solvedWords.push(w);
         totalScore += w.answer.length * 10;
         updateUI(); renderWordChips(); updateProgress();
+        autoSaveHighscore(); // auto-save progress
         for(let i=0;i<w.answer.length;i++){
             const cx=w.dir===0?w.x+i:w.x,cy=w.dir===1?w.y+i:w.y;
             const inp=cwInputs[`${cx},${cy}`];
@@ -1227,7 +1259,7 @@ function showCwDefinition(w, onDismiss) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
     el.id = 'activeReceipt';
-    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">Säkra din poäng på topplistan</button>`;
+    el.innerHTML = `<div class="lr-word">✅ ${w.answer}</div><div class="lr-clue">${w.clue}</div>${w.context ? `<div class="lr-context">${w.context}</div>` : ''}<button class="lr-btn" onclick="dismissReceipt()">▶ Fortsätt</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">Din poang sparas automatiskt</div>`;
     document.body.appendChild(el);
 }
 function dismissReceipt() {
@@ -1238,10 +1270,9 @@ function dismissReceipt() {
 async function checkpointSave(btn) {
     if (!btn || btn.disabled) return;
     btn.disabled = true; btn.textContent = 'Sparar...';
-    await submitHighscore();
-    btn.textContent = '✅ Sparat!';
+    await autoSaveHighscore();
+    btn.textContent = '\u2705 Sparat!';
     btn.style.color = '#6ee7b7'; btn.style.borderColor = '#6ee7b7';
-    highscoreSubmitted = false; // allow saving again later
 }
 
 function updateUI() {
@@ -1515,6 +1546,7 @@ function snakeTick() {
             if(currentLetterIdx>=word.answer.length){
                 const bonus=200*(currentWordIdx+1);
                 totalScore+=bonus; updateUI();
+                autoSaveHighscore(); // auto-save after snake word completion
                 showLearningReceipt(word);
                 // Add a colored word-marker at current head position
                 wordMarkers.push({ idx: snake.length-1, wordNum: currentWordIdx, color: WORD_COLORS[currentWordIdx % WORD_COLORS.length] });
@@ -1569,8 +1601,7 @@ function snakeDie(reason){
     document.getElementById('goEmoji').textContent='💀';
     document.getElementById('goTitle').textContent='Snake Avslutad!';
     buildSummary('goSummary');
-    highscoreSubmitted=false;
-    const btn=document.getElementById('btnGoSubmit'); btn.disabled=false; btn.textContent='💾 Spara resultat';
+    autoSaveHighscore();
     // Show skip button after 2+ deaths
     const skipWrap = document.getElementById('skipSnakeWrap');
     if (snakeDeathCount >= 2) {
@@ -1604,8 +1635,7 @@ function skipSnakeRound(){
 function showWin(){
     document.getElementById('winScore').textContent=totalScore;
     buildSummary('winSummary');
-    highscoreSubmitted=false;
-    const btn=document.getElementById('btnWinSubmit'); btn.disabled=false; btn.textContent='💾 Spara resultat';
+    autoSaveHighscore(); // auto-save on win
     document.getElementById('winOverlay').classList.remove('hidden');
 }
 
@@ -1636,7 +1666,7 @@ function showLearningReceipt(word) {
     const el = document.createElement('div');
     el.className = 'learn-receipt';
     el.id = 'activeSnakeReceipt';
-    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button><button class="lr-btn-save" onclick="checkpointSave(this)">Säkra din poäng på topplistan</button>`;
+    el.innerHTML = `<div class="lr-word">✅ ${word.answer}</div><div class="lr-clue">${word.clue}</div>${word.context ? `<div class="lr-context">${word.context}</div>` : ''}<button class="lr-btn" onclick="dismissSnakeReceipt()">▶ Fortsätt</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">Din poang sparas automatiskt</div>`;
     document.body.appendChild(el);
 }
 function dismissSnakeReceipt() {
