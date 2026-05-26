@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>EkoSnake v1 🐍 — Korsord + Snake</title>
     <meta name="description" content="EkoSnake v1 — lös korsordet och samla bokstäverna i Snake! Ett ekologi-ordspel.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
@@ -770,7 +773,7 @@ async function autoSaveHighscore() {
             text = text.replace(/"/g, '');
             scores = text.split('|').map(s => { const parts=s.split('_'); return {name:parts[0], score:parseInt(parts[1])||0, words:parseInt(parts[2])||0, cls:parts[3]||''}; }).filter(s=>s.name);
         }
-        const safeName = playerName.replace(/[_:|]/g,'').trim()||'Spelare';
+        const safeName = playerName.replace(/[_:|]/g,'').replace(/\s+/g,'-').trim()||'Spelare';
         const safeClass = (playerClass||'').replace(/[_:|]/g,'').trim();
         const existingIdx = scores.findIndex(s => s.name.trim().toLowerCase() === safeName.toLowerCase());
         if (existingIdx !== -1) {
