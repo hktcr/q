@@ -758,7 +758,15 @@ async function submitHighscore() {
             scores = text.split('|').map(s => { const [n,sc,w]=s.split('_'); return {name:n, score:parseInt(sc)||0, words:parseInt(w)||0}; }).filter(s=>s.name);
         }
         const safeName = playerName.replace(/[_:|]/g,'').trim()||'Spelare';
-        scores.push({ name: safeName, score: totalScore, words: solvedWords.length });
+        const existingIdx = scores.findIndex(s => s.name.trim().toLowerCase() === safeName.toLowerCase());
+        if (existingIdx !== -1) {
+            if (totalScore > scores[existingIdx].score) {
+                scores[existingIdx].score = totalScore;
+                scores[existingIdx].words = solvedWords.length;
+            }
+        } else {
+            scores.push({ name: safeName, score: totalScore, words: solvedWords.length });
+        }
         scores.sort((a,b)=>b.score-a.score);
         scores = scores.slice(0, 25);
         const encoded = encodeURIComponent(scores.map(s=>`${s.name}_${s.score}_${s.words}`).join('|'));
