@@ -152,8 +152,10 @@
             cursor: pointer;
             font-family: inherit;
             font-size: 0.75rem;
+            transition: all 0.15s ease;
         }
         .interval-ctrl button:hover { background: rgba(255,255,255,0.12); }
+        .interval-ctrl button.active { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.5); color: #6ee7b7; }
     </style>
 </head>
 <body>
@@ -175,14 +177,7 @@
     <div id="tableContent"><p class="empty">Laddar...</p></div>
 </div>
 
-<div class="interval-ctrl">
-    <span>Uppdatering:</span>
-    <button onclick="setPollRate(3)">3s</button>
-    <button onclick="setPollRate(5)">5s</button>
-    <button onclick="setPollRate(10)">10s</button>
-    <button onclick="setPollRate(30)">30s</button>
-    <button onclick="togglePause()" id="pauseBtn">⏸ Pausa</button>
-</div>
+<div class="interval-ctrl" id="intervalBar"></div>
 
 <script>
 const APP_KEY = "HakanEkoSnake_Ekologi2026_v1";
@@ -288,12 +283,22 @@ function updateStatus(ok) {
 }
 
 function setFilter(cls) { filter = cls; renderFilters(); renderTable(false); }
-function setPollRate(s) { pollMs = s * 1000; restartTimer(); }
+function setPollRate(s) { pollMs = s * 1000; restartTimer(); renderIntervalBar(); }
+function renderIntervalBar() {
+    const rates = [3,5,10,30];
+    let html = '<span>Uppdatering:</span>';
+    rates.forEach(s => {
+        const a = (!paused && pollMs === s*1000) ? ' active' : '';
+        html += `<button class="${a}" onclick="setPollRate(${s})">${s}s</button>`;
+    });
+    html += `<button onclick="togglePause()" id="pauseBtn">${paused ? '▶ Fortsätt' : '⏸ Pausa'}</button>`;
+    document.getElementById('intervalBar').innerHTML = html;
+}
 function togglePause() {
     paused = !paused;
-    document.getElementById('pauseBtn').textContent = paused ? '▶ Fortsätt' : '⏸ Pausa';
     if (paused) { clearInterval(timer); updateStatus(true); }
     else { poll(); restartTimer(); }
+    renderIntervalBar();
 }
 function restartTimer() {
     clearInterval(timer);
@@ -303,6 +308,7 @@ function restartTimer() {
 function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
 // Start
+renderIntervalBar();
 poll();
 timer = window.setInterval(poll, pollMs);
 </script>
