@@ -751,63 +751,70 @@ const ALL_WORDS = [
 ];
 
 // ============================================================
-// HIGHSCORE (Immanuel KV API)
+// HIGHSCORE (Immanuel KV API — two-key split for URL limit)
+// Key HS2: compact scores "Name_Score|Name_Score|..."
+// Key HS2C: class map "Name_Cls|Name_Cls|..."
 // ============================================================
 const APP_KEY = "HakanEkoSnake_Ekologi2026_v1";
 const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
-let _hsSaving = false; // mutex to prevent concurrent saves
-let _lastSavedScore = -1; // track last saved score to avoid unnecessary API calls
+let _hsSaving = false;
+let _lastSavedScore = -1;
+
+async function _kvGet(key) {
+    const r = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${key}?t=${Date.now()}`, {cache:'no-store'});
+    let t = await r.text(); if (!t||t==='0'||t.includes('not found')) return '';
+    return t.replace(/"/g,'');
+}
+async function _kvSet(key, val) {
+    const url = `${BASE_URL}/UpdateValue/${APP_KEY}/${key}/${encodeURIComponent(val)}`;
+    if (url.length > 280) { console.error('HS URL too long:', key, url.length); return false; }
+    const r = await fetch(url, {method:'POST',body:'',cache:'no-store'});
+    const t = await r.text();
+    return !(t.includes('Error')||t.includes('maxUrl')||t.includes('DOCTYPE'));
+}
 
 async function autoSaveHighscore() {
-    if (!playerName || totalScore <= 0) return;
-    if (totalScore <= _lastSavedScore) return; // no improvement, skip
-    if (_hsSaving) return; // already saving
+    if (!playerName || totalScore <= 0 || totalScore <= _lastSavedScore || _hsSaving) return;
     _hsSaving = true;
     try {
-        await new Promise(r => setTimeout(r, Math.random() * 400 + 100));
-        const hsKey = 'HS_EKOSNAKE';
-        const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${hsKey}?t=${Date.now()}`, { cache: 'no-store' });
-        let text = await res.text();
+        await new Promise(r => setTimeout(r, Math.random()*300+100));
+        const raw = await _kvGet('HS2');
         let scores = [];
-        if (text && text !== '0' && !text.includes('not found')) {
-            text = text.replace(/"/g, '');
-            scores = text.split('|').map(s => { const parts=s.split('_'); return {name:parts[0], score:parseInt(parts[1])||0, words:parseInt(parts[2])||0, cls:parts[3]||''}; }).filter(s=>s.name);
-        }
+        if (raw) scores = raw.split('|').map(s=>{const p=s.split('_');return{name:p[0],score:parseInt(p[1])||0}}).filter(s=>s.name);
+        const clsRaw = await _kvGet('HS2C');
+        const clsMap = {};
+        if (clsRaw) clsRaw.split('|').forEach(s=>{const p=s.split('_');if(p[0])clsMap[p[0].toLowerCase()]=p[1]||''});
         const safeName = playerName.replace(/[_:|]/g,'').replace(/\s+/g,'-').trim()||'Spelare';
         const safeClass = (playerClass||'').replace(/[_:|]/g,'').trim();
-        const existingIdx = scores.findIndex(s => s.name.trim().toLowerCase() === safeName.toLowerCase());
-        if (existingIdx !== -1) {
-            if (totalScore > scores[existingIdx].score) {
-                scores[existingIdx].score = totalScore;
-                scores[existingIdx].words = solvedWords.length;
-            }
-            if (safeClass) scores[existingIdx].cls = safeClass;
-        } else {
-            scores.push({ name: safeName, score: totalScore, words: solvedWords.length, cls: safeClass });
-        }
+        const idx = scores.findIndex(s=>s.name.toLowerCase()===safeName.toLowerCase());
+        if (idx!==-1) { if(totalScore>scores[idx].score) scores[idx].score=totalScore; }
+        else scores.push({name:safeName,score:totalScore});
+        if (safeClass) clsMap[safeName.toLowerCase()] = safeClass;
         scores.sort((a,b)=>b.score-a.score);
-        scores = scores.slice(0, 30);
-        const encoded = encodeURIComponent(scores.map(s=>`${s.name}_${s.score}_${s.words}_${s.cls||''}`).join('|'));
-        await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/${hsKey}/${encoded}`, { method:'POST', body:'', cache:'no-store' });
-        _lastSavedScore = totalScore;
+        scores = scores.slice(0,15);
+        const ok1 = await _kvSet('HS2', scores.map(s=>`${s.name}_${s.score}`).join('|'));
+        const clsEntries = scores.filter(s=>clsMap[s.name.toLowerCase()]).map(s=>`${s.name}_${clsMap[s.name.toLowerCase()]}`).join('|');
+        const ok2 = clsEntries ? await _kvSet('HS2C', clsEntries) : true;
+        if (ok1&&ok2) _lastSavedScore=totalScore;
+        else console.warn('HS partial fail', ok1, ok2);
     } catch(e) { console.warn('HS autosave fail:', e); }
     _hsSaving = false;
 }
-// Legacy wrappers (kept for any remaining button references)
 async function submitHighscore() { await autoSaveHighscore(); }
-async function submitHighscoreBtn(btn) { if(btn){btn.disabled=true;btn.textContent='Sparar...'} await autoSaveHighscore(); if(btn)btn.textContent='Sparat!'; }
 
 async function getHighscores() {
     try {
-        const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/HS_EKOSNAKE?t=${Date.now()}`, { cache:'no-store' });
-        let text = await res.text();
-        if (!text || text==='0' || text.includes('not found')) return [];
-        text = text.replace(/"/g,'');
-        return text.split('|').map(s=>{const parts=s.split('_');return{name:parts[0],score:parseInt(parts[1])||0,words:parseInt(parts[2])||0,cls:parts[3]||''}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
+        const raw = await _kvGet('HS2');
+        if (!raw) return [];
+        const clsRaw = await _kvGet('HS2C');
+        const clsMap = {};
+        if (clsRaw) clsRaw.split('|').forEach(s=>{const p=s.split('_');if(p[0])clsMap[p[0].toLowerCase()]=p[1]||''});
+        return raw.split('|').map(s=>{const p=s.split('_');return{name:p[0],score:parseInt(p[1])||0,cls:clsMap[p[0].toLowerCase()]||''}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
     } catch(e) { return []; }
 }
-let _hsCache = []; // cached scores for filtering
-let _hsFilter = ''; // '' = alla
+
+let _hsCache = [];
+let _hsFilter = '';
 const CLASS_NAMES = {A:'BJKA1-25',D:'BJKD1-25',E:'BJKE1-25',X:'Annan'};
 
 async function showHighscores() {
@@ -817,41 +824,31 @@ async function showHighscores() {
     _hsFilter = '';
     renderHsTable();
 }
-function filterHs(cls) {
-    _hsFilter = cls;
-    renderHsTable();
-}
+function filterHs(cls) { _hsFilter = cls; renderHsTable(); }
 function renderHsTable() {
     const wrap = document.getElementById('hsTableWrap');
     if (!_hsCache.length) { wrap.innerHTML='<p style="color:var(--text-muted)">Inga resultat ännu. Bli den första! 🏆</p>'; return; }
-    // Filter tabs
     const filters = [{code:'',label:'Alla'},{code:'A',label:'A'},{code:'D',label:'D'},{code:'E',label:'E'}];
     let tabs = '<div style="display:flex;gap:0.35rem;margin-bottom:0.7rem;flex-wrap:wrap;justify-content:center;">';
     filters.forEach(f => {
-        const active = _hsFilter === f.code;
-        const bg = active ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.06)';
-        const border = active ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.12)';
-        const color = active ? '#6ee7b7' : 'rgba(255,255,255,0.7)';
-        tabs += `<button onclick="filterHs('${f.code}')" style="background:${bg};border:1px solid ${border};color:${color};padding:0.3rem 0.7rem;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s ease;">${f.label}</button>`;
+        const a = _hsFilter===f.code;
+        tabs += `<button onclick="filterHs('${f.code}')" style="background:${a?'rgba(16,185,129,0.25)':'rgba(255,255,255,0.06)'};border:1px solid ${a?'rgba(16,185,129,0.5)':'rgba(255,255,255,0.12)'};color:${a?'#6ee7b7':'rgba(255,255,255,0.7)'};padding:0.3rem 0.7rem;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">${f.label}</button>`;
     });
     tabs += '</div>';
-    // Filter scores
-    const filtered = _hsFilter ? _hsCache.filter(s => s.cls === _hsFilter) : _hsCache;
-    if (!filtered.length) {
-        wrap.innerHTML = tabs + '<p style="color:var(--text-muted);font-size:0.9rem;">Inga resultat för denna klass ännu.</p>';
-        return;
-    }
-    let html = tabs + `<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Klass</th><th>Poäng</th><th>Ord</th></tr></thead><tbody>`;
-    filtered.slice(0,25).forEach((s,i) => {
+    const filtered = _hsFilter ? _hsCache.filter(s=>s.cls===_hsFilter) : _hsCache;
+    if (!filtered.length) { wrap.innerHTML = tabs+'<p style="color:var(--text-muted);font-size:0.9rem;">Inga resultat för denna klass ännu.</p>'; return; }
+    let html = tabs + '<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Klass</th><th>Poäng</th></tr></thead><tbody>';
+    filtered.slice(0,20).forEach((s,i) => {
         const rc = i===0?'gold':i===1?'silver':i===2?'bronze':'';
         const ri = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-        const safeName = playerName.replace(/[_:|]/g,'').trim()||'';
-        const me = s.name.trim().toLowerCase()===safeName.toLowerCase()?'hs-you':'';
-        const clsDisplay = CLASS_NAMES[s.cls] || s.cls || '';
-        html += `<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td style="font-size:0.75rem;color:var(--text-muted);">${escHtml(clsDisplay)}</td><td class="hs-score">${s.score}</td><td>${s.words}</td></tr>`;
+        const safeName = playerName.replace(/[_:|]/g,'').replace(/\s+/g,'-').trim()||'';
+        const me = s.name.toLowerCase()===safeName.toLowerCase()?'hs-you':'';
+        const cd = CLASS_NAMES[s.cls]||s.cls||'';
+        html += `<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td style="font-size:0.75rem;color:var(--text-muted);">${escHtml(cd)}</td><td class="hs-score">${s.score}</td></tr>`;
     });
     wrap.innerHTML = html + '</tbody></table>';
 }
+
 function escHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
 function closeOverlay(){document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'))}
 
