@@ -751,11 +751,11 @@ const ALL_WORDS = [
 ];
 
 // ============================================================
-// HIGHSCORE (Immanuel KV API — two-key split for URL limit)
-// Key HS2: compact scores "Name_Score|Name_Score|..."
-// Key HS2C: class map "Name_Cls|Name_Cls|..."
+// HIGHSCORE (Immanuel KV API — per-player keys)
+// HKES1/{name} = "score_class"  (one key per player)
+// HKES1/IDX   = "name1|name2|..." (index of all players)
 // ============================================================
-const APP_KEY = "HakanEkoSnake_Ekologi2026_v1";
+const APP_KEY = "HKES1";
 const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
 let _hsSaving = false;
 let _lastSavedScore = -1;
@@ -777,26 +777,20 @@ async function autoSaveHighscore() {
     if (!playerName || totalScore <= 0 || totalScore <= _lastSavedScore || _hsSaving) return;
     _hsSaving = true;
     try {
-        await new Promise(r => setTimeout(r, Math.random()*300+100));
-        const raw = await _kvGet('HS2');
-        let scores = [];
-        if (raw) scores = raw.split('|').map(s=>{const p=s.split('_');return{name:p[0],score:parseInt(p[1])||0}}).filter(s=>s.name);
-        const clsRaw = await _kvGet('HS2C');
-        const clsMap = {};
-        if (clsRaw) clsRaw.split('|').forEach(s=>{const p=s.split('_');if(p[0])clsMap[p[0].toLowerCase()]=p[1]||''});
+        await new Promise(r => setTimeout(r, Math.random()*200+50));
         const safeName = playerName.replace(/[_:|]/g,'').replace(/\s+/g,'-').trim()||'Spelare';
         const safeClass = (playerClass||'').replace(/[_:|]/g,'').trim();
-        const idx = scores.findIndex(s=>s.name.toLowerCase()===safeName.toLowerCase());
-        if (idx!==-1) { if(totalScore>scores[idx].score) scores[idx].score=totalScore; }
-        else scores.push({name:safeName,score:totalScore});
-        if (safeClass) clsMap[safeName.toLowerCase()] = safeClass;
-        scores.sort((a,b)=>b.score-a.score);
-        scores = scores.slice(0,15);
-        const ok1 = await _kvSet('HS2', scores.map(s=>`${s.name}_${s.score}`).join('|'));
-        const clsEntries = scores.filter(s=>clsMap[s.name.toLowerCase()]).map(s=>`${s.name}_${clsMap[s.name.toLowerCase()]}`).join('|');
-        const ok2 = clsEntries ? await _kvSet('HS2C', clsEntries) : true;
-        if (ok1&&ok2) _lastSavedScore=totalScore;
-        else console.warn('HS partial fail', ok1, ok2);
+        // Save player score (one key per player — never hits URL limit)
+        const ok1 = await _kvSet(safeName, `${totalScore}_${safeClass}`);
+        if (!ok1) { _hsSaving = false; return; }
+        // Update index — add name if not already listed
+        const idx = await _kvGet('IDX');
+        const names = idx ? idx.split('|') : [];
+        if (!names.find(n => n.toLowerCase() === safeName.toLowerCase())) {
+            names.push(safeName);
+            await _kvSet('IDX', names.join('|'));
+        }
+        _lastSavedScore = totalScore;
     } catch(e) { console.warn('HS autosave fail:', e); }
     _hsSaving = false;
 }
@@ -804,12 +798,16 @@ async function submitHighscore() { await autoSaveHighscore(); }
 
 async function getHighscores() {
     try {
-        const raw = await _kvGet('HS2');
-        if (!raw) return [];
-        const clsRaw = await _kvGet('HS2C');
-        const clsMap = {};
-        if (clsRaw) clsRaw.split('|').forEach(s=>{const p=s.split('_');if(p[0])clsMap[p[0].toLowerCase()]=p[1]||''});
-        return raw.split('|').map(s=>{const p=s.split('_');return{name:p[0],score:parseInt(p[1])||0,cls:clsMap[p[0].toLowerCase()]||''}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
+        const idx = await _kvGet('IDX');
+        if (!idx) return [];
+        const names = idx.split('|').filter(n=>n);
+        const results = await Promise.all(names.map(async n => {
+            const val = await _kvGet(n);
+            if (!val) return null;
+            const p = val.split('_');
+            return { name: n, score: parseInt(p[0])||0, cls: p[1]||'' };
+        }));
+        return results.filter(r=>r).sort((a,b)=>b.score-a.score);
     } catch(e) { return []; }
 }
 
