@@ -182,6 +182,7 @@
 <script>
 const APP_KEY = "HakanEkoSnake_Ekologi2026_v1";
 const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+const APP_KEY_NEW = "HKES1";
 const CLASS_NAMES = {A:'BJKA1-25', D:'BJKD1-25', E:'BJKE1-25', X:'Annan'};
 
 let pollMs = 5000;
@@ -190,10 +191,9 @@ let timer = null;
 let filter = '';
 let prevData = '';
 let scores = [];
-let clsMap = {};
 
-async function kvGet(key) {
-    const r = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/${key}?t=${Date.now()}`, {cache:'no-store'});
+async function kvGet(app, key) {
+    const r = await fetch(`${BASE_URL}/GetValue/${app}/${key}?t=${Date.now()}`, {cache:'no-store'});
     let t = await r.text();
     if (!t || t==='0' || t.includes('not found')) return '';
     return t.replace(/"/g,'');
@@ -201,20 +201,41 @@ async function kvGet(key) {
 
 async function poll() {
     try {
-        // Read NEW keys (HS2 + HS2C)
-        const raw = await kvGet('HS2');
-        const clsRaw = await kvGet('HS2C');
-        clsMap = {};
-        if (clsRaw) clsRaw.split('|').forEach(s => { const p=s.split('_'); if(p[0]) clsMap[p[0].toLowerCase()]=p[1]||''; });
-
         const merged = {};
-        // Parse new format: Name_Score
+
+        // 1. Read per-player keys (HKES1) — primary source
+        const idx = await kvGet(APP_KEY_NEW, 'IDX');
+        if (idx) {
+            const names = idx.split('|').filter(n=>n);
+            const results = await Promise.all(names.map(async n => {
+                const val = await kvGet(APP_KEY_NEW, n);
+                if (!val) return null;
+                const p = val.split('_');
+                return { name: n, score: parseInt(p[0])||0, cls: p[1]||'' };
+            }));
+            results.filter(r=>r).forEach(r => {
+                merged[r.name.toLowerCase()] = r;
+            });
+        }
+
+        // 2. Fallback: old HS2 key
+        const raw = await kvGet(APP_KEY, 'HS2');
+        const clsRaw = await kvGet(APP_KEY, 'HS2C');
+        const clsMap = {};
+        if (clsRaw) clsRaw.split('|').forEach(s => { const p=s.split('_'); if(p[0]) clsMap[p[0].toLowerCase()]=p[1]||''; });
         if (raw) raw.split('|').forEach(s => {
             const p = s.split('_');
-            if (p[0]) merged[p[0].toLowerCase()] = { name:p[0], score:parseInt(p[1])||0, cls:clsMap[p[0].toLowerCase()]||'' };
+            if (!p[0]) return;
+            const key = p[0].toLowerCase();
+            const sc = parseInt(p[1])||0;
+            const cls = clsMap[key]||'';
+            if (!merged[key] || sc > merged[key].score) {
+                merged[key] = { name:p[0], score:sc, cls: cls || (merged[key]?.cls||'') };
+            }
         });
-        // Parse OLD key (Name_Score_Words_Class) — fallback for cached clients
-        const oldRaw = await kvGet('HS_EKOSNAKE');
+
+        // 3. Fallback: legacy HS_EKOSNAKE key
+        const oldRaw = await kvGet(APP_KEY, 'HS_EKOSNAKE');
         if (oldRaw) oldRaw.split('|').forEach(s => {
             const p = s.split('_');
             if (!p[0]) return;
@@ -224,7 +245,6 @@ async function poll() {
             if (!merged[key] || sc > merged[key].score) {
                 merged[key] = { name:p[0], score:sc, cls: cls || (merged[key]?.cls||'') };
             }
-            if (cls && merged[key]) merged[key].cls = merged[key].cls || cls;
         });
 
         const newData = JSON.stringify(merged);
