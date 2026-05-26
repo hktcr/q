@@ -177,10 +177,10 @@
 
 <div class="interval-ctrl">
     <span>Uppdatering:</span>
-    <button onclick="setInterval(3)">3s</button>
-    <button onclick="setInterval(5)">5s</button>
-    <button onclick="setInterval(10)">10s</button>
-    <button onclick="setInterval(30)">30s</button>
+    <button onclick="setPollRate(3)">3s</button>
+    <button onclick="setPollRate(5)">5s</button>
+    <button onclick="setPollRate(10)">10s</button>
+    <button onclick="setPollRate(30)">30s</button>
     <button onclick="togglePause()" id="pauseBtn">⏸ Pausa</button>
 </div>
 
@@ -288,15 +288,15 @@ function updateStatus(ok) {
 }
 
 function setFilter(cls) { filter = cls; renderFilters(); renderTable(false); }
-function setInterval(s) { pollMs = s * 1000; restartTimer(); }
+function setPollRate(s) { pollMs = s * 1000; restartTimer(); }
 function togglePause() {
     paused = !paused;
     document.getElementById('pauseBtn').textContent = paused ? '▶ Fortsätt' : '⏸ Pausa';
-    if (paused) { clearTimeout(timer); updateStatus(true); }
+    if (paused) { clearInterval(timer); updateStatus(true); }
     else { poll(); restartTimer(); }
 }
 function restartTimer() {
-    clearTimeout(timer);
+    clearInterval(timer);
     if (!paused) timer = window.setInterval(poll, pollMs);
 }
 
