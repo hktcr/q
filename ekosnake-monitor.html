@@ -203,11 +203,15 @@ async function poll() {
     try {
         const merged = {};
 
-        // 1. Read per-player keys (HKES1) — primary source
-        const idx = await kvGet(APP_KEY_NEW, 'IDX');
-        if (idx) {
-            const names = idx.split('|').filter(n=>n);
-            const results = await Promise.all(names.map(async n => {
+        // 1. Read per-player keys (HKES1) — sharded index
+        const allNames = [];
+        for (let s = 0; s < 20; s++) {
+            const shard = await kvGet(APP_KEY_NEW, 'IDX' + s);
+            if (!shard) break;
+            allNames.push(...shard.split('|').filter(n => n));
+        }
+        if (allNames.length) {
+            const results = await Promise.all(allNames.map(async n => {
                 const val = await kvGet(APP_KEY_NEW, n);
                 if (!val) return null;
                 const p = val.split('_');

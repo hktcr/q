@@ -751,12 +751,14 @@ const ALL_WORDS = [
 ];
 
 // ============================================================
-// HIGHSCORE (Immanuel KV API — per-player keys)
+// HIGHSCORE (Immanuel KV API — per-player keys, sharded index)
 // HKES1/{name} = "score_class"  (one key per player)
-// HKES1/IDX   = "name1|name2|..." (index of all players)
+// HKES1/IDX0..IDX9 = "n1|n2|..." (sharded index, max 8 per shard)
 // ============================================================
 const APP_KEY = "HKES1";
 const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+const IDX_SHARD_SIZE = 8;
+const IDX_MAX_SHARDS = 20; // 20 shards × 8 = 160 players max
 let _hsSaving = false;
 let _lastSavedScore = -1;
 
@@ -773,6 +775,17 @@ async function _kvSet(key, val) {
     return !(t.includes('Error')||t.includes('maxUrl')||t.includes('DOCTYPE'));
 }
 
+// Read all index shards → flat array of names
+async function _readAllNames() {
+    const allNames = [];
+    for (let s = 0; s < IDX_MAX_SHARDS; s++) {
+        const shard = await _kvGet('IDX' + s);
+        if (!shard) break;
+        allNames.push(...shard.split('|').filter(n => n));
+    }
+    return allNames;
+}
+
 async function autoSaveHighscore() {
     if (!playerName || totalScore <= 0 || totalScore <= _lastSavedScore || _hsSaving) return;
     _hsSaving = true;
@@ -783,12 +796,15 @@ async function autoSaveHighscore() {
         // Save player score (one key per player — never hits URL limit)
         const ok1 = await _kvSet(safeName, `${totalScore}_${safeClass}`);
         if (!ok1) { _hsSaving = false; return; }
-        // Update index — add name if not already listed
-        const idx = await _kvGet('IDX');
-        const names = idx ? idx.split('|') : [];
-        if (!names.find(n => n.toLowerCase() === safeName.toLowerCase())) {
-            names.push(safeName);
-            await _kvSet('IDX', names.join('|'));
+        // Update sharded index — add name if not already listed
+        const allNames = await _readAllNames();
+        if (!allNames.find(n => n.toLowerCase() === safeName.toLowerCase())) {
+            allNames.push(safeName);
+            // Write to the shard that should contain this name
+            const shardIdx = Math.floor((allNames.length - 1) / IDX_SHARD_SIZE);
+            const start = shardIdx * IDX_SHARD_SIZE;
+            const shardNames = allNames.slice(start, start + IDX_SHARD_SIZE);
+            await _kvSet('IDX' + shardIdx, shardNames.join('|'));
         }
         _lastSavedScore = totalScore;
     } catch(e) { console.warn('HS autosave fail:', e); }
@@ -798,10 +814,9 @@ async function submitHighscore() { await autoSaveHighscore(); }
 
 async function getHighscores() {
     try {
-        const idx = await _kvGet('IDX');
-        if (!idx) return [];
-        const names = idx.split('|').filter(n=>n);
-        const results = await Promise.all(names.map(async n => {
+        const allNames = await _readAllNames();
+        if (!allNames.length) return [];
+        const results = await Promise.all(allNames.map(async n => {
             const val = await _kvGet(n);
             if (!val) return null;
             const p = val.split('_');
@@ -1355,7 +1370,7 @@ let gridRows = 15;
 let snakeCanvas, snakeCtx;
 let snake = [];
 let snakeDir = { x:1, y:0 };
-let nextDir = { x:1, y:0 };
+let dirQueue = [];
 let snakeInterval = null;
 let letterItems = [];
 let obstacles = [];
@@ -1425,7 +1440,7 @@ function initSnake() {
     // Reset
     const midX=Math.floor(gridCols/2), midY=Math.floor(gridRows/2);
     snake=[{x:midX,y:midY},{x:midX-1,y:midY},{x:midX-2,y:midY}];
-    snakeDir={x:1,y:0}; nextDir={x:1,y:0};
+    snakeDir={x:1,y:0}; dirQueue=[];
     snakeAlive=true; snakePaused=false;
     letterItems=[]; obstacles=[]; wordMarkers=[]; starItem=null;
     if(starTimeout){clearTimeout(starTimeout);starTimeout=null}
@@ -1539,7 +1554,7 @@ function togglePause() {
 
 function snakeTick() {
     if (!snakeAlive || snakePaused) return;
-    snakeDir={...nextDir};
+    if (dirQueue.length) snakeDir = dirQueue.shift();
     const head={x:snake[0].x+snakeDir.x, y:snake[0].y+snakeDir.y};
 
     // Wall collision
@@ -1804,16 +1819,24 @@ function snakeKeyHandler(e){
     if(e.key==='Escape'){e.preventDefault();togglePause();return}
 
     if(!snakeAlive||snakePaused) return;
-    if(e.key==='ArrowUp'||e.key==='w'||e.key==='W'){if(snakeDir.y!==1)nextDir={x:0,y:-1};e.preventDefault()}
-    if(e.key==='ArrowDown'||e.key==='s'||e.key==='S'){if(snakeDir.y!==-1)nextDir={x:0,y:1};e.preventDefault()}
-    if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){if(snakeDir.x!==1)nextDir={x:-1,y:0};e.preventDefault()}
-    if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){if(snakeDir.x!==-1)nextDir={x:1,y:0};e.preventDefault()}
+    let nd = null;
+    if(e.key==='ArrowUp'||e.key==='w'||e.key==='W') nd={x:0,y:-1};
+    if(e.key==='ArrowDown'||e.key==='s'||e.key==='S') nd={x:0,y:1};
+    if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A') nd={x:-1,y:0};
+    if(e.key==='ArrowRight'||e.key==='d'||e.key==='D') nd={x:1,y:0};
+    if(nd) { _queueDir(nd); e.preventDefault(); }
+}
+function _queueDir(nd) {
+    const last = dirQueue.length ? dirQueue[dirQueue.length-1] : snakeDir;
+    if (nd.x === -last.x && nd.y === -last.y) return; // no 180°
+    if (nd.x === last.x && nd.y === last.y) return;   // no same
+    if (dirQueue.length < 2) dirQueue.push(nd);
 }
 
 function setSnakeDir(dx,dy){
     if(!snakeAlive||snakePaused)return;
-    if(dx!==0&&snakeDir.x!==-dx)nextDir={x:dx,y:0};
-    if(dy!==0&&snakeDir.y!==-dy)nextDir={x:0,y:dy};
+    if(dx!==0) _queueDir({x:dx,y:0});
+    if(dy!==0) _queueDir({x:0,y:dy});
 }
 
 function setupSwipe(){
