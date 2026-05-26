@@ -642,7 +642,7 @@
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;" id="goWords"></p>
         <div id="goSummary" style="text-align:left; margin-bottom:1rem;"></div>
         <div class="btn-group">
-            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Topplista</button>
+            <button class="btn btn-secondary btn-sm" onclick="closeOverlay();showHighscores()">🏆 Topplista</button>
         </div>
         <div class="btn-group" style="margin-top:0.75rem; width:100%;">
             <button class="btn btn-primary" onclick="returnToCrossword()" style="width:100%; font-size:1.1rem; padding:0.8rem;">Tillbaka till korsordet</button>
@@ -659,7 +659,7 @@
         <div style="font-size:2.5rem; font-weight:900; color:var(--gold); margin:0.8rem 0;" id="winScore">0</div>
         <div id="winSummary" style="text-align:left; margin-bottom:1rem;"></div>
         <div class="btn-group">
-            <button class="btn btn-secondary btn-sm" onclick="showHighscores()">🏆 Topplista</button>
+            <button class="btn btn-secondary btn-sm" onclick="closeOverlay();showHighscores()">🏆 Topplista</button>
         </div>
         <div class="btn-group" style="margin-top:0.75rem;">
             <button class="btn btn-primary" onclick="returnToCrossword()">📝 Fortsätt med korsordet</button>
