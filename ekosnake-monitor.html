@@ -201,20 +201,37 @@ async function kvGet(key) {
 
 async function poll() {
     try {
+        // Read NEW keys (HS2 + HS2C)
         const raw = await kvGet('HS2');
         const clsRaw = await kvGet('HS2C');
         clsMap = {};
         if (clsRaw) clsRaw.split('|').forEach(s => { const p=s.split('_'); if(p[0]) clsMap[p[0].toLowerCase()]=p[1]||''; });
 
-        const newData = raw + '||' + clsRaw;
+        const merged = {};
+        // Parse new format: Name_Score
+        if (raw) raw.split('|').forEach(s => {
+            const p = s.split('_');
+            if (p[0]) merged[p[0].toLowerCase()] = { name:p[0], score:parseInt(p[1])||0, cls:clsMap[p[0].toLowerCase()]||'' };
+        });
+        // Parse OLD key (Name_Score_Words_Class) — fallback for cached clients
+        const oldRaw = await kvGet('HS_EKOSNAKE');
+        if (oldRaw) oldRaw.split('|').forEach(s => {
+            const p = s.split('_');
+            if (!p[0]) return;
+            const key = p[0].toLowerCase();
+            const sc = parseInt(p[1])||0;
+            const cls = p[3]||'';
+            if (!merged[key] || sc > merged[key].score) {
+                merged[key] = { name:p[0], score:sc, cls: cls || (merged[key]?.cls||'') };
+            }
+            if (cls && merged[key]) merged[key].cls = merged[key].cls || cls;
+        });
+
+        const newData = JSON.stringify(merged);
         const changed = newData !== prevData;
         prevData = newData;
 
-        if (raw) {
-            scores = raw.split('|').map(s => { const p=s.split('_'); return {name:p[0], score:parseInt(p[1])||0, cls:clsMap[p[0].toLowerCase()]||''}; }).filter(s=>s.name).sort((a,b)=>b.score-a.score);
-        } else {
-            scores = [];
-        }
+        scores = Object.values(merged).sort((a,b) => b.score - a.score);
 
         renderStats();
         renderFilters();
