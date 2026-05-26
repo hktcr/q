@@ -803,23 +803,51 @@ async function getHighscores() {
         return text.split('|').map(s=>{const parts=s.split('_');return{name:parts[0],score:parseInt(parts[1])||0,words:parseInt(parts[2])||0,cls:parts[3]||''}}).filter(s=>s.name).sort((a,b)=>b.score-a.score);
     } catch(e) { return []; }
 }
+let _hsCache = []; // cached scores for filtering
+let _hsFilter = ''; // '' = alla
+const CLASS_NAMES = {A:'BJKA1-25',D:'BJKD1-25',E:'BJKE1-25',X:'Annan'};
+
 async function showHighscores() {
     document.getElementById('hsOverlay').classList.remove('hidden');
     document.getElementById('hsTableWrap').innerHTML='<p style="color:var(--text-muted)">Laddar...</p>';
-    const scores = await getHighscores();
+    _hsCache = await getHighscores();
+    _hsFilter = '';
+    renderHsTable();
+}
+function filterHs(cls) {
+    _hsFilter = cls;
+    renderHsTable();
+}
+function renderHsTable() {
     const wrap = document.getElementById('hsTableWrap');
-    if (!scores.length) { wrap.innerHTML='<p style="color:var(--text-muted)">Inga resultat ännu. Bli den första! 🏆</p>'; return; }
-    let html=`<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Klass</th><th>Poäng</th><th>Ord</th></tr></thead><tbody>`;
-    scores.slice(0,25).forEach((s,i)=>{
-        const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-        const ri=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-        const safeName = playerName.replace(/[_:|]/g,'').trim()||'';
-        const me=s.name.trim().toLowerCase()===safeName.toLowerCase()?'hs-you':'';
-        const CLASS_NAMES = {A:'BJKA1-25',D:'BJKD1-25',E:'BJKE1-25',X:'Annan'};
-        const clsDisplay = CLASS_NAMES[s.cls] || s.cls || '';
-        html+=`<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td style="font-size:0.75rem;color:var(--text-muted);">${escHtml(clsDisplay)}</td><td class="hs-score">${s.score}</td><td>${s.words}</td></tr>`;
+    if (!_hsCache.length) { wrap.innerHTML='<p style="color:var(--text-muted)">Inga resultat ännu. Bli den första! 🏆</p>'; return; }
+    // Filter tabs
+    const filters = [{code:'',label:'Alla'},{code:'A',label:'A'},{code:'D',label:'D'},{code:'E',label:'E'}];
+    let tabs = '<div style="display:flex;gap:0.35rem;margin-bottom:0.7rem;flex-wrap:wrap;justify-content:center;">';
+    filters.forEach(f => {
+        const active = _hsFilter === f.code;
+        const bg = active ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.06)';
+        const border = active ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.12)';
+        const color = active ? '#6ee7b7' : 'rgba(255,255,255,0.7)';
+        tabs += `<button onclick="filterHs('${f.code}')" style="background:${bg};border:1px solid ${border};color:${color};padding:0.3rem 0.7rem;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s ease;">${f.label}</button>`;
     });
-    wrap.innerHTML = html+'</tbody></table>';
+    tabs += '</div>';
+    // Filter scores
+    const filtered = _hsFilter ? _hsCache.filter(s => s.cls === _hsFilter) : _hsCache;
+    if (!filtered.length) {
+        wrap.innerHTML = tabs + '<p style="color:var(--text-muted);font-size:0.9rem;">Inga resultat för denna klass ännu.</p>';
+        return;
+    }
+    let html = tabs + `<table class="hs-table"><thead><tr><th>#</th><th style="text-align:left">Namn</th><th>Klass</th><th>Poäng</th><th>Ord</th></tr></thead><tbody>`;
+    filtered.slice(0,25).forEach((s,i) => {
+        const rc = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+        const ri = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+        const safeName = playerName.replace(/[_:|]/g,'').trim()||'';
+        const me = s.name.trim().toLowerCase()===safeName.toLowerCase()?'hs-you':'';
+        const clsDisplay = CLASS_NAMES[s.cls] || s.cls || '';
+        html += `<tr class="${me}"><td class="hs-rank ${rc}">${ri}</td><td class="hs-name">${escHtml(s.name)}</td><td style="font-size:0.75rem;color:var(--text-muted);">${escHtml(clsDisplay)}</td><td class="hs-score">${s.score}</td><td>${s.words}</td></tr>`;
+    });
+    wrap.innerHTML = html + '</tbody></table>';
 }
 function escHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
 function closeOverlay(){document.querySelectorAll('.overlay').forEach(o=>o.classList.add('hidden'))}
