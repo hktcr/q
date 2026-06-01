@@ -1321,12 +1321,12 @@
         const nameInput = document.getElementById('spNameInput');
         SP.studentName = nameInput ? nameInput.value.trim() : '';
         if (!SP.studentName) SP.studentName = 'Gäst';
-        SP.studentId = generateStudentId();
-        SP.mode = 'live';
-        registerStudent();
-        startLiveSync();
-        // Jump straight to the game
-        startBeeGame(false);
+        SP.studentId = 'teacher'; // act as host for local physics
+        SP.mode = 'teacher';
+        
+        // Hide landing page and jump straight to the demo game
+        document.getElementById('spLanding').style.display = 'none';
+        startBeeGame(true, true);
     }
 
     // ═══════════════════════════════════════════
