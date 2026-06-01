@@ -1421,6 +1421,13 @@
     // ═══════════════════════════════════════════
 
     function toggleAudio() {
+        const isTeacher = !!document.getElementById('spTeacherDashboard');
+        
+        if (SP.mode === 'live' && !isTeacher && audioEl.paused && !SP.teacherIsPlaying) {
+            showFeedback(false, "Väntar på att läraren ska starta uppspelningen. (Vill du lyssna själv? Välj 'Lyssna Solo')");
+            return;
+        }
+
         if (audioEl.paused) {
             // Student manually playing — clear pause flag
             if (SP.mode === 'live') SP.studentPaused = false;
@@ -1429,7 +1436,7 @@
                 playPromise.then(() => {
                     SP.isPlaying = true;
                     updatePlayBtn();
-                    if (SP.mode === 'teacher') broadcastTeacherState();
+                    if (isTeacher) broadcastTeacherState();
                 }).catch(err => {
                     console.warn('Play failed:', err.message);
                     SP.isPlaying = false;
@@ -1454,7 +1461,7 @@
             // Student manually paused — set flag to prevent sync override
             if (SP.mode === 'live') SP.studentPaused = true;
             updatePlayBtn();
-            if (SP.mode === 'teacher') broadcastTeacherState();
+            if (isTeacher) broadcastTeacherState();
         }
     }
 
@@ -2252,6 +2259,8 @@
                 const state = await getTeacherState();
                 if (!state) return;
                 handleOnline();
+                
+                SP.teacherIsPlaying = state.isPlaying;
 
                 // Handle fullscreen message
                 if (state.msgColor && state.msgColor !== 'none' && state.msgText) {
