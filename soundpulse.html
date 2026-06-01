@@ -3028,6 +3028,9 @@
                 if (GAME.deadBees && GAME.deadBees.has(bee.id)) ctx.globalAlpha = 0.3;
                 drawBee(ctx, toX(bee.x), toY(bee.y), beeSize, bee.name, false, bee.heading || 0);
                 ctx.globalAlpha = 1.0;
+            });
+        }
+
         // Draw my bee (with tracked heading)
         const myId = SP.mode === 'teacher' ? 'teacher' : SP.studentId;
         if (GAME.deadBees && GAME.deadBees.has(myId)) ctx.globalAlpha = 0.3;
