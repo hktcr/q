@@ -553,17 +553,33 @@
             max-width: 1100px; margin: 0 auto;
             padding: 1.5rem; min-height: 100vh;
         }
-        .sp-teacher-grid {
+        .sp-teacher-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 3fr 2fr;
+            grid-template-areas:
+                "top top"
+                "main sidebar"
+                "bottom bottom";
             gap: 1.5rem;
         }
+        @media (max-width: 900px) {
+            .sp-teacher-layout {
+                grid-template-columns: 1fr;
+                grid-template-areas: "top" "main" "sidebar" "bottom";
+            }
+        }
+        .sp-panel-top { grid-area: top; display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1.2rem; }
+        .sp-panel-main { grid-area: main; }
+        .sp-panel-sidebar { grid-area: sidebar; }
+        .sp-panel-bottom { grid-area: bottom; display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        
         .sp-panel {
             background: var(--sp-bg-surface);
             backdrop-filter: blur(20px);
             border: 1px solid var(--sp-border);
             border-radius: var(--sp-radius);
             padding: 1.2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         .sp-panel-title {
             font-family: var(--sp-font-display);
@@ -1962,102 +1978,62 @@
                 <div class="sp-header-badge" style="background:rgba(245,158,11,0.15);color:var(--sp-accent-warm);">TEACHER</div>
             </div>
 
-            <div class="sp-teacher-grid">
-                <!-- Audio Panel -->
-                <div class="sp-panel">
-                    <div class="sp-panel-title">Ljudspelare</div>
-                    <div class="sp-player" style="margin-bottom:0;">
-                        <button class="sp-player-btn" id="spTeacherPlayBtn"
-                            onclick="toggleAudio()" role="button" tabindex="0"
-                            aria-label="Spela/Pausa"
-                            ${keyHandler('toggleAudio()')}>
-                            ▶
-                        </button>
-                        <div class="sp-timeline-wrap">
-                            <input type="range" class="sp-timeline" id="spTeacherTimeline" min="0" max="${CONFIG_DATA ? CONFIG_DATA.duration : 1200}" value="0"
-                                oninput="seekAudio(this.value)" aria-label="Tidslinje">
-                            <div class="sp-time-row">
-                                <span id="spTimeNow">0:00</span>
-                                <span id="spTimeDur">${CONFIG_DATA ? formatTime(CONFIG_DATA.duration) : '0:00'}</span>
-                            </div>
+            <div class="sp-teacher-layout">
+                <!-- Top Bar: Audio Player -->
+                <div class="sp-panel sp-panel-top">
+                    <button class="sp-player-btn" id="spTeacherPlayBtn" onclick="toggleAudio()" role="button" tabindex="0" ${keyHandler('toggleAudio()')}>▶</button>
+                    <div class="sp-timeline-wrap" style="flex:1;">
+                        <input type="range" class="sp-timeline" id="spTeacherTimeline" min="0" max="${CONFIG_DATA ? CONFIG_DATA.duration : 1200}" value="0" oninput="seekAudio(this.value)" aria-label="Tidslinje">
+                        <div class="sp-time-row">
+                            <span id="spTimeNow">0:00</span>
+                            <span id="spTimeDur">${CONFIG_DATA ? formatTime(CONFIG_DATA.duration) : '0:00'}</span>
                         </div>
-                        <button class="sp-speed-btn" id="spTeacherSpeedBtn"
-                            onclick="cycleSpeed(event)" role="button" tabindex="0"
-                            aria-label="Hastighet"
-                            ${keyHandler('cycleSpeed(event)')}>
-                            1x
-                        </button>
                     </div>
+                    <button class="sp-speed-btn" id="spTeacherSpeedBtn" onclick="cycleSpeed(event)" role="button" tabindex="0" ${keyHandler('cycleSpeed(event)')}>1x</button>
                 </div>
 
-                <!-- Student Dashboard (K1) -->
-                <div class="sp-panel">
-                    <div class="sp-panel-title">Elevöversikt</div>
-                    <div id="spTeacherDashboard" aria-live="polite">
-                        <div class="sp-dash-header">${t('noStudents')}</div>
-                    </div>
-                    <div style="margin-top:0.8rem;display:flex;gap:0.5rem;">
-                        <button class="sp-btn-sm" onclick="pollStudentResponses()" role="button" tabindex="0"
-                            ${keyHandler('pollStudentResponses()')} aria-label="Uppdatera">
-                            Uppdatera
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Question Controls -->
-                <div class="sp-panel">
-                    <div class="sp-panel-title">Frågor (${totalQ})</div>
+                <!-- Main Left: Questions -->
+                <div class="sp-panel sp-panel-main">
+                    <div class="sp-panel-title">Frågebank (${totalQ})</div>
                     <div class="sp-q-list" id="spTeacherQList">
                         ${CONFIG_DATA ? CONFIG_DATA.questions.map((q, i) => `
-                            <div class="sp-q-list-item" role="button" tabindex="0" id="tq_${i}"
-                                onclick="teacherPushQuestion(${i})"
-                                ${keyHandler(`teacherPushQuestion(${i})`)}>
+                            <div class="sp-q-list-item" role="button" tabindex="0" id="tq_${i}" onclick="teacherPushQuestion(${i})" ${keyHandler(`teacherPushQuestion(${i})`)}>
                                 <span style="font-weight:600;color:var(--sp-accent);width:2rem;">${i + 1}.</span>
-                                <span style="flex:1;font-size:0.78rem;">${q.text.substring(0, 60)}${q.text.length > 60 ? '...' : ''}</span>
-                                <span style="font-size:0.65rem;color:var(--sp-text-muted)">${formatTime(q.triggerTime)}</span>
-                                <span style="font-size:0.65rem;background:var(--sp-bg-surface-light);padding:0.15rem 0.4rem;border-radius:4px;color:var(--sp-accent)">${q.type}</span>
+                                <span style="flex:1;font-size:0.85rem;">${q.text.substring(0, 70)}${q.text.length > 70 ? '...' : ''}</span>
+                                <span style="font-size:0.7rem;color:var(--sp-text-muted)">${formatTime(q.triggerTime)}</span>
+                                <span style="font-size:0.7rem;background:var(--sp-bg-surface-light);padding:0.2rem 0.5rem;border-radius:4px;color:var(--sp-accent)">${q.type}</span>
                             </div>
                         `).join('') : ''}
                     </div>
                 </div>
 
-                <!-- Message Panel -->
-                <div class="sp-panel">
-                    <div class="sp-panel-title">Meddelande till elever</div>
-                    <input type="text" class="sp-msg-input" id="spTeacherMsgInput"
-                        placeholder="Skriv ett meddelande..."
-                        aria-label="Meddelande till elever"
-                        onkeydown="if(event.key==='Enter'){event.preventDefault();sendTeacherMsg();}">
-                    <div class="sp-msg-btns">
-                        <button class="sp-btn-sm" onclick="sendTeacherMsg()" role="button" tabindex="0"
-                            ${keyHandler('sendTeacherMsg()')} aria-label="Skicka meddelande"
-                            style="background:var(--sp-accent-soft);color:var(--sp-accent);">
-                            ${t('sendMsg')}
-                        </button>
-                        <button class="sp-btn-sm" onclick="clearTeacherMsg()" role="button" tabindex="0"
-                            ${keyHandler('clearTeacherMsg()')} aria-label="Rensa meddelande">
-                            ${t('clearMsg')}
-                        </button>
+                <!-- Sidebar Right: Student Dashboard -->
+                <div class="sp-panel sp-panel-sidebar">
+                    <div class="sp-panel-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <span>Elevöversikt</span>
+                        <button class="sp-btn-sm" onclick="pollStudentResponses()" role="button" tabindex="0" style="padding:0.2rem 0.5rem;font-size:0.7rem;" ${keyHandler('pollStudentResponses()')}>Uppdatera</button>
                     </div>
+                    <div id="spTeacherDashboard" aria-live="polite">
+                        <div class="sp-dash-header">${t('noStudents')}</div>
+                    </div>
+                </div>
 
-                    <div style="margin-top:1.5rem;border-top:1px solid var(--sp-border);padding-top:1rem;">
-                        <div class="sp-panel-title" style="font-size:0.75rem;">Sessionsverktyg</div>
-                        <button class="sp-copy-btn" id="spCopyBtn" onclick="copyStudentLink()" role="button" tabindex="0"
-                            ${keyHandler('copyStudentLink()')} aria-label="${t('copyLink')}">
-                            ${t('copyLink')}
+                <!-- Bottom: Session Tools & Messaging -->
+                <div class="sp-panel sp-panel-bottom">
+                    <div style="display:flex; gap: 0.5rem; align-items: center; flex: 1; min-width:300px;">
+                        <input type="text" class="sp-msg-input" id="spTeacherMsgInput" placeholder="Skriv ett meddelande till klassen..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendTeacherMsg();}" aria-label="Meddelande">
+                        <button class="sp-btn-sm" onclick="sendTeacherMsg()" role="button" tabindex="0" style="background:var(--sp-accent-soft);color:var(--sp-accent);white-space:nowrap;" ${keyHandler('sendTeacherMsg()')}>Skicka</button>
+                        <button class="sp-btn-sm" onclick="clearTeacherMsg()" role="button" tabindex="0" style="white-space:nowrap;" ${keyHandler('clearTeacherMsg()')}>Rensa</button>
+                    </div>
+                    <div style="display:flex; gap: 0.5rem; flex-wrap:wrap; justify-content:flex-end;">
+                        <button class="sp-copy-btn" id="spCopyBtn" onclick="copyStudentLink()" role="button" tabindex="0" style="margin-bottom:0;" ${keyHandler('copyStudentLink()')}>${t('copyLink')}</button>
+                        <button class="sp-btn-sm" onclick="startBeeGame(true, false)" role="button" tabindex="0" style="background:var(--sp-bg-glass);color:#fff;border:1px solid var(--sp-border);" ${keyHandler('startBeeGame(true, false)')}>
+                            Bispel (Endast du)
                         </button>
-                        <div style="margin-top:0.8rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
-                            <button class="sp-btn-sm" onclick="resetSession()" role="button" tabindex="0"
-                                ${keyHandler('resetSession()')} aria-label="${t('resetBtn')}"
-                                style="color:var(--sp-incorrect);">
-                                ${t('resetBtn')}
-                            </button>
-                            <button class="sp-btn-sm" onclick="startBeeGame(true)" role="button" tabindex="0"
-                                ${keyHandler('startBeeGame(true)')} aria-label="Starta bi-spelet"
-                                style="background:rgba(245,166,35,0.15);color:#f5a623;border:1px solid rgba(245,166,35,0.3);">
-                                Starta Värmebollsförsvaret
-                            </button>
-                        </div>
+                        <button class="sp-btn-sm" onclick="startBeeGame(true, true)" role="button" tabindex="0" style="background:rgba(245,166,35,0.15);color:#f5a623;border:1px solid rgba(245,166,35,0.3);font-weight:600;" ${keyHandler('startBeeGame(true, true)')}>
+                            ▶ Bispel (DEMO-läge)
+                        </button>
+                        <button class="sp-btn-sm" onclick="resetSession()" role="button" tabindex="0" style="color:var(--sp-incorrect);" ${keyHandler('resetSession()')}>${t('resetBtn')}</button>
                     </div>
                 </div>
             </div>
