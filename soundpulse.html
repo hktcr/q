@@ -1324,8 +1324,8 @@
         SP.studentId = 'teacher'; // act as host for local physics
         SP.mode = 'teacher';
         
-        // Hide landing page and jump straight to the demo game
-        document.getElementById('spLanding').style.display = 'none';
+        // Clear login screen and jump straight to the demo game
+        root.innerHTML = '';
         startBeeGame(true, true);
     }
 
