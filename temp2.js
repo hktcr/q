@@ -1,0 +1,876 @@
+    const APP_KEY = "HakanGlosPuls_Ekologi2026_v1"; // Unik synknyckel
+    const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
+    let currentSessionId = Date.now().toString();
+
+    // --- TWO-WAY STATS API ---
+    async function sendStat(type) {
+        if(isTeacher) return;
+        try {
+            await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${currentQ}_${type}/up`);
+        } catch(e) { console.warn("Stat sync failed", e); } // Graceful degradation
+    }
+
+const questions = [
+        { 
+            num: 1, 
+            type: "multiple-choice", 
+            text: "Ordet ekologi kommer från grekiskans \"Oikos\" (hus) och \"logos\" (läran om). Ekologi betyder alltså läran om <span class='blank'></span>.", 
+            options: [{letter: "A", text: "Djuren"}, {letter: "B", text: "Huset (Jorden)"}, {letter: "C", text: "Växterna"}, {letter: "D", text: "Rymden"}],
+            correct: "B", 
+            feedbackOk: "Exakt! Jorden är vårt gemensamma hus. Läs mer under rubriken 'Vad är ekologi?' i häftet.", 
+            feedbackNok: "Fel svar. Rätt svar är Huset (Jorden). Tänk på ordet 'Oikos'. Vi bor alla på Jorden, som är vårt gemensamma hus. Kolla under rubriken 'Vad är ekologi?' i häftet." 
+        },
+        { 
+            num: 2, 
+            type: "categorize", 
+            text: "Sortera faktorerna i rätt ekologisk hink!", 
+            categories: ["Abiotisk (Icke-levande)", "Biotisk (Levande)"], 
+            items: [
+                {word: "Solljus", cat: 0},
+                {word: "Temperatur", cat: 0},
+                {word: "Rovdjur", cat: 1},
+                {word: "Bakterier", cat: 1},
+                {word: "Vind", cat: 0}
+            ], 
+            feedbackOk: "Klockrent! Abiotisk betyder icke-levande (solljus, vind, temp) medan biotisk är allt levande (djur, bakterier). Läs mer under 'Biotiska och abiotiska faktorer'.", 
+            feedbackNok: "Något hamnade fel. Rätt är att solljus, temperatur och vind är Abiotiska (icke-levande), medan rovdjur och bakterier är Biotiska (levande). Läs mer under 'Biotiska och abiotiska faktorer' i häftet." 
+        },
+        { 
+            num: 3, 
+            type: "match", 
+            text: "Koppla ihop rätt nivå i ekosystemet!", 
+            pairs: [
+                {left: "Biotop", right: "Själva naturtypen (t.ex. en stubbe eller granskog)"}, 
+                {left: "Population", right: "Alla individer av SAMMA art i ett område"}, 
+                {left: "Samhälle", right: "Alla OLIKA arter som lever tillsammans"}
+            ], 
+            feedbackOk: "Snyggt! Biotop är naturtypen, en population är alla av en art, och samhället är alla arter tillsammans. Läs mer under 'Ekosystemets nivåer'.", 
+            feedbackNok: "Någon koppling blev fel. Rätt är: Biotop = naturtypen, Population = en specifik art, Samhälle = alla olika arter ihop. Läs mer under 'Ekosystemets nivåer' i häftet." 
+        },
+        { 
+            num: 4, 
+            type: "multiple-choice", 
+            text: "Vad är skillnaden mellan en näringskedja och en näringsväv?", 
+            options: [
+                {letter: "A", text: "En näringskedja har flera toppkonsumenter, en väv har bara en."}, 
+                {letter: "B", text: "En näringsväv är flera korsande näringskedjor som sitter ihop."}, 
+                {letter: "C", text: "Näringsvävar finns bara i havet, näringskedjor på land."}, 
+                {letter: "D", text: "Det är exakt samma sak."}
+            ], 
+            correct: "B", 
+            feedbackOk: "Helt rätt! I naturen är det sällan raka rör, utan korsande kedjor bildar en väv. Läs mer under 'Näringskedjor och näringsvävar'.", 
+            feedbackNok: "Fel svar. Rätt svar är att en näringsväv är flera korsande näringskedjor. I naturen äter ju djur flera olika saker. Kolla under 'Näringskedjor och näringsvävar' i häftet." 
+        },
+        { 
+            num: 5, 
+            type: "match", 
+            text: "Koppla ihop rätt roll i näringskedjan!", 
+            pairs: [
+                {left: "Producent", right: "Bygger sin egen mat (fotosyntes)"}, 
+                {left: "Konsument", right: "Måste äta andra för att få energi"}, 
+                {left: "Toppkonsument", right: "Saknar naturliga fiender"}
+            ], 
+            feedbackOk: "Helt rätt! Producenter tillverkar, konsumenter äter, och toppkonsumenter saknar fiender. Läs mer under 'Roller i näringskedjan'.", 
+            feedbackNok: "Något blev fel. Rätt är: Producent (tillverkar mat), Konsument (äter andra), Toppkonsument (saknar fiender). Kolla under 'Roller i näringskedjan' i häftet." 
+        },
+        { 
+            num: 6, 
+            type: "multiple-choice", 
+            text: "Utan <span class='blank'></span> (svampar & bakterier) skulle kretsloppet stanna av. De städar upp döda växter och djur så näringen kan användas igen.", 
+            options: [{letter: "A", text: "Toppkonsumenter"}, {letter: "B", text: "Producenter"}, {letter: "C", text: "Nedbrytare"}, {letter: "D", text: "Parasiter"}],
+            correct: "C", 
+            feedbackOk: "Snyggt! Nedbrytarna är naturens återvinningsstation. Mycket viktigt för kretsloppen. Läs mer under 'Nedbrytare'.", 
+            feedbackNok: "Fel svar. Rätt svar är Nedbrytare. De bryter ner dött material (som maskar och svampar). Kolla under 'Nedbrytare' i häftet." 
+        },
+        { 
+            num: 7, 
+            type: "categorize", 
+            text: "Kategorisera vilket typ av samspel (symbios) det är!", 
+            categories: ["Mutualism (+/+)", "Parasitism (+/-)"], 
+            items: [
+                {word: "Mykorrhiza (Svamp+Träd)", cat: 0},
+                {word: "Tarmbakterier i oss", cat: 0},
+                {word: "Fästing på en hund", cat: 1},
+                {word: "Bandmask", cat: 1}
+            ], 
+            feedbackOk: "Korrekt! Mutualism gynnar båda (Mykorrhiza, tarmbakterier), medan parasiter stjäl energi (fästing, bandmask). Repetera under rubriken 'Symbios'.", 
+            feedbackNok: "Något hamnade fel. Mutualism är ömsesidig nytta (t.ex. mykorrhiza, tarmbakterier). Parasitism är när en tar utan att ge (fästing, bandmask). Kolla 'Symbios' i häftet." 
+        },
+        { 
+            num: 8, 
+            type: "multiple-choice", 
+            text: "Vad menas med en arts \"Ekologiska Nisch\"?", 
+            options: [
+                {letter: "A", text: "Platsen där den bygger sitt bo."}, 
+                {letter: "B", text: "Den typ av miljö (biotop) den lever i."}, 
+                {letter: "C", text: "Artens \"yrke\" och specialisering i ekosystemet."}, 
+                {letter: "D", text: "Hur många ungar den får per år."}
+            ], 
+            correct: "C", 
+            feedbackOk: "Rätt! Genom att ha olika yrken (nischer) slipper arterna konkurrera. Läs mer under rubriken 'Ekologisk Nisch' i häftet.", 
+            feedbackNok: "Fel svar. Rätt svar är att det är artens 'yrke'. Exempelvis har talgoxen och blåmesen olika nischer för att inte tävla om maten. Läs under 'Ekologisk Nisch'." 
+        },
+        { 
+            num: 9, 
+            type: "categorize", 
+            text: "Bioackumulation innebär att miljögifter koncentreras i pyramiden. Sortera var de har LÄGST resp. HÖGST koncentration av gift!", 
+            categories: ["Låg gifthalt (Botten)", "Hög gifthalt (Toppen)"], 
+            items: [
+                {word: "Isbjörn / Toppkonsument", cat: 1},
+                {word: "Växtplankton / Producent", cat: 0},
+                {word: "Havsörn", cat: 1},
+                {word: "Gräs", cat: 0}
+            ], 
+            feedbackOk: "Mycket bra! Producenter i botten har lägst gifthalt, och toppkonsumenter (örn, isbjörn) drabbas värst eftersom gifterna samlas. Läs under 'Miljögifter'.", 
+            feedbackNok: "Något hamnade fel. Producenter (gräs, plankton) i botten har låg gifthalt. Toppkonsumenter (isbjörn, örn) får i sig allt gift från bytena och har högst halt. Kolla 'Miljögifter'." 
+        },
+        { 
+            num: 10, 
+            type: "multiple-choice", 
+            text: "När cellandning och fotosyntes jobbar ihop går materiens atomer runt i ett evigt <span class='blank'></span>.", 
+            options: [{letter: "A", text: "Samhälle"}, {letter: "B", text: "Kretslopp"}, {letter: "C", text: "Ekosystem"}, {letter: "D", text: "Biotop"}],
+            correct: "B", 
+            feedbackOk: "Bra! Atomer återvinns om och om igen i ett kretslopp. Naturen kastar inget. Läs under rubriken 'Kretslopp' i häftet.", 
+            feedbackNok: "Fel svar. Rätt svar är Kretslopp. Atomer återvinns och går runt i en evig slinga mellan fotosyntes och cellandning. Läs under rubriken 'Kretslopp'." 
+        },
+        { 
+            num: 11, 
+            type: "match", 
+            text: "Vi dök ju ner i \"Symbios\" (samliv). Koppla rätt begrepp till förklaringen!", 
+            pairs: [
+                {left: "Mutualism (+/+)", right: "Båda arterna vinner på det (t.ex. lav = alg + svamp)"}, 
+                {left: "Kommensalism (+/0)", right: "Ena vinner, den andra bryr sig inte (t.ex. havstulpan på val)"}, 
+                {left: "Parasitism (+/-)", right: "Ena vinner, den andra skadas (t.ex. fästing på hund)"}
+            ], 
+            feedbackOk: "Grymt! Mutualism (+/+), Kommensalism (+/0) och Parasitism (+/-). Repetera under rubriken 'Symbios' i häftet.", 
+            feedbackNok: "Något blev fel. Rätt är: Mutualism = båda vinner (+/+), Kommensalism = en vinner och den andra bryr sig inte (+/0), Parasitism = en skadas (+/-). Läs under 'Symbios'." 
+        },
+        { 
+            num: 12, 
+            type: "multiple-choice", 
+            text: "Ni minns NP-uppgiften om Vargen: Vargarna försvinner → Hjortarna ökar → Skogen betas sönder. Vad kallar biologer en sådan kedjereaktion?", 
+            options: [
+                {letter: "A", text: "En kaskadeffekt"}, 
+                {letter: "B", text: "En bioackumulation"}, 
+                {letter: "C", text: "En parasitism"}, 
+                {letter: "D", text: "En ekologisk nisch"}
+            ], 
+            correct: "A", 
+            feedbackOk: "Exakt! Förändringen på toppen rinner ner genom hela systemet som ett vattenfall. Läs mer under 'Kaskadeffekter'.", 
+            feedbackNok: "Fel svar. Rätt svar är Kaskadeffekt. En förändring i toppen rinner ner genom systemet som ett dominospel. Kolla under rubriken 'Kaskadeffekter'." 
+        },
+        { 
+            num: 13, 
+            type: "multiple-choice", 
+            text: "Varje nytt steg i en näringskedja (t.ex. från producent till konsument) brukar med ett finare ord kallas för en <span class='blank'></span>.", 
+            options: [{letter: "A", text: "Ekologisk nisch"}, {letter: "B", text: "Bioackumulation"}, {letter: "C", text: "Trofinivå"}, {letter: "D", text: "Biotop"}],
+            correct: "C", 
+            feedbackOk: "Snyggt! För varje trofinivå går energi förlorad (10%-regeln). Läs mer under rubriken 'Näringspyramiden'.", 
+            feedbackNok: "Fel svar. Rätt svar är Trofinivå. Ordet handlar om nivån (trappsteget) i näringspyramiden. Du kan läsa om detta under 'Näringspyramiden' i häftet." 
+        },
+        { 
+            num: 14, 
+            type: "categorize", 
+            text: "The Jenga-Crash! Sortera exemplen efter om de har HÖG eller LÅG biologisk mångfald.", 
+            categories: ["Hög Mångfald", "Låg Mångfald"], 
+            items: [
+                {word: "En gammelskog med många biotoper", cat: 0},
+                {word: "Ett stort korallrev", cat: 0},
+                {word: "En veteåker", cat: 1},
+                {word: "En asfalterad skolgård", cat: 1}
+            ], 
+            feedbackOk: "Korrekt! Skogar och korallrev har hög mångfald (som ett brett Jenga-torn). Veteåkrar har låg mångfald. Läs under 'Biologisk Mångfald'.", 
+            feedbackNok: "Något blev fel. Gammelskog och korallrev är fyllda med olika arter = Hög mångfald. Veteåker och asfalt saknar variation = Låg mångfald. Kolla under 'Biologisk Mångfald'." 
+        },
+        { 
+            num: 15, 
+            type: "lucktext", 
+            text: "Den process där växter tillverkar socker och syre med hjälp av solljus, koldioxid och vatten kallas för <span class='blank'></span>.", 
+            correctAnswers: ["fotosyntes", "fotosyntesen", "fotosyntes "],
+            feedbackOk: "Korrekt! Fotosyntesen är grunden för nästan allt liv på Jorden. Repetera processen under rubriken 'Fotosyntes'.", 
+            feedbackNok: "Fel svar. Det rätta svaret är FOTOSYNTES. Detta är processen där växter bygger socker. Läs mer under rubriken 'Fotosyntes'." 
+        },
+        { 
+            num: 16, 
+            type: "lucktext", 
+            text: "Alla individer av en och samma art som lever i ett visst område (t.ex. alla harar i en skog) kallas gemensamt för en <span class='blank'></span>.", 
+            correctAnswers: ["population", "populationen", "popolation"],
+            feedbackOk: "Helt rätt! Population är ordet för alla av SAMMA art i ett område.", 
+            feedbackNok: "Fel svar. Det rätta svaret är POPULATION. Det är biologernas ord för alla individer av samma art. Läs under 'Ekosystemets nivåer' i häftet." 
+        },
+        { 
+            num: 17, 
+            type: "lucktext", 
+            text: "I naturen äter många djur flera olika saker. När flera näringskedjor flätas samman och korsar varandra kallas det för en <span class='blank'></span>.", 
+            correctAnswers: ["näringsväv", "näringsväven", "neringsväv"],
+            feedbackOk: "Snyggt! En näringsväv ger en mycket mer realistisk bild av naturen än en enkel kedja. Titta under 'Näringskedjor och näringsvävar'.", 
+            feedbackNok: "Fel svar. Det rätta svaret är NÄRINGSVÄV. Tänk dig det som ett spindelnät av matvanor där korsande kedjor flätas ihop! Kolla under 'Näringskedjor och näringsvävar'." 
+        },
+        { 
+            num: 18, 
+            type: "lucktext", 
+            text: "De organismer (t.ex. svampar, maskar och bakterier) som lever på döda växter och djur och på så sätt återför näringen till jorden kallas för <span class='blank'></span>.", 
+            correctAnswers: ["nedbrytare", "nedbrytarna", "destruenter"],
+            feedbackOk: "Korrekt! Nedbrytarna är naturens städpatrull. Läs mer under rubriken 'Nedbrytare'.", 
+            feedbackNok: "Fel svar. Det rätta svaret är NEDBRYTARE. Detta är naturens egna städpatrull som äter dött material. Läs mer under rubriken 'Nedbrytare'." 
+        },
+        { 
+            num: 19, 
+            type: "multiple-choice", 
+            text: "Vad menas egentligen med begreppet \"Biologisk mångfald\"?", 
+            options: [
+                {letter: "A", text: "Att det finns extremt många djur av samma art i en och samma skog."}, 
+                {letter: "B", text: "Att naturen är rik på variation, med många olika arter, gener och livsmiljöer."}, 
+                {letter: "C", text: "Att vi människor aktivt planterar många träd för att motverka klimatförändringarna."}, 
+                {letter: "D", text: "Att djuren utvecklas och förändras långsamt under miljoner år."}
+            ],
+            correct: "B", 
+            feedbackOk: "Helt rätt! Mångfalden handlar om variationen av arter och miljöer. Repetera under rubriken 'Biologisk mångfald'.", 
+            feedbackNok: "Fel svar. Rätt svar är att naturen är rik på variation (B). 'Mångfald' betyder just MÅNGA OLIKA typer, inte många av samma typ. Läs under 'Biologisk mångfald'." 
+        },
+        { 
+            num: 20, 
+            type: "match", 
+            text: "Koppla ihop rätt art/begrepp med dess ekologiska roll!", 
+            pairs: [
+                { left: "Spansk skogssnigel", right: "Invasiv art som tränger undan lokala arter" },
+                { left: "Varg", right: "Toppkonsument som reglerar antalet växtätare" },
+                { left: "Daggmask", right: "Viktig nedbrytare som syresätter jorden" },
+                { left: "Bakterie", right: "Mikroskopisk nedbrytare i naturens kretslopp" }
+            ],
+            feedbackOk: "Snyggt jobbat! Bra koll på de olika ekologiska rollerna och Invasiva arter.", 
+            feedbackNok: "Något blev fel. Rätt är: Snigeln = Invasiv art, Varg = Toppkonsument, Daggmask och Bakterie = Nedbrytare. Läs under rubrikerna om roller och invasiva arter." 
+        },
+        { 
+            num: 21, 
+            type: "lucktext", 
+            text: "Den process som gör att jorden hålls varm tack vare en \"filt\" av gaser (t.ex. koldioxid) i atmosfären kallas för <span class='blank'></span>.", 
+            correctAnswers: ["växthuseffekten", "växthuseffekt", "den naturliga växthuseffekten"],
+            feedbackOk: "Precis! Växthuseffekten är naturlig, men vi har gjort den för stark. Läs mer under rubriken 'Växthuseffekten'.", 
+            feedbackNok: "Fel svar. Det rätta svaret är VÄXTHUSEFFEKTEN. Det är 'filten' av gaser som håller värmen kvar. Läs noga under rubriken 'Växthuseffekten' i häftet." 
+        },
+        { 
+            num: 22, 
+            type: "multiple-choice", 
+            text: "Ett ekosystems förmåga att återhämta sig och motstå störningar (t.ex. en skogsbrand, storm eller sjukdomsutbrott) kallas för ekologisk <span class='blank'></span>.", 
+            options: [
+                {letter: "A", text: "Bärkraft"}, 
+                {letter: "B", text: "Nisch"}, 
+                {letter: "C", text: "Resiliens"}, 
+                {letter: "D", text: "Succession"}
+            ],
+            correct: "C", 
+            feedbackOk: "Exakt! Hög mångfald ger hög resiliens, vilket gör att ekosystemet står emot katastrofer bättre.", 
+            feedbackNok: "Fel svar. Rätt ord är Resiliens. Det betyder just motståndskraft och förmåga att återhämta sig. Läs om detta under rubriken 'Biologisk mångfald' i häftet." 
+        }
+    ];
+
+
+    let currentQ = -1; 
+    let highestActivated = -1;
+    let answers = {};
+    let isSyncMode = false;
+    let syncInterval = null;
+    let currentMsgColor = 'none';
+    let currentMsgText = '';
+
+    const card = document.getElementById('card');
+    const progressBar = document.getElementById('progressBar');
+    const stepIndicator = document.getElementById('stepIndicator');
+    const stepCurrent = document.getElementById('stepCurrent');
+    document.getElementById('stepTotal').textContent = questions.length;
+    const msgOverlay = document.getElementById('fullScreenMsg');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isTeacher = urlParams.get('mode') === 'teacher';
+
+    /* --- HEX ENCODING --- */
+    function strToHex(str) { return Array.from(new TextEncoder().encode(str)).map(b => b.toString(16).padStart(2, '0')).join(''); }
+    function hexToStr(hex) {
+        const bytes = new Uint8Array(Math.ceil(hex.length / 2));
+        for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+        return new TextDecoder().decode(bytes);
+    }
+
+    /* --- API --- */
+    async function setGlobalQ(qIndex) {
+        try {
+            const msgHex = currentMsgColor === 'none' ? 'none' : strToHex(currentMsgText);
+            const stateStr = qIndex + "_true_" + currentMsgColor + "_" + msgHex + "_" + currentSessionId;
+            await fetch(`${BASE_URL}/UpdateValue/${APP_KEY}/syncState/${stateStr}`, { method: 'POST', mode: 'cors' });
+        } catch(e) { console.error(e); }
+    }
+
+    let offlineCount = 0;
+    async function getGlobalQ() {
+        try {
+            offlineCount = 0; document.getElementById('offlineBanner').style.display = 'none';
+            const res = await fetch(`${BASE_URL}/GetValue/${APP_KEY}/syncState?t=` + Date.now(), { cache: 'no-store' });
+            const text = await res.text();
+            if(!text || text.includes('not found')) return { q: -1, msgColor: 'none', msgText: '', sessionId: '' };
+            const parts = text.replace(/"/g, '').trim().split('_');
+            let parsedQ = parseInt(parts[0]);
+            let result = { q: isNaN(parsedQ) ? -1 : parsedQ, msgColor: 'none', msgText: '', sessionId: '' };
+            if(parts.length >= 4) {
+                result.msgColor = parts[2];
+                if(parts[3] !== 'none') result.msgText = hexToStr(parts[3]);
+            }
+            if(parts.length >= 5) {
+                result.sessionId = parts[4];
+            }
+            return result;
+        } catch(e) { return { q: -1, msgColor: 'none', msgText: '', sessionId: '' }; }
+    }
+
+    /* --- SYNC MODE --- */
+    function startSyncMode() {
+        isSyncMode = true; currentQ = -1; highestActivated = -1; answers = {};
+        card.innerHTML = `<div class="intro"><div class="badge">Live-Synk Aktiv</div><div class="emoji" style="font-size:4rem; margin:1rem 0;">⏳</div><h1>Låst skärm</h1><p class="sub">Väntar på att Håkan ska pusha ut första frågan...</p></div>`;
+        syncInterval = setInterval(async () => {
+            const state = await getGlobalQ();
+            
+            if (state.sessionId) currentSessionId = state.sessionId;
+            
+            // Handle Messages
+            if (state.msgColor && state.msgColor !== 'none') {
+                msgOverlay.style.display = 'flex';
+                if (state.msgText === 'EPA60') {
+                    if (!window._epaInterval) {
+                        window._epaEndTime = Date.now() + 60000;
+                        window._epaInterval = setInterval(() => {
+                            let left = Math.round((window._epaEndTime - Date.now()) / 1000);
+                            if(left <= 0) { left = 0; clearInterval(window._epaInterval); }
+                            document.getElementById('fullScreenMsgText').innerHTML = `🗣️ Diskutera med grannen!<br><br><span style="font-size:5rem; font-weight:900;">${left}</span><br><span style="font-size:1.5rem;">sekunder kvar</span>`;
+                        }, 1000);
+                        document.getElementById('fullScreenMsgText').innerHTML = `🗣️ Diskutera med grannen!<br><br><span style="font-size:5rem; font-weight:900;">60</span><br><span style="font-size:1.5rem;">sekunder kvar</span>`;
+                    }
+                    msgOverlay.style.background = 'rgba(109, 40, 217, 0.95)'; // Purple
+                } else {
+                    if(window._epaInterval) { clearInterval(window._epaInterval); window._epaInterval = null; }
+                    document.getElementById('fullScreenMsgText').textContent = state.msgText;
+                    msgOverlay.style.background = state.msgColor === 'red' ? '#ef4444' : (state.msgColor === 'blue' ? '#3b82f6' : '#1f2937');
+                }
+            } else { 
+                msgOverlay.style.display = 'none'; 
+                if(window._epaInterval) { clearInterval(window._epaInterval); window._epaInterval = null; }
+            }
+
+            if (state.q === 999) return showResults();
+
+            if (state.q > highestActivated && state.q !== 999) highestActivated = state.q;
+
+            if (state.q !== currentQ && state.q > -1 && state.q !== 999) {
+                currentQ = state.q; showQuestion(currentQ);
+            } else if (state.q === -1 && currentQ !== -1) {
+                currentQ = -1; highestActivated = -1; answers = {};
+                card.innerHTML = `<div class="intro"><div class="emoji" style="font-size:4rem; margin-bottom:1rem;">⏳</div><h2>Väntar...</h2><p class="sub">Lektionen har nollställts.</p></div>`;
+            }
+        }, 2000);
+    }
+
+    function renderIntro() {
+        stepIndicator.style.display = 'none'; progressBar.style.width = '0%';
+        if (isTeacher) return renderTeacherPanel();
+        card.innerHTML = `
+            <div class="intro">
+                <div class="badge">Glosförhör: Självdiagnos</div>
+                <h1>KlassPuls: Ekologi</h1>
+                <p class="sub">En "Tap-to-Select"-avstämning på glosorna från de tre första veckorna.</p>
+                <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+                    <button class="start-btn show" style="width:auto; padding: 1rem 2.5rem;" onclick="startSyncMode()">🔗 Gå med i klassrummet</button>
+                    <button class="retry-btn" style="margin-top:0;" onclick="startSoloMode()">Öva ensam</button>
+                </div>
+            </div>`;
+    }
+
+    function startSoloMode() {
+        isSyncMode = false; currentQ = 0; highestActivated = questions.length - 1; answers = {};
+        showQuestion(0);
+    }
+
+    /* --- SHUFFLE ARRAY HELPER --- */
+    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+    /* --- RENDERING ENGINE --- */
+    let matchState = { left: null, completed: {} };
+    let catState = { placements: {} };
+
+    function showQuestion(idx) {
+        if (!isSyncMode) {
+            stepIndicator.style.display = 'block'; stepCurrent.textContent = idx + 1;
+            progressBar.style.width = ((idx) / questions.length * 100) + '%';
+        } else {
+            stepIndicator.style.display = 'none';
+            progressBar.style.width = '100%';
+        }
+        
+        const q = questions[idx];
+        
+        card.classList.add('exit-left');
+        setTimeout(() => {
+            card.classList.remove('exit-left'); card.classList.add('enter-right');
+            
+            let instructionText = '';
+            if (q.type === 'multiple-choice') instructionText = "👆 Tryck på det svarsalternativ du tror är rätt.";
+            
+            else if (q.type === 'lucktext') instructionText = "⌨️ Skriv in det ord som saknas i luckan och tryck på Svara.";
+            else if (q.type === 'match') instructionText = "👆 Tryck på ett begrepp och därefter på rätt förklaring för att koppla ihop dem.";
+            else if (q.type === 'categorize') instructionText = "👆 Tryck först på ett ord här nere, och därefter på den ruta du vill placera ordet i.";
+
+            let qTextHTML = q.text;
+            if (q.type === 'lucktext') {
+                qTextHTML = qTextHTML.replace("<span class='blank'></span>", `<input type="text" id="freetextInput" class="luck-input" placeholder="skriv här..." autocomplete="off" onkeydown="if(event.key==='Enter') submitFreetext()">`);
+            }
+            let contentHTML = `<div class="q-number">${!isSyncMode ? `Fråga ${idx + 1} av ${questions.length}` : `Fråga ${q.num}`}</div>
+                               <div class="q-text" style="line-height:1.6;">${qTextHTML}</div>
+                               <div style="font-size:0.9rem; font-weight:600; color:var(--gold); margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:1px; background:rgba(245, 158, 11, 0.1); padding:0.6rem 1rem; border-radius:8px; display:inline-block;">${instructionText}</div>`;
+            
+            if (q.type === 'multiple-choice') {
+                contentHTML += `<div class="options">
+                    ${q.options.map(o => `<div class="opt" onclick="selectMC(this, '${o.letter}')"><span class="letter">${o.letter}</span><span>${o.text}</span></div>`).join('')}
+                </div>`;
+            } 
+            else if (q.type === 'lucktext') {
+                contentHTML += `<div class="freetext-container" style="display:flex; justify-content:center; margin-top:1.5rem;">
+                    <button onclick="submitFreetext()" style="width:100%; max-width:300px; padding:1.2rem; font-size:1.2rem; font-weight:bold; border-radius:12px; background:var(--primary); color:#fff; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.3);">Svara / Rätta</button>
+                </div>`;
+            }
+            else if (q.type === 'match') {
+                matchState = { left: null, completed: {} };
+                const lefts = shuffle(q.pairs.map(p => p.left));
+                const rights = shuffle(q.pairs.map(p => p.right));
+                contentHTML += `<div class="match-container">
+                    <div class="match-col"><div class="match-col-title">Begrepp</div>
+                        ${lefts.map(l => `<div class="match-item left-item" data-val="${l}" onclick="selectMatchLeft(this)">${l}</div>`).join('')}
+                    </div>
+                    <div class="match-col"><div class="match-col-title">Förklaring</div>
+                        ${rights.map(r => `<div class="match-item right-item" data-val="${r}" onclick="selectMatchRight(this)">${r}</div>`).join('')}
+                    </div>
+                </div>`;
+            }
+            else if (q.type === 'categorize') {
+                catState = { placements: {} };
+                const words = shuffle(q.items.map(i => i.word));
+                contentHTML += `
+                    <div class="cat-buckets">
+                        ${q.categories.map((c, i) => `<div class="bucket" data-cat="${i}" onclick="selectBucket(this)"><div class="bucket-title">${c}</div></div>`).join('')}
+                    </div>
+                    <div class="cat-items">
+                        ${words.map(w => `<div class="chip" data-val="${w}" onclick="selectCatChip(this, event)">${w}</div>`).join('')}
+                    </div>`;
+            }
+
+            contentHTML += `
+                <div class="feedback" id="fb"></div>
+                ${!isSyncMode ? `<button class="next-btn" id="nextBtn" onclick="nextQuestion()">${idx < questions.length - 1 ? 'Nästa Fråga →' : 'Visa Resultat →'}</button>` : `<div id="syncWaitMsg" style="display:none; text-align:center; margin-top:2rem; color:var(--text-muted); font-weight:600;">Svar registrerat! ⏳ Väntar på Håkan...</div>`}
+            `;
+            
+            card.innerHTML = contentHTML;
+            requestAnimationFrame(() => { 
+                requestAnimationFrame(() => { 
+                    card.classList.remove('enter-right'); 
+                    const inputEl = document.getElementById('freetextInput');
+                    if(inputEl && !isSyncMode) inputEl.focus();
+                }); 
+            });
+        }, 300);
+    }
+
+    function evaluateAnswer(isCorrect) {
+        answers[currentQ] = isCorrect;
+        const q = questions[currentQ];
+        
+        if (q.type !== 'multiple-choice') {
+            sendStat(isCorrect ? 'ok' : 'nok');
+        }
+
+        const fb = document.getElementById('fb');
+        fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
+        fb.innerHTML = isCorrect ? '✓ ' + q.feedbackOk : '✗ ' + q.feedbackNok;
+        
+        if (isCorrect && navigator.vibrate) navigator.vibrate([100]);
+        else if (!isCorrect && navigator.vibrate) navigator.vibrate([50, 100, 50]);
+        if (!isSyncMode) document.getElementById('nextBtn').classList.add('show');
+        else document.getElementById('syncWaitMsg').style.display = 'block';
+    }
+
+    /* --- MULTIPLE CHOICE & LUCKTEXT --- */
+    
+    /* --- FREETEXT LOGIC --- */
+    window.submitFreetext = function() {
+        if (answers[currentQ] !== undefined) return;
+        const q = questions[currentQ];
+        const inputEl = document.getElementById('freetextInput');
+        const ans = inputEl.value.trim().toLowerCase();
+        if (ans === "") return;
+        
+        inputEl.disabled = true;
+        
+        let isCorrect = false;
+        
+        if (q.correctAnswers.some(c => c.toLowerCase() === ans)) {
+            isCorrect = true;
+        }
+        
+        answers[currentQ] = isCorrect;
+        sendStat(isCorrect ? 'ok' : 'nok');
+        
+        const fb = document.getElementById('fb');
+        fb.className = 'feedback show ' + (isCorrect ? 'ok' : 'nok');
+        
+        if (isCorrect) {
+            fb.innerHTML = '✓ ' + q.feedbackOk; if(navigator.vibrate) navigator.vibrate([100]); if(navigator.vibrate) navigator.vibrate([100]);
+            inputEl.style.borderColor = 'var(--correct)'; if(navigator.vibrate) navigator.vibrate([100]);
+            inputEl.style.color = 'var(--correct)';
+        } else {
+            fb.innerHTML = '✗ ' + q.feedbackNok; if(navigator.vibrate) navigator.vibrate([50,100,50]);
+            inputEl.style.borderColor = 'var(--incorrect)'; if(navigator.vibrate) navigator.vibrate([50,100,50]);
+            inputEl.style.color = 'var(--incorrect)';
+        }
+        
+        if (!isSyncMode) document.getElementById('nextBtn').classList.add('show');
+        else document.getElementById('syncWaitMsg').style.display = 'block';
+    };
+
+    function selectMC(el, val) {
+        if (answers[currentQ] !== undefined) return;
+        const q = questions[currentQ];
+        const isCorrect = val === q.correct;
+        
+        sendStat('opt_' + val);
+        
+        document.querySelectorAll('.opt').forEach(o => {
+            o.style.cursor = 'default';
+            if (o.dataset.val === q.correct || o.querySelector('.letter').innerText === q.correct) o.classList.add('correct-opt');
+            else if (o === el && !isCorrect) o.classList.add('wrong-opt');
+            else o.classList.add('dimmed');
+        });
+        evaluateAnswer(isCorrect);
+    }
+
+    /* --- MATCH UI LOGIC --- */
+    let matchColors = ['matched-0', 'matched-1', 'matched-2', 'matched-3'];
+    function selectMatchLeft(el) {
+        if (answers[currentQ] !== undefined || el.classList.contains('matched')) return;
+        document.querySelectorAll('.left-item').forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+        matchState.left = el.dataset.val;
+    }
+    function selectMatchRight(el) {
+        if (answers[currentQ] !== undefined || el.classList.contains('matched') || !matchState.left) return;
+        const q = questions[currentQ];
+        
+        // Mark as matched
+        const leftEl = document.querySelector(`.left-item[data-val="${matchState.left}"]`);
+        const colorClass = matchColors[Object.keys(matchState.completed).length % matchColors.length];
+        
+        leftEl.classList.remove('selected');
+        leftEl.classList.add('matched', colorClass);
+        el.classList.add('matched', colorClass);
+        
+        matchState.completed[matchState.left] = el.dataset.val;
+        matchState.left = null;
+
+        if (Object.keys(matchState.completed).length === q.pairs.length) {
+            let allCorrect = true;
+            for (let term in matchState.completed) {
+                const pair = q.pairs.find(p => p.left === term);
+                if (!pair || pair.right !== matchState.completed[term]) allCorrect = false;
+            }
+            evaluateAnswer(allCorrect);
+        }
+    }
+
+    /* --- CATEGORIZE UI LOGIC --- */
+    let catSelected = null;
+    function selectCatChip(el, event) {
+        if (answers[currentQ] !== undefined) return;
+        
+        if (catSelected && el.parentNode.classList.contains('bucket') && catSelected !== el) {
+            selectBucket(el.parentNode);
+            if (event) event.stopPropagation();
+            return;
+        }
+
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        catSelected = el;
+        if (event) event.stopPropagation();
+    }
+    function selectBucket(el) {
+        if (answers[currentQ] !== undefined || !catSelected) return;
+        el.appendChild(catSelected);
+        catSelected.classList.remove('selected');
+        catState.placements[catSelected.dataset.val] = parseInt(el.dataset.cat);
+        catSelected = null;
+
+        const q = questions[currentQ];
+        if (Object.keys(catState.placements).length === q.items.length) {
+            let allCorrect = true;
+            for (let word in catState.placements) {
+                const item = q.items.find(i => i.word === word);
+                if (!item || item.cat !== catState.placements[word]) allCorrect = false;
+            }
+            evaluateAnswer(allCorrect);
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQ < questions.length - 1) showQuestion(++currentQ);
+        else showResults();
+    }
+
+    function showResults() {
+        if(syncInterval) clearInterval(syncInterval);
+        progressBar.style.width = '100%'; stepIndicator.style.display = 'none'; msgOverlay.style.display = 'none';
+        
+        let totalPossible = Math.max(0, highestActivated + 1);
+        if (totalPossible === 0) return card.innerHTML = '<div class="results"><h2>Inga frågor besvarades.</h2></div>';
+
+        let score = 0, resultRows = '';
+        for(let i=0; i < totalPossible; i++) {
+            const ok = answers[i] === true;
+            if (ok) score++;
+            resultRows += `<div class="result-row ${ok ? 'ok' : 'nok'}"><span class="result-icon">${ok ? '✓' : '✗'}</span><span>Fråga ${questions[i].num}: ${ok ? 'Rätt' : 'Fel'}</span></div>`;
+        }
+
+        const pct = score / totalPossible;
+        const emoji = pct === 1 ? '🌟' : (pct >= 0.6 ? '💚' : (pct >= 0.3 ? '🌱' : '📖'));
+        const title = pct === 1 ? 'Full pott!' : (pct >= 0.6 ? 'Snyggt!' : 'På god väg!');
+
+        card.classList.add('exit-left');
+        setTimeout(() => {
+            card.classList.remove('exit-left'); card.classList.add('enter-right');
+            card.innerHTML = `<div class="results"><div class="emoji">${emoji}</div><h2>${title}</h2><p class="score-line">Du hade <strong>${score}</strong> rätt av ${totalPossible} möjliga.</p><div style="max-height:250px; overflow-y:auto; margin-bottom:2rem;">${resultRows}</div>${!isSyncMode ? `<button class="retry-btn" onclick="retry()">Kör igen</button>` : ''}</div>`;
+            requestAnimationFrame(() => { requestAnimationFrame(() => { card.classList.remove('enter-right'); }); });
+        }, 300);
+    }
+
+    function retry() { currentQ = -1; highestActivated = -1; answers = {}; renderIntro(); }
+
+    /* --- TEACHER PANEL --- */
+    let statsInterval = null;
+
+    async function renderTeacherPanel() {
+        stepIndicator.style.display = 'none'; progressBar.style.display = 'none';
+        
+        if (!window._initializedTeacher) {
+            const state = await getGlobalQ();
+            if(state.sessionId) currentSessionId = state.sessionId;
+            window._initializedTeacher = true;
+            if(state.q !== undefined && state.q > -1) window._lastPushedIndex = state.q;
+            else { await setGlobalQ(-1); window._lastPushedIndex = -1; }
+        } else {
+            await setGlobalQ(-1); window._lastPushedIndex = -1;
+        }
+        
+        if(statsInterval) clearInterval(statsInterval);
+
+        card.innerHTML = `
+            <div class="intro" style="text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                    <div><div class="badge">KlassPuls v2: Lärarpanel</div><h1 style="color:var(--primary); text-align:left; font-size:2rem; margin-top:0.5rem;">Kontrollpanel ${window._currentClassName ? `— ${window._currentClassName}` : ''}</h1></div>
+                    <button onclick="resetLesson()" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); padding:0.5rem 1rem; border-radius:8px; cursor:pointer; font-weight:bold;">🔄 Byt Klass (Nollställ)</button>
+                </div>
+                
+                <h3 style="margin-top:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">🔗 Elevlänk</h3>
+                <div style="display:flex; gap:0.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; margin-bottom:1rem; align-items:center;">
+                    <input type="text" readonly value="hktcr.github.io/q/klasspuls_glosor.html" style="flex:1; padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.5); color:#a7f3d0; font-size:1.1rem; font-family:monospace; outline:none; cursor:text;" onclick="this.select()">
+                    <button onclick="navigator.clipboard.writeText('https://hktcr.github.io/q/klasspuls_glosor.html'); this.innerText='Kopierad! ✅'; setTimeout(() => this.innerText='Kopiera', 2000);" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem 1.5rem; border-radius:8px; font-weight:bold; cursor:pointer; white-space:nowrap;">Kopiera</button>
+                </div>
+
+                <h3 style="margin-top:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">📣 Klassrumsstyrning (Skärmövertagande)</h3>
+                <div style="display:flex; flex-direction:column; gap:0.5rem; background:rgba(255,255,255,0.02); padding:1rem; border-radius:10px; margin-bottom:2rem;">
+                    <div style="display:flex; gap:0.5rem;">
+                        <button id="btnMsgRed" onclick="pushMessageUI('red', 'VAR TYSTA!')" style="flex:1; background:rgba(239,68,68,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">🛑 Var Tysta!</button>
+                        <button id="btnMsgBlue" onclick="pushMessageUI('blue', 'Titta framåt')" style="flex:1; background:rgba(59,130,246,0.9); color:#fff; font-weight:bold; padding:0.8rem; border-radius:8px; border:none; cursor:pointer;">👁 Fokusera</button>
+                    </div>
+                    <button id="btnMsgClear" onclick="pushMessageUI('none', '')" style="display:none; width:100%; margin-top:0.5rem; background:transparent; border:2px solid var(--text-muted); color:var(--text); font-weight:bold; padding:0.6rem; border-radius:8px; cursor:pointer;">✖️ Ta ner meddelandet (Återgå till frågan)</button>
+                    <div id="activeMsgStatus" style="display:none; text-align:center; font-size:0.85rem; font-weight:bold; color:var(--gold); margin-top:0.5rem;">⚠️ Låsskärm aktiverad på elevdatorer!</div>
+                </div>
+
+                <h3 style="margin-bottom:1rem; color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:2px;">Glosfrågor (${questions.length} st)</h3>
+                <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                    <input type="text" id="teacherSearch" placeholder="🔍 Sök efter ord, svar eller begrepp..." onkeyup="filterQuestions()" style="flex:1; padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-size:1rem; outline:none;">
+                    <select id="teacherFilterType" onchange="filterQuestions()" style="padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:#fff; font-size:1rem; outline:none;">
+                        <option value="all">Alla typer</option>
+                        <option value="multiple-choice">Flerval</option>
+                        <option value="match">Matchning</option>
+                        <option value="categorize">Kategorisering</option>
+                        <option value="lucktext">Lucktext (Skriv in)</option>
+                    </select>
+                </div>
+
+                <div style="max-height: 65vh; overflow-y: auto; padding-right:1rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:1rem; align-items: stretch;">
+                    ${questions.map((q, i) => {
+                        let statsHTML = '';
+                        let previewHTML = '';
+                        
+                        // Generate Preview of Answers
+                        if(q.type === 'multiple-choice') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                q.options.map(o => `<div style="${o.letter === q.correct ? 'color:#a7f3d0; font-weight:bold;' : ''}">${o.letter === q.correct ? '✅' : '⬜'} ${o.letter}: ${o.text}</div>`).join('') + `</div>`;
+                        } else if(q.type === 'lucktext') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">
+                                <div><strong>✅ Rätt:</strong> ${q.correctAnswers.join(', ')}</div>
+                                ${q.specificErrors.map(e => `<div style="color:#fca5a5; margin-top:0.3rem;"><strong>❌ Vid '${e.trigger.join('/')}':</strong> ${e.feedback}</div>`).join('')}
+                            </div>`;
+                        } else if(q.type === 'match') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                q.pairs.map(p => `<div>🔗 <strong style="color:#d1d5db;">${p.left}</strong> ➔ ${p.right}</div>`).join('') + `</div>`;
+                        } else if(q.type === 'categorize') {
+                            previewHTML = `<div style="font-size:0.85rem; color:#9ca3af; margin-bottom:1rem; padding-left:0.8rem; border-left:2px solid rgba(255,255,255,0.1);">` + 
+                                `<div style="margin-bottom:0.3rem;"><strong style="color:#d1d5db;">Kategorier:</strong> ${q.categories.join(' vs ')}</div>` +
+                                q.items.map(item => `<div>• ${item.word} ➔ <em style="color:#a7f3d0;">${q.categories[item.cat]}</em></div>`).join('') + `</div>`;
+                        }
+
+                        // Generate Live Stats UI
+                        if(q.type === 'multiple-choice') {
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
+                                ${q.options.map(o => `<div style="background:rgba(255,255,255,0.1); padding:0.4rem 0.8rem; border-radius:6px;">${o.letter}: <strong id="stat_${i}_opt_${o.letter}">0</strong></div>`).join('')}
+                            </div>`;
+                        } else {
+                            statsHTML = `<div style="display:flex; gap:0.5rem; margin-bottom:1rem; font-size:0.9rem;">
+                                <div style="background:rgba(16,185,129,0.2); color:#a7f3d0; padding:0.4rem 0.8rem; border-radius:6px;">Rätt: <strong id="stat_${i}_ok">0</strong></div>
+                                <div style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:0.4rem 0.8rem; border-radius:6px;">Fel: <strong id="stat_${i}_nok">0</strong></div>
+                            </div>`;
+                        }
+
+                        return `
+                        <div id="t-card-${i}" class="opt teacher-q-card" data-qtype="${q.type}" style="height:100%; flex-direction:column; align-items:stretch; background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.05); padding:1rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span style="font-weight:bold; color:var(--primary);">Fråga ${q.num} <span style="font-size:0.8rem; color:#6b7280; font-weight:normal;">(${q.type})</span></span></div>
+                            <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text.replace('<span class=\'blank\'></span>', '_____')}</div>
+                            ${previewHTML}
+                            ${statsHTML}
+                            <button id="t-btn-${i}" onclick="manualPush(${i})" style="margin-top:auto; background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">🚀 Puscha till klassen</button>
+                        </div>
+                    `}).join('')}
+                </div>
+                
+                <div style="margin-top:2rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+                    <h4 style="color:var(--text-muted); margin-bottom:1rem; text-transform:uppercase; letter-spacing:1px; font-size:0.85rem;">Historik (${window._currentClassName || 'Denna klass'})</h4>
+                    <div id="teacherHistoryList" style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.9rem;"></div>
+                </div>
+
+                <div class="opt" onclick="pushQuestion(999)" style="margin-top:1.5rem; border-color:var(--incorrect); justify-content:center; padding:1.2rem; cursor:pointer;">
+                    <span style="font-size:1.1rem; font-weight:bold; color:var(--incorrect);">🏁 Avsluta Lektion (Visa resultat)</span>
+                </div>
+            </div>`;
+    }
+
+    async function pollStats(idx) {
+        const q = questions[idx];
+        const keys = (q.type === 'multiple-choice') ? ['opt_A', 'opt_B', 'opt_C', 'opt_D'] : ['ok', 'nok'];
+        
+        for(let k of keys) {
+            try {
+                const res = await fetch(`https://api.counterapi.dev/v1/${APP_KEY}_${currentSessionId}/Q${idx}_${k}?t=` + Date.now(), { cache: 'no-store' });
+                const data = await res.json();
+                const statEl = document.getElementById(`stat_${idx}_${k}`);
+                if(statEl) statEl.textContent = data.count || 0;
+            } catch(e) {}
+        }
+    }
+
+    window.resetLesson = async function() {
+        const className = prompt("Vilken klass ska du ha nu? (t.ex. 7A)");
+        if(className !== null) {
+            const safeName = className.trim() || 'Klass';
+            const cleanId = safeName.replace(/[^a-zA-Z0-9]/g, '');
+            window._lastPushedIndex = -1; currentMsgColor = 'none'; currentMsgText = '';
+            currentSessionId = cleanId + '_' + Date.now().toString();
+            window._currentClassName = safeName;
+            sessionHistory = {}; // Clear local history for the new class
+            await setGlobalQ(-1); 
+            renderTeacherPanel();
+        }
+    };
+    
+    let sessionHistory = {};
+    window.saveHistory = function(idx) {
+        if(idx < 0 || !questions[idx]) return;
+        const q = questions[idx];
+        let stats = "";
+        if(q.type === 'multiple-choice') {
+            stats = q.options.map(o => {
+                const el = document.getElementById(`stat_${idx}_opt_${o.letter}`);
+                return o.letter + ": " + (el ? el.innerText : '0');
+            }).join(' | ');
+        } else {
+            const ok = document.getElementById(`stat_${idx}_ok`);
+            const nok = document.getElementById(`stat_${idx}_nok`);
+            stats = "Rätt: " + (ok ? ok.innerText : '0') + " | Fel: " + (nok ? nok.innerText : '0');
+        }
+        sessionHistory[idx] = `<div style="background:rgba(255,255,255,0.03); padding:0.8rem; border-radius:8px; border-left:3px solid var(--primary);">
+            <strong style="color:#fff;">Fråga ${q.num}:</strong> <span style="color:#9ca3af;">${stats}</span>
+        </div>`;
+        renderHistory();
+    };
+    function renderHistory() {
+        const el = document.getElementById('teacherHistoryList');
+        if(!el) return;
+        el.innerHTML = Object.values(sessionHistory).reverse().join('');
+    }
+
+    window.pushMessage = async function(color, text) {
+        currentMsgColor = color; currentMsgText = text;
+        await setGlobalQ(window._lastPushedIndex !== undefined ? window._lastPushedIndex : -1);
+    };
+    window.pushMessageUI = async function(color, text) {
+        await window.pushMessage(color, text);
+        const clearBtn = document.getElementById('btnMsgClear');
+        const statusTxt = document.getElementById('activeMsgStatus');
+        if(color === 'none') {
+            clearBtn.style.display = 'none';
+            statusTxt.style.display = 'none';
+        } else {
+            clearBtn.style.display = 'block';
+            statusTxt.style.display = 'block';
+        }
+    };
+    window.manualPush = async function(idx) {
+        if(window._lastPushedIndex !== undefined && window._lastPushedIndex > -1 && window._lastPushedIndex !== idx) {
+            saveHistory(window._lastPushedIndex);
+        }
+        currentMsgColor = 'none'; currentMsgText = ''; window._lastPushedIndex = idx;
+        const clearBtn = document.getElementById('btnMsgClear');
+        if(clearBtn) { clearBtn.style.display = 'none'; document.getElementById('activeMsgStatus').style.display = 'none'; }
+        for (let i = 0; i < questions.length; i++) {
+            const btn = document.getElementById(`t-btn-${i}`);
+            if(i < idx) { btn.style.background = 'rgba(255,255,255,0.05)'; btn.style.borderColor = 'rgba(255,255,255,0.1)'; btn.style.color = '#9ca3af'; btn.innerText = '✓ Redan pushad'; }
+            else if(i === idx) { btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.innerText = '▶️ AKTIV NU'; }
+            else { btn.style.background = 'rgba(16,185,129,0.2)'; btn.style.borderColor = 'rgba(16,185,129,0.5)'; btn.style.color = '#fff'; btn.innerText = '🚀 Puscha till klassen'; }
+        }
+        await setGlobalQ(idx);
+        
+        // Start polling stats for active question
+        if(statsInterval) clearInterval(statsInterval);
+        pollStats(idx); // Poll immediately
+        statsInterval = setInterval(() => pollStats(idx), 2000);
+    };
+    window.pushQuestion = async function(idx) { await setGlobalQ(idx); };
+
+    window.filterQuestions = function() {
+        const query = document.getElementById('teacherSearch').value.toLowerCase();
+        const typeFilter = document.getElementById('teacherFilterType').value;
+        
+        for (let i = 0; i < questions.length; i++) {
+            const card = document.getElementById('t-card-' + i);
+            if (!card) continue;
+            
+            const q = questions[i];
+            let isMatch = true;
+            
+            if (typeFilter !== 'all' && q.type !== typeFilter) isMatch = false;
+            
+            if (query !== '') {
+                const searchStr = JSON.stringify(q).toLowerCase(); // Ghetto but effective full-text search on question object
+                if (!searchStr.includes(query)) isMatch = false;
+            }
+            
+            card.style.display = isMatch ? 'flex' : 'none';
+        }
+    };
+
+
+    renderIntro();
