@@ -2438,8 +2438,21 @@
         bgStars: []
     };
 
-    function startBeeGame(isTeacher) {
+    function startBeeGame(isTeacher, isDemo = false) {
         GAME.active = true;
+        GAME.isDemo = isDemo;
+        GAME.demoBees = [];
+        if (isDemo) {
+            for (let i = 0; i < 20; i++) {
+                GAME.demoBees.push({
+                    id: 'demo_' + i,
+                    name: 'AI-Bi ' + (i+1),
+                    x: 0.1 + Math.random() * 0.8,
+                    y: 0.1 + Math.random() * 0.8,
+                    heading: 0
+                });
+            }
+        }
         GAME.victory = false;
         GAME.defeat = false;
         GAME.deadBees = new Set();
@@ -2637,6 +2650,23 @@
     }
 
     function updateBeeMovement(dt) {
+        if (GAME.isDemo && GAME.demoBees) {
+            GAME.demoBees.forEach(b => {
+                if (GAME.deadBees.has(b.id)) return;
+                const dx = GAME.hornet.x - b.x;
+                const dy = GAME.hornet.y - b.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > 0) {
+                    const speed = 0.05 + Math.random() * 0.03;
+                    b.x += (dx/dist + (Math.random()-0.5)*1.5) * speed * dt;
+                    b.y += (dy/dist + (Math.random()-0.5)*1.5) * speed * dt;
+                    b.x = Math.max(0.02, Math.min(0.98, b.x));
+                    b.y = Math.max(0.02, Math.min(0.98, b.y));
+                    b.heading = Math.atan2(dy, dx);
+                }
+            });
+        }
+
         if (GAME.deadBees && GAME.deadBees.has(SP.mode === 'teacher' ? 'teacher' : SP.studentId)) return;
 
         // Keyboard input (WASD/arrows) — direct velocity control
@@ -2695,6 +2725,9 @@
         GAME.allBees.forEach((bee, sid) => {
             bees.push({ x: bee.x, y: bee.y, id: sid });
         });
+        if (GAME.isDemo && GAME.demoBees) {
+            GAME.demoBees.forEach(b => bees.push({ x: b.x, y: b.y, id: b.id }));
+        }
 
         if (bees.length === 0) return;
 
@@ -2778,8 +2811,12 @@
 
         // Count bees within heat radius
         let nearbyCount = 0;
-        const bees = [{ x: GAME.myBee.x, y: GAME.myBee.y }];
-        GAME.allBees.forEach(b => bees.push({ x: b.x, y: b.y }));
+        const myId = SP.mode === 'teacher' ? 'teacher' : SP.studentId;
+        const bees = [{ id: myId, x: GAME.myBee.x, y: GAME.myBee.y }];
+        GAME.allBees.forEach((b, sid) => bees.push({ id: sid, x: b.x, y: b.y }));
+        if (GAME.isDemo && GAME.demoBees) {
+            GAME.demoBees.forEach(b => bees.push({ id: b.id, x: b.x, y: b.y }));
+        }
 
         bees.forEach(b => {
             if (!GAME.deadBees.has(b.id)) {
@@ -2943,6 +2980,15 @@
             drawBee(ctx, toX(bee.x), toY(bee.y), beeSize, bee.name, false, bee.heading || 0);
             ctx.globalAlpha = 1.0;
         });
+
+        // Draw demo bees
+        if (GAME.isDemo && GAME.demoBees) {
+            GAME.demoBees.forEach(bee => {
+                if (GAME.deadBees && GAME.deadBees.has(bee.id)) ctx.globalAlpha = 0.3;
+                drawBee(ctx, toX(bee.x), toY(bee.y), beeSize, bee.name, false, bee.heading || 0);
+                ctx.globalAlpha = 1.0;
+            });
+        }
 
         // Draw my bee (with tracked heading)
         const myId = SP.mode === 'teacher' ? 'teacher' : SP.studentId;
