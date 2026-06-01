@@ -2396,7 +2396,7 @@
         lethalTemp: 47,          // C -- lethal for Vespa mandarinia
         beeLethalTemp: 50,       // C -- bees can survive up to ~50C
         ambientTemp: 25,
-        heatRadius: 0.08,        // How close a bee must be to heat the hornet
+        heatRadius: 0.05,        // Reduced from 0.08
         heatRate: 2.5,           // C/sec per bee in range
         coolRate: 1.2,           // C/sec cooling when no bees near
         chaseStickTime: 3,       // seconds before retargeting
@@ -2817,7 +2817,7 @@
 
         // Hornet eats bees if temperature is below 42C (cannot eat effectively when overheating)
         if (GAME.temperature < 42) {
-            const eatRadius = 0.03;
+            const eatRadius = 0.015; // Match new beeSize
             livingBees.forEach(b => {
                 const dx = b.x - h.x, dy = b.y - h.y;
                 if (Math.sqrt(dx * dx + dy * dy) < eatRadius) {
@@ -2987,8 +2987,8 @@
 
         const toX = (nx) => nx * W;
         const toY = (ny) => ny * H;
-        const beeSize = Math.min(W, H) * 0.03;
-        const hornetSize = Math.min(W, H) * 0.05;
+        const beeSize = Math.min(W, H) * 0.018; // Reduced from 0.03
+        const hornetSize = Math.min(W, H) * 0.03; // Reduced from 0.05
 
         // Heat radius visualization
         if (!GAME.victory) {
