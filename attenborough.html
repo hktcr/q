@@ -746,7 +746,7 @@ const questions = [
                             <div class="accordion-content">
                                 <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem; margin-top:0.5rem; color:var(--primary);">${q.text}</div>
                                 <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">
-                                    ${q.options.map(o => `<div style="margin-bottom:0.3rem;"><strong>${o.letter}:</strong> ${o.text}</div>`).join('')}
+                                    ${q.options.map(o => `<div style="margin-bottom:0.3rem; ${o.letter === q.correct ? 'color:#10b981; font-weight:bold;' : ''}"><strong>${o.letter}:</strong> ${o.text}${o.letter === q.correct ? ' ✅' : ''}</div>`).join('')}
                                 </div>
                                 <button id="t-btn-${i}" onclick="manualPush(${i})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#fff; padding:0.8rem; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; font-size:1rem; transition:all 0.2s;">🚀 Puscha till elever</button>
                             </div>
