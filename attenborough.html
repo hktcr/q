@@ -797,6 +797,7 @@ const questions = [
             manBtn.style.background = 'var(--primary)'; manBtn.style.color = '#fff'; manBtn.style.border = 'none';
             autoBtn.style.background = 'rgba(255,255,255,0.1)'; autoBtn.style.color = 'var(--text-muted)'; autoBtn.style.border = '1px solid rgba(255,255,255,0.1)';
             autoSync.style.display = 'none';
+            if (teacherPlaying) togglePlay(); // Pause timer when leaving auto mode
         } else {
             autoBtn.style.background = 'var(--primary)'; autoBtn.style.color = '#fff'; autoBtn.style.border = 'none';
             manBtn.style.background = 'rgba(255,255,255,0.1)'; manBtn.style.color = 'var(--text-muted)'; manBtn.style.border = '1px solid rgba(255,255,255,0.1)';
