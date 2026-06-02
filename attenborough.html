@@ -303,7 +303,7 @@
 
     <script>
 
-    let APP_KEY = "HakanLessonLabSync2026";
+    const APP_KEY = "HakanLessonLabSync2026";
     const BASE_URL = "https://keyvalue.immanuel.co/api/KeyVal";
 
 const questions = [
@@ -468,40 +468,14 @@ const questions = [
         }, 3000);
     }
 
-    window.joinWithClass = function(isTeacherMode) {
-        const classInput = document.getElementById('classInput').value.trim().toUpperCase();
-        if (classInput) {
-            APP_KEY = "HakanLessonLabSync2026_" + classInput;
-        } else {
-            APP_KEY = "HakanLessonLabSync2026";
-        }
-        
-        if (isTeacherMode) {
-            renderTeacherPanel();
-        } else {
-            startSyncMode();
-        }
-    };
+
 
     function renderIntro() {
         stepIndicator.style.display = 'none';
         progressBar.style.width = '0%';
 
         if (isTeacher) {
-            card.innerHTML = `
-                <div class="intro">
-                    <div class="badge">Lärarvy</div>
-                    <h1>KlassPuls: Lektionskontroll</h1>
-                    <p class="sub">Ange klassens namn för att skapa ett unikt rum för denna lektion.</p>
-                    <div style="margin-bottom: 1.5rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem;">
-                        <input type="text" id="classInput" placeholder="T.ex. 7A eller E1" style="padding:1rem; border-radius:12px; border:2px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.4); color:#fff; font-size:1.4rem; text-align:center; width:100%; max-width:320px; outline:none; transition: border 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
-                        <small style="color:var(--text-muted);">Lämna blankt för standardrummet.</small>
-                    </div>
-                    <div class="meta" style="flex-direction: column; align-items: center; gap: 1rem;">
-                        <button class="start-btn" onclick="joinWithClass(true)">👨‍🏫 Starta Lektion</button>
-                    </div>
-                </div>
-            `;
+            renderTeacherPanel();
             return;
         }
 
@@ -510,12 +484,8 @@ const questions = [
                 <div class="badge">Ekologi & Klimat</div>
                 <h1>KlassPuls: A Life on Our Planet</h1>
                 <p class="sub">Frågor om filmens första del och det vi diskuterat om koraller, ekosystem och klimat.</p>
-                <div style="margin-bottom: 1.5rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem;">
-                        <input type="text" id="classInput" placeholder="Klass (t.ex. 7A)" style="padding:1rem; border-radius:12px; border:2px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.4); color:#fff; font-size:1.4rem; text-align:center; width:100%; max-width:320px; outline:none; transition: border 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
-                        <small style="color:var(--text-muted);">Fråga din lärare vad du ska skriva.</small>
-                </div>
                 <div class="meta" style="flex-direction: column; align-items: center; gap: 1rem;">
-                    <button class="start-btn" onclick="joinWithClass(false)">🔗 Gå med i Lärar-Synk (Live)</button>
+                    <button class="start-btn" onclick="startSyncMode()">🔗 Gå med i Lärar-Synk (Live)</button>
                     <button class="retry-btn" style="margin-top:0;" onclick="startSoloMode()">Öva i egen takt</button>
                 </div>
             </div>
