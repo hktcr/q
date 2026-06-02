@@ -698,6 +698,9 @@ const questions = [
         stepIndicator.style.display = 'none';
         progressBar.style.display = 'none';
         
+        // Expand card to use full width for teachers
+        card.style.maxWidth = '95vw';
+        
         await setGlobalQ(-1); 
         window._lastPushedIndex = -1;
 
@@ -756,14 +759,17 @@ const questions = [
                     ${questions.map((q, i) => `
                         <details class="teacher-accordion" id="t-opt-${i}">
                             <summary>
-                                <div style="display:flex; justify-content:space-between; width:100%; padding-right:1rem;">
-                                    <span style="font-weight:bold; color:var(--primary);">Fråga ${q.num}</span>
-                                    <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted);">Auto-tid: ${formatTime(qTimestamps[i])}</span>
+                                <div style="display:flex; flex-direction:column; width:100%; padding-right:1rem; gap:0.3rem;">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="font-weight:bold; color:var(--primary);">Fråga ${q.num}</span>
+                                        <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted);">Auto-tid: ${formatTime(qTimestamps[i])}</span>
+                                    </div>
+                                    <div style="font-size:0.9rem; font-weight:normal; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${q.text}</div>
                                 </div>
-                                <span class="accordion-chevron">▼</span>
+                                <span class="accordion-chevron" style="display:flex; align-items:center;">▼</span>
                             </summary>
                             <div class="accordion-content">
-                                <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem;">${q.text}</div>
+                                <div style="font-size:1rem; font-weight:600; margin-bottom:0.8rem; margin-top:0.5rem; color:var(--primary);">${q.text}</div>
                                 <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">
                                     ${q.options.map(o => `<div style="margin-bottom:0.3rem;"><strong>${o.letter}:</strong> ${o.text}</div>`).join('')}
                                 </div>
