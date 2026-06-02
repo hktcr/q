@@ -500,8 +500,8 @@ const questions = [
 
     function showQuestion(idx) {
         stepIndicator.style.display = 'block';
-        stepCurrent.textContent = idx + 1;
-        progressBar.style.width = ((idx) / questions.length * 100) + '%';
+        const sessionNum = Object.keys(answers).length + 1;
+        stepCurrent.textContent = sessionNum;
 
         const q = questions[idx];
         card.classList.add('exit-left');
@@ -511,7 +511,7 @@ const questions = [
             card.classList.add('enter-right');
 
             card.innerHTML = `
-                <div class="q-number">Fråga ${q.num} av ${questions.length}</div>
+                <div class="q-number">Fråga ${Object.keys(answers).length + 1}</div>
                 <div class="q-text">${q.text}</div>
                 <div class="options" id="opts">
                     ${q.options.map(o => `
