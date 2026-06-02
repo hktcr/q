@@ -481,9 +481,7 @@ const questions = [
 
         card.innerHTML = `
             <div class="intro">
-                <div class="badge">Ekologi & Klimat</div>
                 <h1>A Life on Our Planet</h1>
-                <p class="sub">Frågor om filmen och det vi diskuterat om ekosystem, klimat och biologisk mångfald.</p>
                 <div class="meta" style="flex-direction: column; align-items: center; gap: 1rem;">
                     <button class="start-btn" onclick="startSyncMode()">🔗 Gå med i Lärar-Synk (Live)</button>
                     <button class="retry-btn" style="margin-top:0;" onclick="startSoloMode()">Öva i egen takt</button>
@@ -682,6 +680,13 @@ const questions = [
                         <h1 style="color:var(--primary); text-align:left; font-size:2rem; margin-top:0.5rem;">Lektionskontroll</h1>
                     </div>
                     <button onclick="resetLesson()" style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); padding:0.5rem 1rem; border-radius:8px; cursor:pointer; font-weight:bold;">🔄 Nollställ</button>
+                </div>
+
+                <!-- Share link -->
+                <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:10px; padding:0.6rem 1rem; margin-bottom:1rem;">
+                    <span style="font-size:0.85rem; color:#10b981; font-weight:600; white-space:nowrap;">👨‍🎓 Elev-länk:</span>
+                    <code id="studentUrl" style="flex:1; font-size:0.85rem; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${window.location.origin + window.location.pathname}</code>
+                    <button onclick="navigator.clipboard.writeText(document.getElementById('studentUrl').textContent).then(()=>{this.textContent='✓ Kopierad!'; setTimeout(()=>this.textContent='Kopiera',1500)})" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.4); color:#10b981; padding:0.4rem 0.8rem; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85rem; white-space:nowrap;">Kopiera</button>
                 </div>
 
                 <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
