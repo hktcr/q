@@ -337,7 +337,7 @@ const questions = [
 ];
 
     let currentQ = -1; 
-    let highestActivated = -1; // Keep track of the highest question activated by the teacher
+    let activatedQuestions = new Set(); // Track exactly which questions the teacher has pushed
     let answers = {};
     let isSyncMode = false;
     let syncInterval = null;
@@ -400,7 +400,7 @@ const questions = [
     async function startSyncMode() {
         isSyncMode = true;
         currentQ = -1;
-        highestActivated = -1;
+        activatedQuestions = new Set();
         answers = {};
         
         card.innerHTML = `
@@ -444,9 +444,9 @@ const questions = [
                 return;
             }
 
-            // Keep track of total questions asked
-            if (state.q > highestActivated && state.q !== 999) {
-                highestActivated = state.q;
+            // Keep track of which questions have been pushed
+            if (state.q >= 0 && state.q !== 999) {
+                activatedQuestions.add(state.q);
             }
 
             if ((state.q > currentQ && answers[currentQ] !== undefined) || (currentQ === -1 && state.q > -1)) {
@@ -455,7 +455,7 @@ const questions = [
             } else if (state.q === -1 && currentQ !== -1) {
                 // Reset
                 currentQ = -1;
-                highestActivated = -1;
+                activatedQuestions = new Set();
                 answers = {};
                 card.innerHTML = `
                     <div class="intro">
@@ -493,7 +493,7 @@ const questions = [
     function startSoloMode() {
         isSyncMode = false;
         currentQ = 0;
-        highestActivated = questions.length - 1; // All questions possible in solo mode
+        questions.forEach((_, i) => activatedQuestions.add(i)); // All questions possible in solo mode
         answers = {};
         showQuestion(0);
     }
@@ -586,8 +586,9 @@ const questions = [
         stepIndicator.style.display = 'none';
         msgOverlay.style.display = 'none'; // Ensure no messages block results
 
-        // Result calculation based ONLY on questions the teacher actually activated
-        let totalPossible = Math.max(0, highestActivated + 1);
+        // Result calculation based ONLY on questions the teacher actually pushed
+        const pushed = [...activatedQuestions].sort((a,b) => a - b);
+        let totalPossible = pushed.length;
         
         if (totalPossible === 0) {
             card.innerHTML = '<div class="results"><h2>Inga frågor besvarades.</h2></div>';
@@ -596,9 +597,11 @@ const questions = [
 
         let score = 0;
         let resultRows = '';
+        let qNum = 0;
         
-        // Only evaluate up to highestActivated
-        for(let i=0; i < totalPossible; i++) {
+        // Only evaluate actually pushed questions
+        for(const i of pushed) {
+            qNum++;
             const q = questions[i];
             const ans = answers[i];
             const ok = ans === q.correct;
@@ -606,7 +609,7 @@ const questions = [
             
             resultRows += `<div class="result-row ${ok ? 'ok' : 'nok'}">
                 <span class="result-icon">${ok ? '✓' : '✗'}</span>
-                <span style="font-size:0.95rem;">Fråga ${q.num}: ${ok ? 'Rätt!' : (ans ? 'Fel — rätt svar: ' + q.correct : 'Ej besvarad — rätt svar: ' + q.correct)}</span>
+                <span style="font-size:0.95rem;">Fråga ${qNum}: ${ok ? 'Rätt!' : (ans ? 'Fel — rätt svar: ' + q.correct : 'Ej besvarad — rätt svar: ' + q.correct)}</span>
             </div>`;
         }
 
@@ -644,7 +647,7 @@ const questions = [
 
     function retry() {
         currentQ = -1;
-        highestActivated = -1;
+        activatedQuestions = new Set();
         answers = {};
         renderIntro();
     }
@@ -868,21 +871,17 @@ const questions = [
         currentMsgText = '';
         updateMsgUI();
 
-        // UI updates for manual mode button
-        for (let i = 0; i < questions.length; i++) {
-            const btn = document.getElementById(`t-btn-${i}`);
-            if(!btn) continue;
-            if(i <= idx) {
-                btn.innerHTML = '✅ Pushad';
-                btn.style.background = 'rgba(255,255,255,0.1)';
-                btn.style.borderColor = 'rgba(255,255,255,0.1)';
-                btn.style.color = 'var(--text-muted)';
-            } else {
-                btn.innerHTML = '🚀 Puscha till elever';
-                btn.style.background = 'rgba(16,185,129,0.2)';
-                btn.style.borderColor = 'rgba(16,185,129,0.5)';
-                btn.style.color = '#fff';
-            }
+        // Track this question as pushed
+        if (!window._pushedSet) window._pushedSet = new Set();
+        window._pushedSet.add(idx);
+
+        // UI updates — only mark actually pushed questions
+        const btn = document.getElementById(`t-btn-${idx}`);
+        if(btn) {
+            btn.innerHTML = '✅ Pushad';
+            btn.style.background = 'rgba(255,255,255,0.1)';
+            btn.style.borderColor = 'rgba(255,255,255,0.1)';
+            btn.style.color = 'var(--text-muted)';
         }
         window._lastPushedIndex = idx;
         await setGlobalQ(idx);
