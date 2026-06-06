@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skol- & Samtalsenkät 📝</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #1e1b4b 100%);
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --panel-glow: rgba(99, 102, 241, 0.1);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a5b4fc, #818cf8, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Forms */
+        .section {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.03);
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #c7d2fe;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Inputs */
+        select, input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--panel-glow);
+        }
+
+        /* Custom Dropdown Arrow */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2rem;
+            padding-right: 2.5rem;
+        }
+
+        /* Sliders */
+        .slider-container {
+            position: relative;
+            padding-top: 0.5rem;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: transform 0.1s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #818cf8;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.6rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .slider-val {
+            text-align: center;
+            font-weight: 700;
+            color: #818cf8;
+            font-size: 1.1rem;
+            margin-top: 0.2rem;
+        }
+
+        /* Checkboxes */
+        .checkbox-group {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .checkbox-label input[type="checkbox"]:checked::after {
+            content: "✓";
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        /* Likert / Row buttons */
+        .likert-question {
+            margin-bottom: 1.25rem;
+        }
+
+        .likert-question:last-child {
+            margin-bottom: 0;
+        }
+
+        .likert-text {
+            font-size: 0.88rem;
+            color: var(--text-main);
+            margin-bottom: 0.6rem;
+            line-height: 1.4;
+        }
+
+        .likert-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.4rem;
+        }
+
+        .likert-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+            padding: 0.6rem 0.2rem;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .likert-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+
+        .likert-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent);
+            color: #a5b4fc;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Grade Matrix style */
+        .grade-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .grade-row:last-child { margin-bottom: 0; }
+        .grade-label {
+            flex: 1;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        .grade-options {
+            display: flex;
+            gap: 0.3rem;
+        }
+        .grade-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+        }
+        .grade-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+        .grade-btn.active {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: var(--accent);
+            color: #a5b4fc;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 6px 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .submit-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Success Overlay */
+        .success-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.95);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--success);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--success);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px var(--success-glow);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .success-overlay h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            color: #6ee7b7;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-overlay p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 320px;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media(max-width: 480px) {
+            .container { padding: 1.5rem; }
+            .header h1 { font-size: 1.8rem; }
+            .likert-options { grid-template-columns: 1fr; }
+            .likert-btn { padding: 0.5rem; text-align: left; padding-left: 1rem; }
+            .grade-row { flex-direction: column; align-items: flex-start; gap: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.75rem; }
+            .grade-options { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-icon">✓</div>
+        <h2>Stort tack!</h2>
+        <p>Dina anonyma svar har registrerats. Du kan stänga denna flik nu.</p>
+    </div>
+
+    <div class="header">
+        <h1>Klassrumsenkät</h1>
+        <p>Denna enkät är helt **anonym**. Svara så ärligt du kan för att hjälpa till i vår analys om studier, skola och samtal hemma.</p>
+    </div>
+
+    <form id="surveyForm">
+        <!-- Section 1: Allmänt -->
+        <div class="section">
+            <h2 class="section-title">🏫 1. Bakgrund & Motivation</h2>
+            
+            <div class="form-group">
+                <label for="className">Klass</label>
+                <select id="className" required>
+                    <option value="" disabled selected>Välj din klass...</option>
+                    <option value="7A">Klass 7A</option>
+                    <option value="7B">Klass 7B</option>
+                    <option value="8A">Klass 8A</option>
+                    <option value="8B">Klass 8B</option>
+                    <option value="9A">Klass 9A</option>
+                    <option value="9B">Klass 9B</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="schoolMotivation">Hur motiverad känner du dig i skolan överlag?</label>
+                <div class="slider-container">
+                    <input type="range" id="schoolMotivation" min="1" max="5" value="3" class="slider">
+                    <div class="slider-labels">
+                        <span>1: Helt omotiverad</span>
+                        <span>3: Medel</span>
+                        <span>5: Mycket motiverad</span>
+                    </div>
+                    <div class="slider-val" id="schoolMotivationVal">3</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="subjectMotivation">Hur intressant tycker du att ämnet NO är?</label>
+                <div class="slider-container">
+                    <input type="range" id="subjectMotivation" min="1" max="5" value="3" class="slider">
+                    <div class="slider-labels">
+                        <span>1: Inte alls</span>
+                        <span>3: Okej</span>
+                        <span>5: Jätteintressant</span>
+                    </div>
+                    <div class="slider-val" id="subjectMotivationVal">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Studieteknik -->
+        <div class="section">
+            <h2 class="section-title">🧠 2. Studieteknik</h2>
+            <label style="margin-bottom: 0.75rem;">Vilka av följande sätt använder du oftast för att plugga? (Välj alla som stämmer)</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Skriver sammanfattningar">
+                    Skriver egna sammanfattningar eller anteckningar
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Gör övningsfrågor / Flashcards">
+                    Gör egna/andras quiz, flashcards eller svarar på frågor
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Läser boken/anteckningar">
+                    Läser bara igenom anteckningar eller läroboken flera gånger
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Förklarar för någon">
+                    Förklarar eller diskuterar ämnet med en kompis eller förälder
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Pluggar sista dagen">
+                    Pluggar i princip bara kvällen innan ett prov
+                </label>
+            </div>
+        </div>
+
+        <!-- Section 3: Samtal hemma -->
+        <div class="section">
+            <h2 class="section-title">💬 3. Samtal hemma</h2>
+            <label style="margin-bottom: 0.75rem;">Hur ofta sker följande hemma hos dig?</label>
+            
+            <div class="likert-question" data-name="talkSchool">
+                <div class="likert-text">A. Du pratar med vuxna hemma om vad ni lär er i skolan.</div>
+                <div class="likert-options">
+                    <div class="likert-btn" data-value="Aldrig">Aldrig</div>
+                    <div class="likert-btn" data-value="Sällan">Sällan</div>
+                    <div class="likert-btn" data-value="Ibland">Ibland</div>
+                    <div class="likert-btn" data-value="Ofta">Ofta</div>
+                    <div class="likert-btn" data-value="Dagligen">Dagligen</div>
+                </div>
+            </div>
+
+            <div class="likert-question" data-name="talkNews">
+                <div class="likert-text">B. Ni diskuterar nyheter, politik eller världshändelser vid middagsbordet.</div>
+                <div class="likert-options">
+                    <div class="likert-btn" data-value="Aldrig">Aldrig</div>
+                    <div class="likert-btn" data-value="Sällan">Sällan</div>
+                    <div class="likert-btn" data-value="Ibland">Ibland</div>
+                    <div class="likert-btn" data-value="Ofta">Ofta</div>
+                    <div class="likert-btn" data-value="Dagligen">Dagligen</div>
+                </div>
+            </div>
+
+            <div class="likert-question" data-name="talkThinking">
+                <div class="likert-text">C. Vuxna hemma ställer kluriga frågor som får dig att tänka efter ordentligt.</div>
+                <div class="likert-options">
+                    <div class="likert-btn" data-value="Aldrig">Aldrig</div>
+                    <div class="likert-btn" data-value="Sällan">Sällan</div>
+                    <div class="likert-btn" data-value="Ibland">Ibland</div>
+                    <div class="likert-btn" data-value="Ofta">Ofta</div>
+                    <div class="likert-btn" data-value="Dagligen">Dagligen</div>
+                </div>
+            </div>
+
+            <div class="likert-question" data-name="talkDeep">
+                <div class="likert-text">D. Ni diskuterar djupa eller svåra ämnen (t.ex. vetenskap, etik eller filosofi).</div>
+                <div class="likert-options">
+                    <div class="likert-btn" data-value="Aldrig">Aldrig</div>
+                    <div class="likert-btn" data-value="Sällan">Sällan</div>
+                    <div class="likert-btn" data-value="Ibland">Ibland</div>
+                    <div class="likert-btn" data-value="Ofta">Ofta</div>
+                    <div class="likert-btn" data-value="Dagligen">Dagligen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Betyg & Mål -->
+        <div class="section">
+            <h2 class="section-title">📊 4. Betyg och Mål</h2>
+            
+            <div class="grade-row" data-name="expectedGrade">
+                <div class="grade-label">Vilket betyg tror du att du ligger på i NO just nu?</div>
+                <div class="grade-options">
+                    <div class="grade-btn" data-value="Vet ej">?</div>
+                    <div class="grade-btn" data-value="E">E</div>
+                    <div class="grade-btn" data-value="D">D</div>
+                    <div class="grade-btn" data-value="C">C</div>
+                    <div class="grade-btn" data-value="B">B</div>
+                    <div class="grade-btn" data-value="A">A</div>
+                </div>
+            </div>
+
+            <div class="grade-row" data-name="targetGrade">
+                <div class="grade-label">Vilket betyg siktar du på i NO vid terminens slut?</div>
+                <div class="grade-options">
+                    <div class="grade-btn" data-value="E">E</div>
+                    <div class="grade-btn" data-value="D">D</div>
+                    <div class="grade-btn" data-value="C">C</div>
+                    <div class="grade-btn" data-value="B">B</div>
+                    <div class="grade-btn" data-value="A">A</div>
+                </div>
+            </div>
+
+            <div class="grade-row" data-name="generalGrades">
+                <div class="grade-label">Vilket betyg har du flest av i andra ämnen just nu?</div>
+                <div class="grade-options">
+                    <div class="grade-btn" data-value="Vet ej">?</div>
+                    <div class="grade-btn" data-value="E">E</div>
+                    <div class="grade-btn" data-value="D">D</div>
+                    <div class="grade-btn" data-value="C">C</div>
+                    <div class="grade-btn" data-value="B">B</div>
+                    <div class="grade-btn" data-value="A">A</div>
+                </div>
+            </div>
+
+            <div class="grade-row" data-name="targetGeneralGrades">
+                <div class="grade-label">Vilka betyg siktar du på i skolan generellt?</div>
+                <div class="grade-options">
+                    <div class="grade-btn" data-value="E">E</div>
+                    <div class="grade-btn" data-value="D">D</div>
+                    <div class="grade-btn" data-value="C">C</div>
+                    <div class="grade-btn" data-value="B">B</div>
+                    <div class="grade-btn" data-value="A">A</div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            Skicka in svar
+        </button>
+    </form>
+</div>
+
+<script>
+    // Config & Endpoint setup
+    // Try to get API URL from URL parameters first, fallback to a placeholder
+    const urlParams = new URLSearchParams(window.location.search);
+    let apiEndpoint = urlParams.get('api') || "";
+    
+    // Sliders
+    const schoolSlider = document.getElementById('schoolMotivation');
+    const schoolVal = document.getElementById('schoolMotivationVal');
+    schoolSlider.addEventListener('input', () => schoolVal.textContent = schoolSlider.value);
+
+    const subjectSlider = document.getElementById('subjectMotivation');
+    const subjectVal = document.getElementById('subjectMotivationVal');
+    subjectSlider.addEventListener('input', () => subjectVal.textContent = subjectSlider.value);
+
+    // Likert Buttons
+    document.querySelectorAll('.likert-question').forEach(q => {
+        const btns = q.querySelectorAll('.likert-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                q.setAttribute('data-selected', btn.getAttribute('data-value'));
+            });
+        });
+    });
+
+    // Grade Buttons
+    document.querySelectorAll('.grade-row').forEach(row => {
+        const btns = row.querySelectorAll('.grade-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                row.setAttribute('data-selected', btn.getAttribute('data-value'));
+            });
+        });
+    });
+
+    // Form Submission
+    const form = document.getElementById('surveyForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate API
+        if (!apiEndpoint) {
+            alert("Varning: Ingen API-slutpunkt är konfigurerad. Be din lärare om rätt enkätslänk!");
+            return;
+        }
+
+        // Validate Likert questions
+        let missing = [];
+        document.querySelectorAll('.likert-question').forEach(q => {
+            if (!q.getAttribute('data-selected')) {
+                const title = q.querySelector('.likert-text').textContent.substring(0, 30);
+                missing.push(`- Samtalsfråga: "${title}..."`);
+            }
+        });
+
+        // Validate Grades
+        document.querySelectorAll('.grade-row').forEach(row => {
+            if (!row.getAttribute('data-selected')) {
+                const label = row.querySelector('.grade-label').textContent.substring(0, 30);
+                missing.push(`- Betygsfråga: "${label}..."`);
+            }
+        });
+
+        if (missing.length > 0) {
+            alert("Vänligen besvara alla frågor innan du skickar in:\n\n" + missing.join("\n"));
+            return;
+        }
+
+        // Collect checkboxes
+        const studyChecked = [];
+        document.querySelectorAll('input[name="study"]:checked').forEach(cb => {
+            studyChecked.push(cb.value);
+        });
+
+        // Construct payload
+        const payload = {
+            className: document.getElementById('className').value,
+            schoolMotivation: parseInt(schoolSlider.value),
+            subjectMotivation: parseInt(subjectSlider.value),
+            studyTechniques: studyChecked,
+            talkSchool: document.querySelector('.likert-question[data-name="talkSchool"]').getAttribute('data-selected'),
+            talkNews: document.querySelector('.likert-question[data-name="talkNews"]').getAttribute('data-selected'),
+            talkThinking: document.querySelector('.likert-question[data-name="talkThinking"]').getAttribute('data-selected'),
+            talkDeep: document.querySelector('.likert-question[data-name="talkDeep"]').getAttribute('data-selected'),
+            expectedGrade: document.querySelector('.grade-row[data-name="expectedGrade"]').getAttribute('data-selected'),
+            targetGrade: document.querySelector('.grade-row[data-name="targetGrade"]').getAttribute('data-selected'),
+            generalGrades: document.querySelector('.grade-row[data-name="generalGrades"]').getAttribute('data-selected'),
+            targetGeneralGrades: document.querySelector('.grade-row[data-name="targetGeneralGrades"]').getAttribute('data-selected')
+        };
+
+        // UI Feedback: Sending
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="spinner"></span> Skickar svar...`;
+
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                mode: 'no-cors', // Apps Script requires no-cors sometimes, or we can use cors if it returns correct headers
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            // Note: Since 'no-cors' does not let us read response status, 
+            // we assume success if no exception is thrown, which is standard when POSTing to Google Apps Script.
+            // Show success overlay
+            document.getElementById('successOverlay').classList.add('active');
+
+        } catch (err) {
+            console.error("Fel under inskickning:", err);
+            alert("Det gick inte att skicka in enkäten. Kontrollera din internetanslutning och försök igen.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Skicka in svar";
+        }
+    });
+</script>
+</body>
+</html>

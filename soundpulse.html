@@ -3157,7 +3157,7 @@
     async function init() {
         // Load config
         try {
-            const resp = await fetch('assets/soundpulse_config.json');
+            const resp = await fetch('assets/soundpulse_config.json?v=' + Date.now());
             CONFIG_DATA = await resp.json();
             SP_CONFIG.APP_KEY = CONFIG_DATA.appKey || SP_CONFIG.APP_KEY;
             SP_CONFIG.AUDIO_FILE = CONFIG_DATA.audioFile || SP_CONFIG.AUDIO_FILE;
