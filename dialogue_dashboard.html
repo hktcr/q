@@ -675,7 +675,7 @@
         if (!apiEndpoint) return;
         try {
             const res = await fetch(apiEndpoint);
-            if (!res.ok) throw new Error("Network response error");
+            if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
             const data = await res.json();
             
             // Validate it's an array
@@ -685,10 +685,13 @@
                 updateCharts();
                 renderTable();
                 updateStatus(true);
+            } else {
+                console.error("Server returnerade inte en array:", data);
+                updateStatus(false, `Serverfel: ${data.error || JSON.stringify(data)}`);
             }
         } catch (err) {
             console.error("Fel vid hämtning av data:", err);
-            updateStatus(false);
+            updateStatus(false, `Anslutningsfel: ${err.message}`);
         }
     }
 
