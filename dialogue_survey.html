@@ -397,14 +397,14 @@
 
         .grade-table th:first-child,
         .grade-table td:first-child {
-            width: 36%;
+            width: 30%;
         }
 
         .grade-table th:nth-child(2),
         .grade-table td:nth-child(2),
         .grade-table th:nth-child(3),
         .grade-table td:nth-child(3) {
-            width: 32%;
+            width: 35%;
             min-width: 150px;
         }
 
@@ -448,10 +448,10 @@
             background: #ffffff;
             border: 1px solid rgba(139, 29, 65, 0.15);
             color: var(--text-main);
-            padding: 0.6rem 0.5rem;
+            padding: 0.55rem 0.4rem;
             border-radius: 8px;
             font-family: inherit;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             outline: none;
             width: 100%;
             cursor: pointer;
@@ -460,9 +460,9 @@
             -webkit-appearance: none;
             background-image: url("data:image/svg+xml;utf8,<svg fill='%238b1d41' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
             background-repeat: no-repeat;
-            background-position: right 6px center;
-            background-size: 16px;
-            padding-right: 1.5rem;
+            background-position: right 5px center;
+            background-size: 14px;
+            padding-right: 1.25rem;
         }
 
         .grade-select:focus {
@@ -738,6 +738,18 @@
             .header h1 {
                 font-size: 2.2rem;
             }
+
+            .grade-select {
+                font-size: 0.88rem;
+                padding: 0.5rem 0.3rem;
+                padding-right: 1.15rem;
+                background-size: 12px;
+                background-position: right 4px center;
+            }
+
+            .grade-subject-name {
+                font-size: 0.95rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -760,6 +772,22 @@
 
             .header p {
                 font-size: 0.88rem;
+            }
+
+            .grade-select {
+                font-size: 0.82rem;
+                padding: 0.45rem 0.2rem;
+                padding-right: 1.05rem;
+                background-size: 10px;
+                background-position: right 3px center;
+            }
+
+            .grade-subject-name {
+                font-size: 0.88rem;
+            }
+
+            .grade-table th, .grade-table td {
+                padding: 0.75rem 0.5rem;
             }
 
             .section {
@@ -1501,7 +1529,7 @@
                             </td>
                             <td>
                                 <select id="exp_M2" class="grade-select" data-subject="M2">
-                                    <option value="Får ej betyg">Läser ej (SVEN)</option>
+                                    <option value="Får ej betyg">Ej (SVEN)</option>
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
@@ -1513,7 +1541,7 @@
                                     </td>
                                     <td>
                                     <select id="tar_M2" class="grade-select" data-subject="M2">
-                                    <option value="Inget mål">Läser ej (SVEN)</option>
+                                    <option value="Inget mål">Ej (SVEN)</option>
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
