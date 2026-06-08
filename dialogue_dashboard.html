@@ -526,6 +526,107 @@
                 width: 100%;
             }
         }
+
+        /* Expandable Table Details styling */
+        .details-row {
+            display: none;
+            background: rgba(0, 0, 0, 0.25);
+        }
+        .details-row.active {
+            display: table-row;
+        }
+        .details-content {
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            animation: fadeInDetails 0.25s ease-out;
+        }
+        @keyframes fadeInDetails {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.65rem;
+        }
+        .subject-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 0.5rem 0.65rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .subject-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .subject-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+        .subject-card-body {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-top: 0.15rem;
+        }
+        .grade-badge {
+            display: inline-block;
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .grade-badge.expected {
+            background: rgba(96, 165, 250, 0.12);
+            color: #93c5fd;
+            border: 1px solid rgba(96, 165, 250, 0.25);
+        }
+        .grade-badge.target {
+            background: rgba(167, 139, 250, 0.12);
+            color: #c084fc;
+            border: 1px solid rgba(167, 139, 250, 0.25);
+        }
+        .grade-badge.none {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .arrow-indicator {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.75rem;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.35rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            transition: transform 0.2s, color 0.2s;
+            border-radius: 4px;
+        }
+        .toggle-btn:hover {
+            color: #60a5fa;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .toggle-btn.rotated {
+            transform: rotate(90deg);
+            color: #60a5fa;
+        }
     </style>
 </head>
 <body>
@@ -676,6 +777,7 @@
         <table id="dataTable">
             <thead>
                 <tr>
+                    <th style="width: 40px;"></th>
                     <th>Tidsstämpel</th>
                     <th>Klass</th>
                     <th>Skolmot.</th>
@@ -691,7 +793,7 @@
             </thead>
             <tbody id="tableBody">
                 <tr>
-                    <td colspan="11" style="text-align: center; color: var(--text-muted);">Ingen data tillgänglig. Ställ in din API-slutpunkt ovan för att starta.</td>
+                    <td colspan="12" style="text-align: center; color: var(--text-muted);">Ingen data tillgänglig. Ställ in din API-slutpunkt ovan för att starta.</td>
                 </tr>
             </tbody>
         </table>
@@ -842,6 +944,48 @@
 
     // Dynamic Meritvärde Calculator with backward compatibility
     function calculateMerit(d, type) {
+        // 1. If subjectGrades is present, calculate using Swedish rules (best 16 + M2)
+        if (d.subjectGrades) {
+            try {
+                const grades = typeof d.subjectGrades === 'string' ? JSON.parse(d.subjectGrades) : d.subjectGrades;
+                if (grades && typeof grades === 'object') {
+                    const values = [];
+                    let m2Val = null;
+                    const subjects = ['SV', 'EN', 'MA', 'BI', 'FY', 'KE', 'TK', 'HI', 'GE', 'RE', 'SH', 'BL', 'MU', 'SL', 'HKK', 'IDH', 'M2'];
+                    
+                    subjects.forEach(sub => {
+                        const sData = grades[sub];
+                        if (sData) {
+                            const val = type === "expected" ? sData.expected : sData.target;
+                            if (val && val !== 'Vet ej' && val !== 'Inget mål' && val !== 'Får ej betyg' && MERIT_MAP[val] !== undefined) {
+                                if (sub === 'M2') {
+                                    m2Val = MERIT_MAP[val];
+                                } else {
+                                    values.push(MERIT_MAP[val]);
+                                }
+                            }
+                        }
+                    });
+
+                    // Sort other 16 subjects descending to pick the best 16
+                    values.sort((a, b) => b - a);
+                    const best16 = values.slice(0, 16);
+                    let total = best16.reduce((acc, v) => acc + v, 0);
+                    let subjectsCount = best16.length;
+                    
+                    if (m2Val !== null) {
+                        total += m2Val;
+                        subjectsCount++;
+                    }
+                    
+                    return { points: total, subjects: subjectsCount };
+                }
+            } catch(e) {
+                console.error("Failed to parse subjectGrades in calculateMerit", e);
+            }
+        }
+
+        // 2. Otherwise fall back to legacy counters (expectedGenA-F / targetGenA-F)
         const prefix = type === "expected" ? "expectedGen" : "targetGen";
         let hasCountData = false;
         let totalPoints = 0;
@@ -861,7 +1005,7 @@
             return { points: totalPoints, subjects: totalSubjects };
         }
         
-        // Fallback for old rows using generalGrades or targetGeneralGrades
+        // 3. Fallback for oldest format using expectedGrade or targetGrade NO average
         const oldKey = type === "expected" ? "generalGrades" : "targetGeneralGrades";
         const oldGrade = d[oldKey];
         if (oldGrade && oldGrade !== "Vet ej" && MERIT_MAP[oldGrade] !== undefined) {
@@ -1078,14 +1222,106 @@
         talkTypesChart.update();
     }
 
+    window.toggleDetails = function(rowId) {
+        const el = document.getElementById(rowId);
+        const btn = document.getElementById('btn-' + rowId);
+        if (el) {
+            el.classList.toggle('active');
+            if (btn) {
+                btn.classList.toggle('rotated');
+            }
+        }
+    };
+
     function renderTable() {
         const tbody = document.getElementById("tableBody");
         const query = document.getElementById("tableSearch").value.toLowerCase();
         const filtered = getFilteredData().filter(d => !query || (d.className || "").toLowerCase().includes(query));
         
-        tbody.innerHTML = filtered.map(d => {
+        tbody.innerHTML = filtered.map((d, idx) => {
             const meritExp = calculateMerit(d, "expected"), meritTar = calculateMerit(d, "target");
+            
+            const toggleBtn = `<button id="btn-details-${idx}" class="toggle-btn" onclick="toggleDetails('details-${idx}')">▸</button>`;
+            
+            let detailsHtml = '';
+            const hasDetails = !!d.subjectGrades;
+            
+            if (hasDetails) {
+                try {
+                    const grades = typeof d.subjectGrades === 'string' ? JSON.parse(d.subjectGrades) : d.subjectGrades;
+                    const subjects = ['SV', 'EN', 'MA', 'BI', 'FY', 'KE', 'TK', 'HI', 'GE', 'RE', 'SH', 'BL', 'MU', 'SL', 'HKK', 'IDH', 'M2'];
+                    const subjectNames = {
+                        'SV': 'Svenska', 'EN': 'Engelska', 'MA': 'Matematik',
+                        'BI': 'Biologi', 'FY': 'Fysik', 'KE': 'Kemi', 'TK': 'Teknik',
+                        'HI': 'Historia', 'GE': 'Geografi', 'RE': 'Religionskunskap', 'SH': 'Samhällskunskap',
+                        'BL': 'Bild', 'MU': 'Musik', 'SL': 'Slöjd', 'HKK': 'Hemkunskap',
+                        'IDH': 'Idrott', 'M2': 'Moderna språk'
+                    };
+                    
+                    let gridHtml = '';
+                    subjects.forEach(sub => {
+                        const sData = grades[sub] || { expected: 'Vet ej', target: 'Inget mål' };
+                        const exp = sData.expected || 'Vet ej';
+                        const tar = sData.target || 'Inget mål';
+                        
+                        const expClass = (exp === 'Vet ej' || exp === 'Får ej betyg' || exp === '—') ? 'none' : 'expected';
+                        const tarClass = (tar === 'Inget mål' || tar === '—') ? 'none' : 'target';
+                        
+                        gridHtml += `
+                            <div class="subject-card">
+                                <div class="subject-card-header">
+                                    <span>${subjectNames[sub] || sub}</span>
+                                    <span style="font-size:0.6rem;opacity:0.6;">${sub}</span>
+                                </div>
+                                <div class="subject-card-body">
+                                    <span class="grade-badge ${expClass}">${exp}</span>
+                                    <span class="arrow-indicator">➜</span>
+                                    <span class="grade-badge ${tarClass}">${tar}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    detailsHtml = `
+                        <tr id="details-${idx}" class="details-row">
+                            <td colspan="12">
+                                <div class="details-content">
+                                    <div style="font-weight:700; font-size:0.8rem; margin-bottom:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">
+                                        📋 Detaljerade ämnesbetyg
+                                    </div>
+                                    <div class="subject-grid">
+                                        ${gridHtml}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                } catch(e) {
+                    console.error("Error rendering subjectGrades details", e);
+                    detailsHtml = `
+                        <tr id="details-${idx}" class="details-row">
+                            <td colspan="12">
+                                <div class="details-content" style="color:var(--text-muted); font-size:0.8rem;">
+                                    ⚠️ Fel vid tolkning av ämnesbetyg.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } else {
+                detailsHtml = `
+                    <tr id="details-${idx}" class="details-row">
+                        <td colspan="12">
+                            <div class="details-content" style="color:var(--text-muted); font-size:0.85rem;">
+                                ℹ️ Detaljerad ämnesstatistik saknas för detta svar (äldre enkätformat).
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            
             return `<tr>
+                <td style="text-align:center;">${toggleBtn}</td>
                 <td style="color:var(--text-muted);">${d.timestamp ? new Date(d.timestamp).toLocaleTimeString() : '—'}</td>
                 <td><span class="badge badge-class">${d.className || '—'}</span></td>
                 <td>${d.schoolMotivation || '—'}</td><td>${d.subjectMotivation || '—'}</td>
@@ -1095,7 +1331,8 @@
                 <td style="font-weight:700; color:#60a5fa;">${meritExp.subjects>0?Math.round(meritExp.points)+'/'+Math.round(meritTar.points):'—'}</td>
                 <td>${d.expectedGrade || '—'}</td><td>${d.targetGrade || '—'}</td>
                 <td>${(d.studyTechniques || []).join(', ') || 'Inga'}</td>
-            </tr>`;
+            </tr>
+            ${detailsHtml}`;
         }).join("");
     }
 

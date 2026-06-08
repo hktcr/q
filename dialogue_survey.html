@@ -375,6 +375,89 @@
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
+        /* Grade Table and Select styles */
+        .grade-table-wrap {
+            overflow-x: auto;
+            margin-top: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .grade-table th, .grade-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+
+        .grade-table th {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .grade-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .grade-subject-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .grade-subject-code {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            font-family: monospace;
+        }
+
+        .grade-select {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 0.45rem 0.75rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 18px;
+            padding-right: 2rem;
+        }
+
+        .grade-select:focus {
+            border-color: var(--accent);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .grade-select option {
+            background: #11131e;
+            color: white;
+        }
+
         /* Counters styling for grade counts */
         .grade-counters-container {
             display: flex;
@@ -897,147 +980,531 @@
         <!-- Section 4: Betyg & Mål -->
         <div class="section">
             <h2 class="section-title">📊 4. Betyg och Mål</h2>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
+                Välj det betyg du tror att du ligger på just nu i varje ämne, samt vilket betyg du siktar på att få vid terminens slut.
+            </p>
             
-            <div class="grade-row" data-name="expectedGrade">
-                <div class="grade-label">Vilket betyg tror du att du ligger på i NO just nu?</div>
-                <div class="grade-options">
-                    <div class="grade-btn" data-value="Vet ej">?</div>
-                    <div class="grade-btn" data-value="F">F</div>
-                    <div class="grade-btn" data-value="E">E</div>
-                    <div class="grade-btn" data-value="D">D</div>
-                    <div class="grade-btn" data-value="C">C</div>
-                    <div class="grade-btn" data-value="B">B</div>
-                    <div class="grade-btn" data-value="A">A</div>
-                </div>
-            </div>
-
-            <div class="grade-row" data-name="targetGrade">
-                <div class="grade-label">Vilket betyg siktar du på i NO vid terminens slut?</div>
-                <div class="grade-options">
-                    <div class="grade-btn" data-value="E">E</div>
-                    <div class="grade-btn" data-value="D">D</div>
-                    <div class="grade-btn" data-value="C">C</div>
-                    <div class="grade-btn" data-value="B">B</div>
-                    <div class="grade-btn" data-value="A">A</div>
-                </div>
-            </div>
-
-            <!-- Dynamic Counters for General expected Grades -->
-            <div class="grade-counters-container" data-name="generalGrades">
-                <div class="grade-label">Hur många betyg av varje sort tror du att du får i ditt nästa terminsbetyg? (Totalt ca 16-17 betyg)</div>
-                <div class="counters-grid">
-                    <div class="counter-item">
-                        <span class="counter-grade grade-f">F</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'F', -1)">-</button>
-                            <span class="counter-value" id="val-generalGrades-F">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'F', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-e">E</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'E', -1)">-</button>
-                            <span class="counter-value" id="val-generalGrades-E">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'E', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-d">D</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'D', -1)">-</button>
-                            <span class="counter-value" id="val-generalGrades-D">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'D', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-c">C</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'C', -1)">-</button>
-                            <span class="counter-value" id="val-generalGrades-C">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'C', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-b">B</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'B', -1)">-</button>
-                            <span class="counter-value" id="val-generalGrades-B">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'B', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-a">A</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'A', -1)">-</button>
-                            <span class="counter-value" id="val-generalGrades-A">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('generalGrades', 'A', 1)">+</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="counter-total">
-                    <span>Valda ämnen: <span class="total-number" id="total-generalGrades">0</span> st</span>
-                    <span class="total-hint">De flesta elever har 16 eller 17 betyg totalt</span>
-                </div>
-            </div>
-
-            <!-- Dynamic Counters for General Target Grades -->
-            <div class="grade-counters-container" data-name="targetGeneralGrades">
-                <div class="grade-label">Hur många betyg av varje sort siktar du på att få i ditt nästa terminsbetyg? (Målbetyg)</div>
-                <div class="counters-grid">
-                    <div class="counter-item">
-                        <span class="counter-grade grade-f">F</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'F', -1)">-</button>
-                            <span class="counter-value" id="val-targetGeneralGrades-F">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'F', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-e">E</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'E', -1)">-</button>
-                            <span class="counter-value" id="val-targetGeneralGrades-E">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'E', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-d">D</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'D', -1)">-</button>
-                            <span class="counter-value" id="val-targetGeneralGrades-D">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'D', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-c">C</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'C', -1)">-</button>
-                            <span class="counter-value" id="val-targetGeneralGrades-C">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'C', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-b">B</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'B', -1)">-</button>
-                            <span class="counter-value" id="val-targetGeneralGrades-B">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'B', 1)">+</button>
-                        </div>
-                    </div>
-                    <div class="counter-item">
-                        <span class="counter-grade grade-a">A</span>
-                        <div class="counter-controls">
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'A', -1)">-</button>
-                            <span class="counter-value" id="val-targetGeneralGrades-A">0</span>
-                            <button type="button" class="counter-btn" onclick="adjustCounter('targetGeneralGrades', 'A', 1)">+</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="counter-total">
-                    <span>Valda ämnen: <span class="total-number" id="total-targetGeneralGrades">0</span> st</span>
-                    <span class="total-hint">De flesta elever har 16 eller 17 betyg totalt</span>
-                </div>
+            <div class="grade-table-wrap">
+                <table class="grade-table">
+                    <thead>
+                        <tr>
+                            <th>Ämne</th>
+                            <th>Betyg just nu</th>
+                            <th>Målbetyg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Svenska / SVA</span>
+                                <span class="grade-subject-code">SV</span>
+                            </td>
+                            <td>
+                                <select id="exp_SV" class="grade-select" data-subject="SV">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_SV" class="grade-select" data-subject="SV">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Engelska</span>
+                                <span class="grade-subject-code">EN</span>
+                            </td>
+                            <td>
+                                <select id="exp_EN" class="grade-select" data-subject="EN">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_EN" class="grade-select" data-subject="EN">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Matematik</span>
+                                <span class="grade-subject-code">MA</span>
+                            </td>
+                            <td>
+                                <select id="exp_MA" class="grade-select" data-subject="MA">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_MA" class="grade-select" data-subject="MA">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Biologi</span>
+                                <span class="grade-subject-code">BI</span>
+                            </td>
+                            <td>
+                                <select id="exp_BI" class="grade-select" data-subject="BI">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_BI" class="grade-select" data-subject="BI">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Fysik</span>
+                                <span class="grade-subject-code">FY</span>
+                            </td>
+                            <td>
+                                <select id="exp_FY" class="grade-select" data-subject="FY">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_FY" class="grade-select" data-subject="FY">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Kemi</span>
+                                <span class="grade-subject-code">KE</span>
+                            </td>
+                            <td>
+                                <select id="exp_KE" class="grade-select" data-subject="KE">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_KE" class="grade-select" data-subject="KE">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Teknik</span>
+                                <span class="grade-subject-code">TK</span>
+                            </td>
+                            <td>
+                                <select id="exp_TK" class="grade-select" data-subject="TK">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_TK" class="grade-select" data-subject="TK">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Historia</span>
+                                <span class="grade-subject-code">HI</span>
+                            </td>
+                            <td>
+                                <select id="exp_HI" class="grade-select" data-subject="HI">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_HI" class="grade-select" data-subject="HI">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Geografi</span>
+                                <span class="grade-subject-code">GE</span>
+                            </td>
+                            <td>
+                                <select id="exp_GE" class="grade-select" data-subject="GE">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_GE" class="grade-select" data-subject="GE">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Religionskunskap</span>
+                                <span class="grade-subject-code">RE</span>
+                            </td>
+                            <td>
+                                <select id="exp_RE" class="grade-select" data-subject="RE">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_RE" class="grade-select" data-subject="RE">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Samhällskunskap</span>
+                                <span class="grade-subject-code">SH</span>
+                            </td>
+                            <td>
+                                <select id="exp_SH" class="grade-select" data-subject="SH">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_SH" class="grade-select" data-subject="SH">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Bild</span>
+                                <span class="grade-subject-code">BL</span>
+                            </td>
+                            <td>
+                                <select id="exp_BL" class="grade-select" data-subject="BL">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_BL" class="grade-select" data-subject="BL">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Musik</span>
+                                <span class="grade-subject-code">MU</span>
+                            </td>
+                            <td>
+                                <select id="exp_MU" class="grade-select" data-subject="MU">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_MU" class="grade-select" data-subject="MU">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Slöjd</span>
+                                <span class="grade-subject-code">SL</span>
+                            </td>
+                            <td>
+                                <select id="exp_SL" class="grade-select" data-subject="SL">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_SL" class="grade-select" data-subject="SL">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Hem- och konsumentk.</span>
+                                <span class="grade-subject-code">HKK</span>
+                            </td>
+                            <td>
+                                <select id="exp_HKK" class="grade-select" data-subject="HKK">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_HKK" class="grade-select" data-subject="HKK">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Idrott och hälsa</span>
+                                <span class="grade-subject-code">IDH</span>
+                            </td>
+                            <td>
+                                <select id="exp_IDH" class="grade-select" data-subject="IDH">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_IDH" class="grade-select" data-subject="IDH">
+                                    <option value="">Välj...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Inget mål">Inget mål</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="grade-subject-name">Moderna språk / Modersmål</span>
+                                <span class="grade-subject-code">M2</span>
+                            </td>
+                            <td>
+                                <select id="exp_M2" class="grade-select" data-subject="M2">
+                                    <option value="Får ej betyg">Läser ej ämnet</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="Vet ej">Vet ej</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_M2" class="grade-select" data-subject="M2">
+                                    <option value="Inget mål">Läser ej ämnet</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1080,39 +1547,7 @@
         });
     });
 
-    // Grade counters state
-    const counters = {
-        generalGrades: { F: 0, E: 0, D: 0, C: 0, B: 0, A: 0 },
-        targetGeneralGrades: { F: 0, E: 0, D: 0, C: 0, B: 0, A: 0 }
-    };
-
-    window.adjustCounter = function(questionName, grade, delta) {
-        const currentVal = counters[questionName][grade];
-        const newVal = Math.max(0, currentVal + delta);
-        counters[questionName][grade] = newVal;
-        
-        // Update DOM value
-        document.getElementById(`val-${questionName}-${grade}`).textContent = newVal;
-        
-        // Update total
-        let total = 0;
-        for (const g in counters[questionName]) {
-            total += counters[questionName][g];
-        }
-        document.getElementById(`total-${questionName}`).textContent = total;
-    };
-
-    // Grade Buttons
-    document.querySelectorAll('.grade-row').forEach(row => {
-        const btns = row.querySelectorAll('.grade-btn');
-        btns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                btns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                row.setAttribute('data-selected', btn.getAttribute('data-value'));
-            });
-        });
-    });
+    // No counters or grade button listeners needed as we use standard select dropdowns now.
 
     // Form Submission
     const form = document.getElementById('surveyForm');
@@ -1136,30 +1571,50 @@
             }
         });
 
-        // Validate Grades
-        document.querySelectorAll('.grade-row').forEach(row => {
-            if (!row.getAttribute('data-selected')) {
-                const label = row.querySelector('.grade-label').textContent.substring(0, 30);
-                missing.push(`- Betygsfråga: "${label}..."`);
+        // Validate Grades (subject-by-subject selects)
+        const subjects = ['SV', 'EN', 'MA', 'BI', 'FY', 'KE', 'TK', 'HI', 'GE', 'RE', 'SH', 'BL', 'MU', 'SL', 'HKK', 'IDH', 'M2'];
+        const subjectNames = {
+            'SV': 'Svenska / SVA',
+            'EN': 'Engelska',
+            'MA': 'Matematik',
+            'BI': 'Biologi',
+            'FY': 'Fysik',
+            'KE': 'Kemi',
+            'TK': 'Teknik',
+            'HI': 'Historia',
+            'GE': 'Geografi',
+            'RE': 'Religionskunskap',
+            'SH': 'Samhällskunskap',
+            'BL': 'Bild',
+            'MU': 'Musik',
+            'SL': 'Slöjd',
+            'HKK': 'Hem- och konsumentkunskap',
+            'IDH': 'Idrott och hälsa',
+            'M2': 'Moderna språk / Modersmål'
+        };
+
+        subjects.forEach(sub => {
+            const expVal = document.getElementById(`exp_${sub}`).value;
+            const tarVal = document.getElementById(`tar_${sub}`).value;
+            
+            // M2 is optional (has default values "Får ej betyg" / "Inget mål"), so it won't trigger validation if left as is
+            if (sub !== 'M2') {
+                if (!expVal) {
+                    missing.push(`- Betyg just nu i ${subjectNames[sub]}`);
+                }
+                if (!tarVal) {
+                    missing.push(`- Målbetyg i ${subjectNames[sub]}`);
+                }
+            } else {
+                // For M2, if the user cleared the selection somehow
+                if (!expVal) {
+                    missing.push(`- Betyg just nu i ${subjectNames[sub]}`);
+                }
+                if (!tarVal) {
+                    missing.push(`- Målbetyg i ${subjectNames[sub]}`);
+                }
             }
         });
-
-        // Validate counters
-        let totalExpected = 0;
-        for (const g in counters.generalGrades) {
-            totalExpected += counters.generalGrades[g];
-        }
-        if (totalExpected === 0) {
-            missing.push("- Hur många betyg av varje sort tror du att du får?");
-        }
-
-        let totalTarget = 0;
-        for (const g in counters.targetGeneralGrades) {
-            totalTarget += counters.targetGeneralGrades[g];
-        }
-        if (totalTarget === 0) {
-            missing.push("- Hur många betyg av varje sort siktar du på att få? (Målbetyg)");
-        }
 
         if (missing.length > 0) {
             alert("Vänligen besvara alla frågor innan du skickar in:\n\n" + missing.join("\n"));
@@ -1170,6 +1625,61 @@
         const studyChecked = [];
         document.querySelectorAll('input[name="study"]:checked').forEach(cb => {
             studyChecked.push(cb.value);
+        });
+
+        // Calculate counters and average NO grades
+        const generalGrades = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
+        const targetGeneralGrades = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
+        
+        subjects.forEach(sub => {
+            const expVal = document.getElementById(`exp_${sub}`).value;
+            const tarVal = document.getElementById(`tar_${sub}`).value;
+            
+            if (expVal && generalGrades[expVal] !== undefined) {
+                generalGrades[expVal]++;
+            }
+            if (tarVal && targetGeneralGrades[tarVal] !== undefined) {
+                targetGeneralGrades[tarVal]++;
+            }
+        });
+
+        function pointsToGrade(pts) {
+            const grades = ['F', 'E', 'D', 'C', 'B', 'A'];
+            const values = { 'F': 0, 'E': 10, 'D': 12.5, 'C': 15, 'B': 17.5, 'A': 20 };
+            let bestGrade = 'Vet ej';
+            let minDiff = Infinity;
+            grades.forEach(g => {
+                const diff = Math.abs(values[g] - pts);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    bestGrade = g;
+                }
+            });
+            return bestGrade;
+        }
+
+        function getAverageNOGrade(type) {
+            const noSubjects = ['BI', 'FY', 'KE'];
+            let totalPts = 0;
+            let count = 0;
+            const values = { 'A': 20, 'B': 17.5, 'C': 15, 'D': 12.5, 'E': 10, 'F': 0 };
+            noSubjects.forEach(sub => {
+                const val = document.getElementById(`${type}_${sub}`).value;
+                if (val && val !== 'Vet ej' && val !== 'Inget mål' && val !== 'Får ej betyg' && values[val] !== undefined) {
+                    totalPts += values[val];
+                    count++;
+                }
+            });
+            if (count === 0) return 'Vet ej';
+            return pointsToGrade(totalPts / count);
+        }
+
+        const subjectGrades = {};
+        subjects.forEach(sub => {
+            subjectGrades[sub] = {
+                expected: document.getElementById(`exp_${sub}`).value || 'Vet ej',
+                target: document.getElementById(`tar_${sub}`).value || 'Inget mål'
+            };
         });
 
         // Construct payload
@@ -1183,20 +1693,21 @@
             talkNews: document.querySelector('.likert-question[data-name="talkNews"]').getAttribute('data-selected'),
             talkThinking: document.querySelector('.likert-question[data-name="talkThinking"]').getAttribute('data-selected'),
             talkDeep: document.querySelector('.likert-question[data-name="talkDeep"]').getAttribute('data-selected'),
-            expectedGrade: document.querySelector('.grade-row[data-name="expectedGrade"]').getAttribute('data-selected'),
-            targetGrade: document.querySelector('.grade-row[data-name="targetGrade"]').getAttribute('data-selected'),
-            expectedGenF: counters.generalGrades.F,
-            expectedGenE: counters.generalGrades.E,
-            expectedGenD: counters.generalGrades.D,
-            expectedGenC: counters.generalGrades.C,
-            expectedGenB: counters.generalGrades.B,
-            expectedGenA: counters.generalGrades.A,
-            targetGenF: counters.targetGeneralGrades.F,
-            targetGenE: counters.targetGeneralGrades.E,
-            targetGenD: counters.targetGeneralGrades.D,
-            targetGenC: counters.targetGeneralGrades.C,
-            targetGenB: counters.targetGeneralGrades.B,
-            targetGenA: counters.targetGeneralGrades.A
+            expectedGrade: getAverageNOGrade('exp'),
+            targetGrade: getAverageNOGrade('tar'),
+            expectedGenF: generalGrades.F,
+            expectedGenE: generalGrades.E,
+            expectedGenD: generalGrades.D,
+            expectedGenC: generalGrades.C,
+            expectedGenB: generalGrades.B,
+            expectedGenA: generalGrades.A,
+            targetGenF: targetGeneralGrades.F,
+            targetGenE: targetGeneralGrades.E,
+            targetGenD: targetGeneralGrades.D,
+            targetGenC: targetGeneralGrades.C,
+            targetGenB: targetGeneralGrades.B,
+            targetGenA: targetGeneralGrades.A,
+            subjectGrades: JSON.stringify(subjectGrades)
         };
 
         // UI Feedback: Sending
@@ -1206,15 +1717,13 @@
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
-                mode: 'no-cors', // Apps Script requires no-cors sometimes, or we can use cors if it returns correct headers
+                mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
 
-            // Note: Since 'no-cors' does not let us read response status, 
-            // we assume success if no exception is thrown, which is standard when POSTing to Google Apps Script.
             // Show success overlay
             document.getElementById('successOverlay').classList.add('active');
 
