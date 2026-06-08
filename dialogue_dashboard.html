@@ -439,6 +439,19 @@
         <span class="student-link-text" id="studentLink"></span>
         <button class="btn" style="padding:0.4rem 0.8rem; font-size:0.75rem;" onclick="copyStudentLink()">Kopiera</button>
     </div>
+
+    <!-- Diagnostics Box -->
+    <div id="diagnosticBox" style="display:none; margin-top: 1rem; padding: 1.25rem; border-radius: 14px; background: rgba(244, 63, 94, 0.06); border: 1px solid rgba(244, 63, 94, 0.25); color: #fda4af; font-size: 0.88rem;">
+        <strong style="display:block; margin-bottom: 0.5rem; color:#f43f5e; font-family:'Outfit',sans-serif; font-size:1rem;">🔍 Felsökningsguide för Anslutningsfel:</strong>
+        <ul style="margin-left: 1.25rem; line-height: 1.6; display: flex; flex-direction: column; gap: 0.4rem;">
+            <li><strong>Kontrollera URL-formatet:</strong> Har du klistrat in Web App-URL:en som slutar på <code>/exec</code>? Den ska se ut som: <code>https://script.google.com/macros/s/XXXXX/exec</code>. (Klistra inte in kalkylarkets vanliga webbadress eller editor-fönstrets adress).</li>
+            <li><strong>Rätt behörighet vid driftsättning:</strong> I Google Apps Script, när du driftsätter, måste inställningen <strong>Vem har åtkomst (Who has access)</strong> vara inställd på <strong>Alla (Anyone)</strong>.</li>
+            <li><strong>Skapa en Ny Version:</strong> Har du sparat ändringarna i Apps Script och sedan gjort en driftsättning av en <strong>Ny version</strong>? Om du inte väljer "Ny version" vid ny driftsättning fortsätter Google att köra den gamla kraschade koden!</li>
+            <li><strong>Flera Google-konton:</strong> Om du är inloggad på flera Google-konton i samma webbläsare kan Google blockera anropet. Prova att öppna denna sida i ett privat fönster (Incognito) och konfigurera den där.</li>
+            <li><strong>Konsolfel:</strong> Högerklicka på sidan, välj <strong>Inspektera</strong>, gå till fliken <strong>Konsol</strong> (Console) och kolla om det finns ett rött felmeddelande. Det ger den exakta tekniska förklaringen.</li>
+        </ul>
+        <div style="margin-top: 1rem; font-family: monospace; font-size: 0.82rem; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); color:#fecdd3; word-break: break-all;" id="diagnosticErrorText"></div>
+    </div>
 </div>
 
 <div class="filters-container" id="classFilters">
@@ -653,20 +666,28 @@
     function updateStatus(ok, customText = "") {
         const dot = document.getElementById("statusDot");
         const txt = document.getElementById("statusText");
+        const diagBox = document.getElementById("diagnosticBox");
+        const diagErr = document.getElementById("diagnosticErrorText");
         
         if (!apiEndpoint) {
             dot.className = "status-dot";
             txt.textContent = "Ej konfigurerad";
+            if (diagBox) diagBox.style.display = "none";
             return;
         }
 
         if (ok) {
             dot.className = "status-dot active";
             txt.textContent = customText || (isPaused ? "Pausad" : "Live (Uppdaterar)");
+            if (diagBox) diagBox.style.display = "none";
         } else {
             dot.className = "status-dot";
             dot.style.background = "var(--rose)";
-            txt.textContent = "Anslutningsfel";
+            txt.textContent = customText || "Anslutningsfel";
+            if (diagBox) {
+                diagBox.style.display = "block";
+                diagErr.textContent = `Feldetaljer: ${customText || "Inga detaljer tillgängliga."}`;
+            }
         }
     }
 
