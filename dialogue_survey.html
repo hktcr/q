@@ -391,6 +391,19 @@
             font-size: 0.95rem;
         }
 
+        .grade-table th:first-child,
+        .grade-table td:first-child {
+            width: 44%;
+        }
+
+        .grade-table th:nth-child(2),
+        .grade-table td:nth-child(2),
+        .grade-table th:nth-child(3),
+        .grade-table td:nth-child(3) {
+            width: 28%;
+            min-width: 130px;
+        }
+
         .grade-table th, .grade-table td {
             padding: 0.75rem 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -1481,7 +1494,7 @@
                             </td>
                             <td>
                                 <select id="exp_M2" class="grade-select" data-subject="M2">
-                                    <option value="Får ej betyg">Läser ej ämnet</option>
+                                    <option value="Får ej betyg">Läser ej</option>
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
@@ -1489,11 +1502,11 @@
                                     <option value="E">E</option>
                                     <option value="F">F</option>
                                     <option value="Vet ej">Vet ej</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select id="tar_M2" class="grade-select" data-subject="M2">
-                                    <option value="Inget mål">Läser ej ämnet</option>
+                                    </select>
+                                    </td>
+                                    <td>
+                                    <select id="tar_M2" class="grade-select" data-subject="M2">
+                                    <option value="Inget mål">Läser ej</option>
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
