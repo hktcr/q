@@ -126,6 +126,11 @@
             gap: 0.6rem;
         }
 
+        .section-title svg {
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -893,7 +898,10 @@
             <div class="form-column">
                 <!-- Section 1: Allmänt -->
                 <div class="section">
-                    <h2 class="section-title">🏫 1. Bakgrund & Motivation</h2>
+                    <h2 class="section-title">
+                        <svg class="header-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10"></path><path d="m22 10-10-8L2 10"></path><path d="M6 22V12h12v10"></path></svg>
+                        1. Bakgrund & Motivation
+                    </h2>
             
             <div class="form-group">
                 <label for="className">Klass</label>
@@ -947,7 +955,10 @@
 
         <!-- Section 2: Studieteknik -->
         <div class="section">
-            <h2 class="section-title">🧠 2. Studieteknik</h2>
+            <h2 class="section-title">
+                <svg class="header-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>
+                2. Studieteknik
+            </h2>
             <label style="margin-bottom: 0.75rem;">Vilka av följande sätt använder du oftast för att plugga? (Välj alla som stämmer)</label>
             <div class="checkbox-group">
                 <label class="checkbox-label">
@@ -977,7 +988,10 @@
     <div class="form-column">
         <!-- Section 3: Samtal hemma -->
         <div class="section">
-            <h2 class="section-title">💬 3. Samtal hemma</h2>
+            <h2 class="section-title">
+                <svg class="header-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                3. Samtal hemma
+            </h2>
             <label style="margin-bottom: 0.75rem;">Hur ofta sker följande hemma hos dig?</label>
             
             <div class="likert-question" data-name="talkSchool">
@@ -1027,7 +1041,10 @@
 
         <!-- Section 4: Betyg & Mål -->
         <div class="section">
-            <h2 class="section-title">📊 4. Betyg och Mål</h2>
+            <h2 class="section-title">
+                <svg class="header-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                4. Betyg och Mål
+            </h2>
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
                 Välj det betyg du tror att du ligger på just nu och ditt målbetyg för varje ämne.
             </p>
