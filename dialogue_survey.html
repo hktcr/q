@@ -59,6 +59,18 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .form-columns {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 3rem;
@@ -589,78 +601,145 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsive */
-        @media(max-width: 480px) {
-            body { padding: 1rem 0.75rem; }
-            .container { padding: 2rem 1.25rem; border-radius: 20px; }
-            .header h1 { font-size: 2rem; }
-            .likert-options { grid-template-columns: 1fr; gap: 0.4rem; }
-            .likert-btn { padding: 0.85rem 1rem; text-align: left; }
-            .grade-row { flex-direction: column; align-items: flex-start; gap: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; }
-            .grade-options { width: 100%; justify-content: space-between; }
-            .grade-btn { width: 44px; height: 44px; }
-        }
-    </style>
-            pointer-events: auto;
+        /* Responsive Design */
+        @media (min-width: 992px) {
+            .container {
+                max-width: 1100px;
+                width: 90%;
+                padding: 3.5rem;
+            }
+
+            .form-columns {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .submit-btn {
+                max-width: 320px;
+                margin: 0 auto;
+            }
         }
 
-        .success-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: rgba(16, 185, 129, 0.1);
-            border: 2px solid var(--success);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--success);
-            font-size: 2.2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 0 20px var(--success-glow);
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        @media (max-width: 768px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+
+            .container {
+                padding: 2.25rem 1.75rem;
+                border-radius: 24px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
         }
 
-        @keyframes popIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
 
-        .success-overlay h2 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.8rem;
-            color: #6ee7b7;
-            margin-bottom: 0.5rem;
-        }
+            .container {
+                padding: 1.75rem 1.1rem;
+                border-radius: 20px;
+            }
 
-        .success-overlay p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            max-width: 320px;
-        }
+            .header {
+                margin-bottom: 2rem;
+            }
 
-        /* Spinner */
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
+            .header h1 {
+                font-size: 1.8rem;
+            }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+            .header p {
+                font-size: 0.88rem;
+            }
 
-        /* Responsive */
-        @media(max-width: 480px) {
-            .container { padding: 1.5rem; }
-            .header h1 { font-size: 1.8rem; }
-            .likert-options { grid-template-columns: 1fr; }
-            .likert-btn { padding: 0.5rem; text-align: left; padding-left: 1rem; }
-            .grade-row { flex-direction: column; align-items: flex-start; gap: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.75rem; }
-            .grade-options { width: 100%; justify-content: space-between; }
+            .section {
+                padding: 1.25rem 1rem;
+                margin-bottom: 1.5rem;
+                border-radius: 16px;
+            }
+
+            .section-title {
+                font-size: 1.15rem;
+                margin-bottom: 1.25rem;
+            }
+
+            label {
+                font-size: 0.88rem;
+            }
+
+            /* Stack Likert buttons horizontally but with text wrapping or smaller size */
+            .likert-options {
+                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+                gap: 0.4rem;
+            }
+
+            .likert-btn {
+                padding: 0.6rem 0.2rem;
+                font-size: 0.72rem;
+                border-radius: 8px;
+            }
+
+            .grade-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                padding-bottom: 1rem;
+            }
+
+            .grade-row:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+            .grade-options {
+                width: 100%;
+                justify-content: space-between;
+                gap: 0.25rem;
+            }
+
+            .grade-btn {
+                flex: 1;
+                height: 42px;
+                font-size: 0.85rem;
+                border-radius: 8px;
+            }
+
+            .counters-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.4rem;
+            }
+
+            .counter-item {
+                padding: 0.5rem 0.3rem;
+            }
+
+            .counter-grade {
+                font-size: 1rem;
+            }
+
+            .counter-btn {
+                width: 20px;
+                height: 20px;
+            }
+
+            .counter-value {
+                font-size: 0.85rem;
+            }
+
+            .counter-total {
+                font-size: 0.8rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.2rem;
+            }
         }
     </style>
 </head>
@@ -679,9 +758,11 @@
     </div>
 
     <form id="surveyForm">
-        <!-- Section 1: Allmänt -->
-        <div class="section">
-            <h2 class="section-title">🏫 1. Bakgrund & Motivation</h2>
+        <div class="form-columns">
+            <div class="form-column">
+                <!-- Section 1: Allmänt -->
+                <div class="section">
+                    <h2 class="section-title">🏫 1. Bakgrund & Motivation</h2>
             
             <div class="form-group">
                 <label for="className">Klass</label>
@@ -760,7 +841,9 @@
                 </label>
             </div>
         </div>
+    </div>
 
+    <div class="form-column">
         <!-- Section 3: Samtal hemma -->
         <div class="section">
             <h2 class="section-title">💬 3. Samtal hemma</h2>
@@ -957,6 +1040,8 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
         <button type="submit" class="submit-btn" id="submitBtn">
             Skicka in svar
