@@ -1410,28 +1410,29 @@
 
     function updateCharts() {
         const filtered = getFilteredData();
-        if (filtered.length === 0) return;
 
         const scatterData = [];
-        filtered.forEach(d => {
-            const xVal = calculateConversationIndex(d);
-            if (activeYAxisSource === "nosum") {
-                const noObj = calculateNOSum(d, "expected");
-                if (noObj.subjects > 0) {
-                    scatterData.push({ x: xVal, y: noObj.points });
-                }
-            } else {
-                const meritObj = calculateMerit(d, "expected");
-                if (meritObj.subjects >= 15) {
-                    scatterData.push({ x: xVal, y: meritObj.points });
+        if (filtered.length > 0) {
+            filtered.forEach(d => {
+                const xVal = calculateConversationIndex(d);
+                if (activeYAxisSource === "nosum") {
+                    const noObj = calculateNOSum(d, "expected");
+                    if (noObj.subjects > 0) {
+                        scatterData.push({ x: xVal, y: noObj.points });
+                    }
                 } else {
-                    const gradePt = GRADE_MAP[d.expectedGrade];
-                    if (gradePt !== undefined && gradePt !== null) {
-                        scatterData.push({ x: xVal, y: gradePt * 64 });
+                    const meritObj = calculateMerit(d, "expected");
+                    if (meritObj.subjects >= 15) {
+                        scatterData.push({ x: xVal, y: meritObj.points });
+                    } else {
+                        const gradePt = GRADE_MAP[d.expectedGrade];
+                        if (gradePt !== undefined && gradePt !== null) {
+                            scatterData.push({ x: xVal, y: gradePt * 64 });
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
         scatterChart.data.datasets[0].data = scatterData;
         
         if (activeYAxisSource === "nosum") {
@@ -1449,46 +1450,54 @@
             const intercept = (sumY - slope * sumX) / n;
             const maxY = activeYAxisSource === "nosum" ? 60 : 340;
             scatterChart.data.datasets[1].data = [{ x: 4, y: Math.max(0, Math.min(maxY, slope * 4 + intercept)) }, { x: 20, y: Math.max(0, Math.min(maxY, slope * 20 + intercept)) }];
-        } else scatterChart.data.datasets[1].data = [];
+        } else {
+            scatterChart.data.datasets[1].data = [];
+        }
         scatterChart.update();
 
         const expectedCounts = [0,0,0,0,0,0], targetCounts = [0,0,0,0,0,0];
-        filtered.forEach(d => {
-            const grades = ["F", "E", "D", "C", "B", "A"];
-            let hasExp = false, hasTar = false;
-            grades.forEach((g, i) => {
-                const e = parseInt(d["expectedGen"+g]), t = parseInt(d["targetGen"+g]);
-                if (!isNaN(e)) { expectedCounts[i] += e; hasExp = true; }
-                if (!isNaN(t)) { targetCounts[i] += t; hasTar = true; }
+        if (filtered.length > 0) {
+            filtered.forEach(d => {
+                const grades = ["F", "E", "D", "C", "B", "A"];
+                let hasExp = false, hasTar = false;
+                grades.forEach((g, i) => {
+                    const e = parseInt(d["expectedGen"+g]), t = parseInt(d["targetGen"+g]);
+                    if (!isNaN(e)) { expectedCounts[i] += e; hasExp = true; }
+                    if (!isNaN(t)) { targetCounts[i] += t; hasTar = true; }
+                });
+                if (!hasExp) { const i = GRADE_MAP[d.expectedGrade]; if (i != null) expectedCounts[i] += 16; }
+                if (!hasTar) { const i = GRADE_MAP[d.targetGrade]; if (i != null) targetCounts[i] += 16; }
             });
-            if (!hasExp) { const i = GRADE_MAP[d.expectedGrade]; if (i != null) expectedCounts[i] += 16; }
-            if (!hasTar) { const i = GRADE_MAP[d.targetGrade]; if (i != null) targetCounts[i] += 16; }
-        });
+        }
         gradesChart.data.datasets[0].data = expectedCounts;
         gradesChart.data.datasets[1].data = targetCounts;
         gradesChart.update();
 
         const studyCounts = [0,0,0,0,0];
-        filtered.forEach(d => {
-            const h = d.studyTechniques || [];
-            if (h.includes("Skriver sammanfattningar")) studyCounts[0]++;
-            if (h.includes("Gör övningsfrågor / Flashcards")) studyCounts[1]++;
-            if (h.includes("Läser boken/anteckningar")) studyCounts[2]++;
-            if (h.includes("Förklarar för någon")) studyCounts[3]++;
-            if (h.includes("Pluggar sista dagen")) studyCounts[4]++;
-        });
+        if (filtered.length > 0) {
+            filtered.forEach(d => {
+                const h = d.studyTechniques || [];
+                if (h.includes("Skriver sammanfattningar")) studyCounts[0]++;
+                if (h.includes("Gör övningsfrågor / Flashcards")) studyCounts[1]++;
+                if (h.includes("Läser boken/anteckningar")) studyCounts[2]++;
+                if (h.includes("Förklarar för någon")) studyCounts[3]++;
+                if (h.includes("Pluggar sista dagen")) studyCounts[4]++;
+            });
+        }
         studyChart.data.datasets[0].data = studyCounts;
         studyChart.update();
 
         const cats = ["talkSchool", "talkNews", "talkThinking", "talkDeep"], sums = [[0,0,0,0],[0,0,0,0],[0,0,0,0]], counts = [[0,0,0,0],[0,0,0,0],[0,0,0,0]];
-        filtered.forEach(d => {
-            const g = GRADE_MAP[d.expectedGrade];
-            if (g == null) return;
-            cats.forEach((c, i) => {
-                const freq = d[c] || "Aldrig", group = (freq === "Ibland" ? 1 : (freq === "Ofta" || freq === "Dagligen" ? 2 : 0));
-                sums[group][i] += g; counts[group][i]++;
+        if (filtered.length > 0) {
+            filtered.forEach(d => {
+                const g = GRADE_MAP[d.expectedGrade];
+                if (g == null) return;
+                cats.forEach((c, i) => {
+                    const freq = d[c] || "Aldrig", group = (freq === "Ibland" ? 1 : (freq === "Ofta" || freq === "Dagligen" ? 2 : 0));
+                    sums[group][i] += g; counts[group][i]++;
+                });
             });
-        });
+        }
         talkTypesChart.data.datasets.forEach((set, i) => set.data = sums[i].map((s, j) => counts[i][j] > 0 ? s / counts[i][j] : 0));
         talkTypesChart.update();
     }
