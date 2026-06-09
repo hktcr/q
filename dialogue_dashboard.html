@@ -1123,7 +1123,10 @@
         
         // 3. Fallback for oldest format using expectedGrade or targetGrade NO average
         const oldKey = type === "expected" ? "generalGrades" : "targetGeneralGrades";
-        const oldGrade = d[oldKey];
+        let oldGrade = d[oldKey];
+        if (!oldGrade || oldGrade === "Vet ej") {
+            oldGrade = type === "expected" ? d.expectedGrade : d.targetGrade;
+        }
         if (oldGrade && oldGrade !== "Vet ej" && MERIT_MAP[oldGrade] !== undefined) {
             return { points: 16 * MERIT_MAP[oldGrade], subjects: 16 };
         }
@@ -1139,12 +1142,12 @@
         const total = baseData.length;
         document.getElementById("statTotal").textContent = total;
 
-        const classes = new Set(surveyData.map(d => d.className).filter(Boolean));
+        const classes = new Set(surveyData.map(d => d.className || d.class).filter(Boolean));
         const filtersContainer = document.getElementById("classFilters");
         
         let filterHtml = `<button class="btn ${activeFilterClass === "Alla" ? "active" : ""}" onclick="setFilterClass('Alla')">Alla klasser (${total})</button>`;
         classes.forEach(cls => {
-            const count = baseData.filter(d => d.className === cls).length;
+            const count = baseData.filter(d => (d.className || d.class) === cls).length;
             filterHtml += `<button class="btn ${activeFilterClass === cls ? "active" : ""}" onclick="setFilterClass('${cls}')">${cls} (${count})</button>`;
         });
         filtersContainer.innerHTML = filterHtml;
@@ -1199,7 +1202,7 @@
     }
 
     function getFilteredData() {
-        let data = activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => d.className === activeFilterClass);
+        let data = activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => (d.className || d.class) === activeFilterClass);
         if (excludeNoGrades) {
             data = data.filter(d => d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "");
         }
@@ -1366,7 +1369,7 @@
     function renderTable() {
         const tbody = document.getElementById("tableBody");
         const query = document.getElementById("tableSearch").value.toLowerCase();
-        const filtered = getFilteredData().filter(d => !query || (d.className || "").toLowerCase().includes(query));
+        const filtered = getFilteredData().filter(d => !query || (d.className || d.class || "").toLowerCase().includes(query));
         
         tbody.innerHTML = filtered.map((d, idx) => {
             const meritExp = calculateMerit(d, "expected"), meritTar = calculateMerit(d, "target");
@@ -1519,7 +1522,7 @@
             return `<tr>
                 <td style="text-align:center;">${toggleBtn}</td>
                 <td style="color:var(--text-muted);">${d.timestamp ? new Date(d.timestamp).toLocaleTimeString() : '—'}</td>
-                <td><span class="badge badge-class">${d.className || '—'}</span></td>
+                <td><span class="badge badge-class">${d.className || d.class || '—'}</span></td>
                 <td>${d.schoolMotivation || '—'}</td><td>${d.subjectMotivation || '—'}</td>
                 <td style="font-size:0.8rem">${d.talkSchool||'—'},${d.talkNews||'—'},${d.talkThinking||'—'},${d.talkDeep||'—'}</td>
                 <td style="font-weight:700; color:#818cf8;">${calculateConversationIndex(d)}</td>
@@ -1541,7 +1544,7 @@
         ];
         const rows = filtered.map(d => [
             d.timestamp, 
-            d.className, 
+            d.className || d.class || '', 
             d.schoolMotivation, 
             calculateConversationIndex(d), 
             calculateMerit(d, "expected").points, 
