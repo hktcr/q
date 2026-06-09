@@ -877,6 +877,71 @@
                 gap: 0.2rem;
             }
         }
+
+        /* Tooltip styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.35rem;
+            cursor: help;
+            vertical-align: middle;
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(139, 29, 65, 0.08);
+            color: var(--primary);
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(139, 29, 65, 0.15);
+            line-height: 1;
+        }
+
+        .tooltip-container:hover .tooltip-icon,
+        .tooltip-container:focus-within .tooltip-icon {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            width: 220px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            color: var(--text-main);
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            font-weight: 400;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(139, 29, 65, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            white-space: normal;
+        }
+
+        .tooltip-container:hover .tooltip-text,
+        .tooltip-container:focus-within .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -890,7 +955,7 @@
 
     <div class="header">
         <h1>Klassrumsenkät</h1>
-        <p>Denna enkät är helt anonym. Svara så ärligt du kan för att hjälpa oss att förstå hur vi bäst kan stödja ditt lärande och utveckla NO-undervisningen.</p>
+        <p>Denna enkät är helt anonym. Svara så ärligt du kan för att hjälpa mig att förstå hur vi bäst kan stödja ditt lärande och utveckla NO-undervisningen.</p>
     </div>
 
     <form id="surveyForm">
@@ -927,7 +992,7 @@
             </div>
 
             <div class="form-group">
-                <label for="subjectMotivation">Hur intressant tycker du att ämnet NO är?</label>
+                <label for="subjectMotivation">Hur intressanta tycker du att NO-ämnen är?</label>
                 <div class="slider-container">
                     <input type="range" id="subjectMotivation" min="1" max="5" value="3" class="slider">
                     <div class="slider-labels">
@@ -951,6 +1016,44 @@
                     <div class="slider-val" id="classDiscussionComfortVal">3</div>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="sleepEnergy">Hur pigg och utvilad känner du dig vanligtvis på lektionerna?</label>
+                <div class="slider-container">
+                    <input type="range" id="sleepEnergy" min="1" max="5" value="3" class="slider">
+                    <div class="slider-labels">
+                        <span>1: Alltid trött</span>
+                        <span>3: Helt okej</span>
+                        <span>5: Full av energi</span>
+                    </div>
+                    <div class="slider-val" id="sleepEnergyVal">3</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="classWellbeing">Hur bra trivs du i din klass vanligtvis?</label>
+                <div class="slider-container">
+                    <input type="range" id="classWellbeing" min="1" max="5" value="3" class="slider">
+                    <div class="slider-labels">
+                        <span>1: Trivs inte alls bra</span>
+                        <span>3: Helt okej</span>
+                        <span>5: Trivs jättebra</span>
+                    </div>
+                    <div class="slider-val" id="classWellbeingVal">3</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="classSwitchWish">Om du fick möjlighet att byta klass, hur gärna skulle du vilja göra det?</label>
+                <select id="classSwitchWish" required>
+                    <option value="" disabled selected>Välj ett alternativ...</option>
+                    <option value="Vill absolut inte byta">Vill absolut inte byta</option>
+                    <option value="Vill helst inte byta">Vill helst inte byta</option>
+                    <option value="Spelar ingen roll">Spelar ingen roll</option>
+                    <option value="Vill gärna byta">Vill gärna byta</option>
+                    <option value="Vill absolut byta">Vill absolut byta</option>
+                </select>
+            </div>
         </div>
 
         <!-- Section 2: Studieteknik -->
@@ -964,10 +1067,18 @@
                 <label class="checkbox-label">
                     <input type="checkbox" name="study" value="Skriver sammanfattningar">
                     Skriver egna sammanfattningar (t.ex. med egna ord eller tankekartor)
+                    <span class="tooltip-container" tabindex="0">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Att skriva ner det viktigaste med egna ord, rita tankekartor eller rita bilder för att minnas bättre.</span>
+                    </span>
                 </label>
                 <label class="checkbox-label">
                     <input type="checkbox" name="study" value="Gör övningsfrågor / Flashcards">
                     Gör egna/andras quiz, flashcards eller svarar på instuderingsfrågor
+                    <span class="tooltip-container" tabindex="0">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Att testa sig själv genom att svara på frågor istället för att bara läsa. Flashcards är kort med en fråga på framsidan och svaret på baksidan.</span>
+                    </span>
                 </label>
                 <label class="checkbox-label">
                     <input type="checkbox" name="study" value="Läser boken/anteckningar">
@@ -976,11 +1087,63 @@
                 <label class="checkbox-label">
                     <input type="checkbox" name="study" value="Förklarar för någon">
                     Förklarar eller diskuterar ämnet med en kompis eller förälder
+                    <span class="tooltip-container" tabindex="0">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Att låtsas vara lärare och förklara för en kompis, förälder eller för sig själv. Ett mycket effektivt sätt att upptäcka vad man har förstått.</span>
+                    </span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Pluggar i god tid">
+                    Pluggar lite då och då under flera dagar i god tid innan provet
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Tittar på filmer">
+                    Tittar på förklarande filmer (t.ex. på YouTube, Binogi eller Begreppa)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="study" value="Markerar med färgpennor">
+                    Markerar eller stryker under viktig text med färgpennor
                 </label>
                 <label class="checkbox-label">
                     <input type="checkbox" name="study" value="Pluggar sista dagen">
                     Pluggar i princip bara kvällen innan ett prov
                 </label>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem; border-top: 1px dashed rgba(139, 29, 65, 0.1); padding-top: 1.25rem;">
+                <label style="font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem; display: block;">Hur stämmer följande påståenden om omprov för dig?</label>
+            </div>
+
+            <div class="form-group">
+                <label for="retestStressRelief">"Att ha möjlighet till omprov minskar min stress under det vanliga provet."</label>
+                <div class="slider-container">
+                    <input type="range" id="retestStressRelief" min="1" max="5" value="3" class="slider">
+                    <div class="slider-labels">
+                        <span>1: Stämmer inte alls</span>
+                        <span>3: Stämmer ganska bra</span>
+                        <span>5: Stämmer helt</span>
+                    </div>
+                    <div class="slider-val" id="retestStressReliefVal">3</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="retestFocusDrain">
+                    "Att plugga till ett omprov gör det svårare att fokusera på mina andra prov och läxor."
+                    <span class="tooltip-container" tabindex="0">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Om du lägger mycket energi på att plugga till ett gammalt prov (omprov), kan det hända att du inte hinner eller orkar plugga till de vanliga prov du har just nu i andra ämnen.</span>
+                    </span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="retestFocusDrain" min="1" max="5" value="3" class="slider">
+                    <div class="slider-labels">
+                        <span>1: Stämmer inte alls</span>
+                        <span>3: Stämmer ganska bra</span>
+                        <span>5: Stämmer helt</span>
+                    </div>
+                    <div class="slider-val" id="retestFocusDrainVal">3</div>
+                </div>
             </div>
         </div>
     </div>
@@ -990,9 +1153,33 @@
         <div class="section">
             <h2 class="section-title">
                 <svg class="header-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                3. Samtal hemma
+                3. Hemmiljö & Samtal
             </h2>
-            <label style="margin-bottom: 0.75rem;">Hur ofta sker följande hemma hos dig?</label>
+
+            <div class="form-group">
+                <label for="quietStudySpace">Har du en lugn plats hemma där du kan sitta och studera i fred?</label>
+                <select id="quietStudySpace" required>
+                    <option value="" disabled selected>Välj ett alternativ...</option>
+                    <option value="Ja, alltid">Ja, alltid</option>
+                    <option value="Ja, oftast">Ja, oftast</option>
+                    <option value="Ibland">Ibland</option>
+                    <option value="Sällan eller aldrig">Sällan eller aldrig</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="homeworkHelp">Hur ofta får du hjälp med läxor eller skolarbete hemifrån om du behöver det?</label>
+                <select id="homeworkHelp" required>
+                    <option value="" disabled selected>Välj ett alternativ...</option>
+                    <option value="Alltid">Alltid</option>
+                    <option value="Ofta">Ofta</option>
+                    <option value="Ibland">Ibland</option>
+                    <option value="Sällan">Sällan</option>
+                    <option value="Aldrig">Aldrig</option>
+                </select>
+            </div>
+
+            <label style="margin-bottom: 0.75rem; display: block; font-weight: 600; color: var(--text-main); border-top: 1px dashed rgba(139, 29, 65, 0.1); padding-top: 1.25rem;">Hur ofta sker följande hemma hos dig?</label>
             
             <div class="likert-question" data-name="talkSchool">
                 <div class="likert-text">A. Du pratar med vuxna hemma om vad du lär dig i skolan.</div>
@@ -1017,7 +1204,13 @@
             </div>
 
             <div class="likert-question" data-name="talkThinking">
-                <div class="likert-text">C. Vuxna hemma ställer kluriga frågor som får dig att tänka efter ordentligt.</div>
+                <div class="likert-text">
+                    C. Vuxna hemma ställer kluriga frågor som får dig att tänka efter ordentligt.
+                    <span class="tooltip-container" tabindex="0">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Frågor som inte har ett enkelt "ja" eller "nej"-svar. Till exempel filosofiska funderingar, gåtor eller vetenskapliga frågor där man måste tänka efter.</span>
+                    </span>
+                </div>
                 <div class="likert-options">
                     <div class="likert-btn" data-value="Aldrig">Aldrig</div>
                     <div class="likert-btn" data-value="Sällan">Sällan</div>
@@ -1028,7 +1221,13 @@
             </div>
 
             <div class="likert-question" data-name="talkDeep">
-                <div class="likert-text">D. Ni diskuterar djupa eller svåra ämnen (t.ex. vetenskap, etik eller filosofi).</div>
+                <div class="likert-text">
+                    D. Ni diskuterar djupa eller svåra ämnen (t.ex. vetenskap, etik eller filosofi).
+                    <span class="tooltip-container" tabindex="0">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Samtal där ni pratar längre om ett ämne, till exempel om hur universum fungerar, etiska dilemman eller svåra samhällsfrågor.</span>
+                    </span>
+                </div>
                 <div class="likert-options">
                     <div class="likert-btn" data-value="Aldrig">Aldrig</div>
                     <div class="likert-btn" data-value="Sällan">Sällan</div>
@@ -1541,12 +1740,12 @@
                         </tr>
                         <tr>
                             <td>
-                                <span class="grade-subject-name">Moderna språk (eller Modersmål/Sv2)</span>
+                                <span class="grade-subject-name">Moderna språk</span>
                                 <span class="grade-subject-code">M2</span>
                             </td>
                             <td>
                                 <select id="exp_M2" class="grade-select" data-subject="M2">
-                                    <option value="Får ej betyg">Ej (SVEN)</option>
+                                    <option value="Läser SVEN">Läser SVEN (inget betyg)</option>
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
@@ -1554,11 +1753,11 @@
                                     <option value="E">E</option>
                                     <option value="F">F</option>
                                     <option value="Vet ej">Vet ej</option>
-                                    </select>
-                                    </td>
-                                    <td>
-                                    <select id="tar_M2" class="grade-select" data-subject="M2">
-                                    <option value="Inget mål">Ej (SVEN)</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="tar_M2" class="grade-select" data-subject="M2">
+                                    <option value="Läser SVEN">Läser SVEN (inget betyg)</option>
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
@@ -1599,6 +1798,22 @@
     const discussionSlider = document.getElementById('classDiscussionComfort');
     const discussionVal = document.getElementById('classDiscussionComfortVal');
     discussionSlider.addEventListener('input', () => discussionVal.textContent = discussionSlider.value);
+
+    const sleepSlider = document.getElementById('sleepEnergy');
+    const sleepVal = document.getElementById('sleepEnergyVal');
+    sleepSlider.addEventListener('input', () => sleepVal.textContent = sleepSlider.value);
+
+    const wellbeingSlider = document.getElementById('classWellbeing');
+    const wellbeingVal = document.getElementById('classWellbeingVal');
+    wellbeingSlider.addEventListener('input', () => wellbeingVal.textContent = wellbeingSlider.value);
+
+    const stressSlider = document.getElementById('retestStressRelief');
+    const stressVal = document.getElementById('retestStressReliefVal');
+    stressSlider.addEventListener('input', () => stressVal.textContent = stressSlider.value);
+
+    const drainSlider = document.getElementById('retestFocusDrain');
+    const drainVal = document.getElementById('retestFocusDrainVal');
+    drainSlider.addEventListener('input', () => drainVal.textContent = drainSlider.value);
 
     // Likert Buttons
     document.querySelectorAll('.likert-question').forEach(q => {
@@ -1655,7 +1870,7 @@
             'SL': 'Slöjd',
             'HKK': 'Hem- och konsumentkunskap',
             'IDH': 'Idrott och hälsa',
-            'M2': 'Moderna språk / Modersmål'
+            'M2': 'Moderna språk'
         };
 
         subjects.forEach(sub => {
@@ -1772,7 +1987,14 @@
             targetGenC: targetGeneralGrades.C,
             targetGenB: targetGeneralGrades.B,
             targetGenA: targetGeneralGrades.A,
-            subjectGrades: JSON.stringify(subjectGrades)
+            subjectGrades: JSON.stringify(subjectGrades),
+            sleepEnergy: parseInt(sleepSlider.value),
+            classWellbeing: parseInt(wellbeingSlider.value),
+            classSwitchWish: document.getElementById('classSwitchWish').value,
+            quietStudySpace: document.getElementById('quietStudySpace').value,
+            homeworkHelp: document.getElementById('homeworkHelp').value,
+            retestStressRelief: parseInt(stressSlider.value),
+            retestFocusDrain: parseInt(drainSlider.value)
         };
 
         // UI Feedback: Sending

@@ -575,6 +575,59 @@
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .details-layout {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .profile-panel {
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid rgba(139, 29, 65, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+        .details-header {
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            border-bottom: 1px dashed rgba(139, 29, 65, 0.05);
+            padding-bottom: 0.45rem;
+        }
+        .profile-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .profile-item strong {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .profile-item span {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        @media (max-width: 900px) {
+            .details-layout {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
         .subject-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -1013,7 +1066,7 @@
                         const sData = grades[sub];
                         if (sData) {
                             const val = type === "expected" ? sData.expected : sData.target;
-                            if (val && val !== 'Vet ej' && val !== 'Inget mål' && val !== 'Får ej betyg' && MERIT_MAP[val] !== undefined) {
+                            if (val && val !== 'Vet ej' && val !== 'Inget mål' && val !== 'Får ej betyg' && val !== 'Läser SVEN' && MERIT_MAP[val] !== undefined) {
                                 if (sub === 'M2') {
                                     m2Val = MERIT_MAP[val];
                                 } else {
@@ -1320,8 +1373,8 @@
                         const exp = sData.expected || 'Vet ej';
                         const tar = sData.target || 'Inget mål';
                         
-                        const expClass = (exp === 'Vet ej' || exp === 'Får ej betyg' || exp === '—') ? 'none' : 'expected';
-                        const tarClass = (tar === 'Inget mål' || tar === '—') ? 'none' : 'target';
+                        const expClass = (exp === 'Vet ej' || exp === 'Får ej betyg' || exp === 'Läser SVEN' || exp === '—') ? 'none' : 'expected';
+                        const tarClass = (tar === 'Inget mål' || tar === 'Läser SVEN' || tar === '—') ? 'none' : 'target';
                         
                         gridHtml += `
                             <div class="subject-card">
@@ -1342,11 +1395,77 @@
                         <tr id="details-${idx}" class="details-row">
                             <td colspan="12">
                                 <div class="details-content">
-                                    <div style="font-weight:700; font-size:0.8rem; margin-bottom:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">
-                                        📋 Detaljerade ämnesbetyg
-                                    </div>
-                                    <div class="subject-grid">
-                                        ${gridHtml}
+                                    <div class="details-layout">
+                                        <div class="subject-grid-container">
+                                            <div class="details-header">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                                Detaljerade ämnesbetyg
+                                            </div>
+                                            <div class="subject-grid">
+                                                ${gridHtml}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="profile-panel">
+                                            <div class="details-header">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                                Elevprofil & Skolmiljö
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Trivsel i klassen:</strong>
+                                                <span>${d.classWellbeing ? d.classWellbeing + '/5' : 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Önskar byta klass:</strong>
+                                                <span>${d.classSwitchWish || 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Sömn & energi:</strong>
+                                                <span>${d.sleepEnergy ? d.sleepEnergy + '/5' : 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Lugn pluggplats hemma:</strong>
+                                                <span>${d.quietStudySpace || 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Läxhjälp hemma:</strong>
+                                                <span>${d.homeworkHelp || 'Ej angivet'}</span>
+                                            </div>
+                                            
+                                            <div class="details-header" style="margin-top: 0.5rem; border-top: 1px dashed rgba(139, 29, 65, 0.08); padding-top: 0.75rem;">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                                                Syn på omprov
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Minskar stress (andra chans):</strong>
+                                                <span>${d.retestStressRelief ? d.retestStressRelief + '/5' : 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Stör fokus (tar energi):</strong>
+                                                <span>${d.retestFocusDrain ? d.retestFocusDrain + '/5' : 'Ej angivet'}</span>
+                                            </div>
+                                            
+                                            <div class="details-header" style="margin-top: 0.5rem; border-top: 1px dashed rgba(139, 29, 65, 0.08); padding-top: 0.75rem;">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                                Samtal hemma
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Pratar om skolan:</strong>
+                                                <span>${d.talkSchool || 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Pratar om nyheter/världen:</strong>
+                                                <span>${d.talkNews || 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Kluriga frågor hemifrån:</strong>
+                                                <span>${d.talkThinking || 'Ej angivet'}</span>
+                                            </div>
+                                            <div class="profile-item">
+                                                <strong>Djupa diskussioner:</strong>
+                                                <span>${d.talkDeep || 'Ej angivet'}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -1395,8 +1514,25 @@
     function exportCSV() {
         const filtered = getFilteredData();
         if (filtered.length === 0) return alert("Ingen data");
-        const headers = ["Timestamp", "Class", "Motivation", "TalkIndex", "ExpMerit", "TargetMerit"];
-        const rows = filtered.map(d => [d.timestamp, d.className, d.schoolMotivation, calculateConversationIndex(d), calculateMerit(d, "expected").points, calculateMerit(d, "target").points]);
+        const headers = [
+            "Timestamp", "Class", "Motivation", "TalkIndex", "ExpMerit", "TargetMerit",
+            "ClassWellbeing", "ClassSwitchWish", "SleepEnergy", "QuietStudySpace", "HomeworkHelp", "RetestStressRelief", "RetestFocusDrain"
+        ];
+        const rows = filtered.map(d => [
+            d.timestamp, 
+            d.className, 
+            d.schoolMotivation, 
+            calculateConversationIndex(d), 
+            calculateMerit(d, "expected").points, 
+            calculateMerit(d, "target").points,
+            d.classWellbeing || '',
+            d.classSwitchWish || '',
+            d.sleepEnergy || '',
+            d.quietStudySpace || '',
+            d.homeworkHelp || '',
+            d.retestStressRelief || '',
+            d.retestFocusDrain || ''
+        ]);
         const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(";") + "\n" + rows.map(r => r.join(";")).join("\n");
         const link = document.createElement("a");
         link.setAttribute("href", encodeURI(csvContent));
