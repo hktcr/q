@@ -1134,7 +1134,7 @@
     // Calculate aggregations & filter buttons
     function updateStatsAndFilters() {
         const baseData = excludeNoGrades 
-            ? surveyData.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects >= 15)
+            ? surveyData.filter(d => d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "")
             : surveyData;
         const total = baseData.length;
         document.getElementById("statTotal").textContent = total;
@@ -1201,7 +1201,7 @@
     function getFilteredData() {
         let data = activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => d.className === activeFilterClass);
         if (excludeNoGrades) {
-            data = data.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects >= 15);
+            data = data.filter(d => d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "");
         }
         return data;
     }
