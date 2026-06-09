@@ -1879,15 +1879,14 @@
             
             // M2 is optional (has default values "Får ej betyg" / "Inget mål"), so it won't trigger validation if left as is
             if (sub !== 'M2') {
-                if (!expVal) {
+                if (!expVal || expVal === 'Vet ej') {
                     missing.push(`- Betyg just nu i ${subjectNames[sub]}`);
                 }
-                if (!tarVal) {
+                if (!tarVal || tarVal === 'Inget mål') {
                     missing.push(`- Målbetyg i ${subjectNames[sub]}`);
                 }
             } else {
-                // For M2, if the user cleared the selection somehow
-                if (!expVal) {
+                if (!expVal || expVal === 'Vet ej') {
                     missing.push(`- Betyg just nu i ${subjectNames[sub]}`);
                 }
                 if (!tarVal) {
