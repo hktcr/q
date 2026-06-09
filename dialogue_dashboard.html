@@ -1184,10 +1184,25 @@
         return { points: 0, subjects: 0 };
     }
 
+    // Helper to check if a response has valid grades for the currently active analysis axis
+    function hasValidGradesForActiveAxis(d) {
+        if (activeYAxisSource === "nosum") {
+            const noObj = calculateNOSum(d, "expected");
+            return noObj.subjects > 0;
+        } else {
+            if (d.subjectGrades) {
+                const meritObj = calculateMerit(d, "expected");
+                return meritObj.subjects >= 15;
+            } else {
+                return d.generalGrades && d.generalGrades !== "Vet ej" && d.generalGrades !== "";
+            }
+        }
+    }
+
     // Calculate aggregations & filter buttons
     function updateStatsAndFilters() {
         const baseData = excludeNoGrades 
-            ? surveyData.filter(d => d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "")
+            ? surveyData.filter(hasValidGradesForActiveAxis)
             : surveyData;
         const total = baseData.length;
         document.getElementById("statTotal").textContent = total;
@@ -1254,7 +1269,7 @@
     function getFilteredData() {
         let data = activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => (d.className || d.class) === activeFilterClass);
         if (excludeNoGrades) {
-            data = data.filter(d => d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "");
+            data = data.filter(hasValidGradesForActiveAxis);
         }
         return data;
     }
@@ -1286,6 +1301,7 @@
         }
         updateStatsAndFilters();
         updateCharts();
+        renderTable();
     };
 
     // Pearson Correlation coefficient calculation
