@@ -1134,7 +1134,7 @@
     // Calculate aggregations & filter buttons
     function updateStatsAndFilters() {
         const baseData = excludeNoGrades 
-            ? surveyData.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects > 0)
+            ? surveyData.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects >= 15)
             : surveyData;
         const total = baseData.length;
         document.getElementById("statTotal").textContent = total;
@@ -1179,7 +1179,7 @@
         filtered.forEach(d => {
             const exp = calculateMerit(d, "expected");
             const tar = calculateMerit(d, "target");
-            if (exp.subjects > 0) {
+            if (exp.subjects >= 15) {
                 totalExpMerit += exp.points;
                 totalTarMerit += tar.points;
                 countWithMerit++;
@@ -1201,7 +1201,7 @@
     function getFilteredData() {
         let data = activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => d.className === activeFilterClass);
         if (excludeNoGrades) {
-            data = data.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects > 0);
+            data = data.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects >= 15);
         }
         return data;
     }
@@ -1225,7 +1225,7 @@
         const pairs = [];
         data.forEach(d => {
             const meritObj = calculateMerit(d, "expected");
-            if (meritObj.subjects > 0) {
+            if (meritObj.subjects >= 15) {
                 pairs.push({ x: calculateConversationIndex(d), y: meritObj.points });
             } else {
                 const gradePt = GRADE_MAP[d.expectedGrade];
@@ -1297,7 +1297,7 @@
         const scatterData = [];
         filtered.forEach(d => {
             const meritObj = calculateMerit(d, "expected");
-            if (meritObj.subjects > 0) scatterData.push({ x: calculateConversationIndex(d), y: meritObj.points });
+            if (meritObj.subjects >= 15) scatterData.push({ x: calculateConversationIndex(d), y: meritObj.points });
             else { const y = GRADE_MAP[d.expectedGrade]; if (y !== undefined && y !== null) scatterData.push({ x: calculateConversationIndex(d), y: y * 64 }); }
         });
         scatterChart.data.datasets[0].data = scatterData;
