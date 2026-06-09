@@ -762,8 +762,14 @@
     </div>
 </div>
 
-<div class="filters-container" id="classFilters">
-    <!-- Active filters will be generated here -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div class="filters-container" id="classFilters" style="margin-bottom: 0;">
+        <!-- Active filters will be generated here -->
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.03); padding: 0.5rem 1rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);">
+        <input type="checkbox" id="excludeNoGradesCheck" onchange="toggleExcludeNoGrades(this.checked)" style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--primary);">
+        <label for="excludeNoGradesCheck" style="font-size: 0.85rem; color: var(--text-muted); cursor: pointer; user-select: none; font-weight: 500;">Dölj svar utan betyg</label>
+    </div>
 </div>
 
 <!-- Stats Grid -->
@@ -914,6 +920,7 @@
     let apiEndpoint = localStorage.getItem("dialogue_api_endpoint") || "";
     let surveyData = [];
     let activeFilterClass = "Alla";
+    let excludeNoGrades = false;
     let pollInterval = null;
     let isPaused = false;
     
@@ -1126,7 +1133,10 @@
 
     // Calculate aggregations & filter buttons
     function updateStatsAndFilters() {
-        const total = surveyData.length;
+        const baseData = excludeNoGrades 
+            ? surveyData.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects > 0)
+            : surveyData;
+        const total = baseData.length;
         document.getElementById("statTotal").textContent = total;
 
         const classes = new Set(surveyData.map(d => d.className).filter(Boolean));
@@ -1134,7 +1144,7 @@
         
         let filterHtml = `<button class="btn ${activeFilterClass === "Alla" ? "active" : ""}" onclick="setFilterClass('Alla')">Alla klasser (${total})</button>`;
         classes.forEach(cls => {
-            const count = surveyData.filter(d => d.className === cls).length;
+            const count = baseData.filter(d => d.className === cls).length;
             filterHtml += `<button class="btn ${activeFilterClass === cls ? "active" : ""}" onclick="setFilterClass('${cls}')">${cls} (${count})</button>`;
         });
         filtersContainer.innerHTML = filterHtml;
@@ -1189,7 +1199,11 @@
     }
 
     function getFilteredData() {
-        return activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => d.className === activeFilterClass);
+        let data = activeFilterClass === "Alla" ? surveyData : surveyData.filter(d => d.className === activeFilterClass);
+        if (excludeNoGrades) {
+            data = data.filter(d => (d.expectedGrade && d.expectedGrade !== "Vet ej" && d.expectedGrade !== "") || calculateMerit(d, "expected").subjects > 0);
+        }
+        return data;
     }
 
     function setFilterClass(cls) {
@@ -1198,6 +1212,13 @@
         updateCharts();
         renderTable();
     }
+
+    window.toggleExcludeNoGrades = function(checked) {
+        excludeNoGrades = checked;
+        updateStatsAndFilters();
+        updateCharts();
+        renderTable();
+    };
 
     // Pearson Correlation coefficient calculation
     function calculateStats(data) {
