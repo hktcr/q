@@ -151,6 +151,15 @@
             color: var(--accent);
         }
 
+        .btn-sm {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.78rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
         /* Config Card */
         .config-card {
             background: rgba(255, 255, 255, 0.55);
@@ -804,11 +813,15 @@
 <!-- Analytics Grid (Scatter and Correlation) -->
 <div class="analytics-grid">
     <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h2 class="card-title" style="margin-bottom: 0;">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
                 Korrelationsanalys: Samtal hemma vs. Betyg
             </h2>
+            <div style="display: flex; gap: 4px; background: rgba(0, 0, 0, 0.05); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <button class="btn btn-sm active" id="btnMerit" onclick="setYAxisSource('merit')">Totala meritpoäng</button>
+                <button class="btn btn-sm" id="btnNOSum" onclick="setYAxisSource('nosum')">NO-betygssumma</button>
+            </div>
         </div>
         <div class="chart-container">
             <canvas id="scatterChart"></canvas>
@@ -921,6 +934,7 @@
     let surveyData = [];
     let activeFilterClass = "Alla";
     let excludeNoGrades = false;
+    let activeYAxisSource = "merit";
     let pollInterval = null;
     let isPaused = false;
     
@@ -1134,6 +1148,42 @@
         return { points: 0, subjects: 0 };
     }
 
+    // Helper to calculate NO-sum (BI+FY+KE) with backward compatibility
+    function calculateNOSum(d, type) {
+        if (d.subjectGrades) {
+            try {
+                const grades = typeof d.subjectGrades === 'string' ? JSON.parse(d.subjectGrades) : d.subjectGrades;
+                if (grades && typeof grades === 'object') {
+                    let total = 0;
+                    let count = 0;
+                    const noSubjects = ['BI', 'FY', 'KE'];
+                    noSubjects.forEach(sub => {
+                        const sData = grades[sub];
+                        if (sData) {
+                            const val = type === "expected" ? sData.expected : sData.target;
+                            if (val && val !== 'Vet ej' && val !== 'Inget mål' && val !== 'Får ej betyg' && val !== 'Läser SVEN' && MERIT_MAP[val] !== undefined) {
+                                total += MERIT_MAP[val];
+                                count++;
+                            }
+                        }
+                    });
+                    if (count > 0) {
+                        return { points: (total / count) * 3, subjects: count };
+                    }
+                }
+            } catch(e) {
+                console.error("Failed to parse subjectGrades in calculateNOSum", e);
+            }
+        }
+        
+        // Fallback to average expectedGrade / targetGrade
+        const grade = type === "expected" ? d.expectedGrade : d.targetGrade;
+        if (grade && grade !== "Vet ej" && grade !== "Inget mål" && MERIT_MAP[grade] !== undefined) {
+            return { points: 3 * MERIT_MAP[grade], subjects: 3 };
+        }
+        return { points: 0, subjects: 0 };
+    }
+
     // Calculate aggregations & filter buttons
     function updateStatsAndFilters() {
         const baseData = excludeNoGrades 
@@ -1223,17 +1273,40 @@
         renderTable();
     };
 
+    window.setYAxisSource = function(source) {
+        activeYAxisSource = source;
+        const btnMerit = document.getElementById("btnMerit");
+        const btnNOSum = document.getElementById("btnNOSum");
+        if (source === "nosum") {
+            btnMerit.classList.remove("active");
+            btnNOSum.classList.add("active");
+        } else {
+            btnMerit.classList.add("active");
+            btnNOSum.classList.remove("active");
+        }
+        updateStatsAndFilters();
+        updateCharts();
+    };
+
     // Pearson Correlation coefficient calculation
     function calculateStats(data) {
         const pairs = [];
         data.forEach(d => {
-            const meritObj = calculateMerit(d, "expected");
-            if (meritObj.subjects >= 15) {
-                pairs.push({ x: calculateConversationIndex(d), y: meritObj.points });
+            const xVal = calculateConversationIndex(d);
+            if (activeYAxisSource === "nosum") {
+                const noObj = calculateNOSum(d, "expected");
+                if (noObj.subjects > 0) {
+                    pairs.push({ x: xVal, y: noObj.points });
+                }
             } else {
-                const gradePt = GRADE_MAP[d.expectedGrade];
-                if (gradePt !== undefined && gradePt !== null) {
-                    pairs.push({ x: calculateConversationIndex(d), y: gradePt * 64 });
+                const meritObj = calculateMerit(d, "expected");
+                if (meritObj.subjects >= 15) {
+                    pairs.push({ x: xVal, y: meritObj.points });
+                } else {
+                    const gradePt = GRADE_MAP[d.expectedGrade];
+                    if (gradePt !== undefined && gradePt !== null) {
+                        pairs.push({ x: xVal, y: gradePt * 64 });
+                    }
                 }
             }
         });
@@ -1271,7 +1344,33 @@
         scatterChart = new Chart(document.getElementById("scatterChart").getContext("2d"), {
             type: 'scatter',
             data: { datasets: [{ label: 'Studenter', data: [], backgroundColor: 'rgba(139, 29, 65, 0.75)', pointRadius: 6 }, { label: 'Trend', data: [], type: 'line', borderColor: '#059669', borderWidth: 2, pointRadius: 0, fill: false }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { x: { min: 4, max: 20 }, y: { min: 0, max: 340 } }, plugins: { legend: { display: false } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { 
+                    x: { 
+                        min: 4, 
+                        max: 20,
+                        title: {
+                            display: true,
+                            text: 'Hemmasamtal-index (4-20)',
+                            color: 'rgba(255,255,255,0.6)',
+                            font: { family: 'Outfit', size: 11 }
+                        }
+                    }, 
+                    y: { 
+                        min: 0, 
+                        max: 340,
+                        title: {
+                            display: true,
+                            text: 'Meritvärde (0-340p)',
+                            color: 'rgba(255,255,255,0.6)',
+                            font: { family: 'Outfit', size: 11 }
+                        }
+                    } 
+                }, 
+                plugins: { legend: { display: false } } 
+            }
         });
 
         gradesChart = new Chart(document.getElementById("gradesChart").getContext("2d"), {
@@ -1299,18 +1398,41 @@
 
         const scatterData = [];
         filtered.forEach(d => {
-            const meritObj = calculateMerit(d, "expected");
-            if (meritObj.subjects >= 15) scatterData.push({ x: calculateConversationIndex(d), y: meritObj.points });
-            else { const y = GRADE_MAP[d.expectedGrade]; if (y !== undefined && y !== null) scatterData.push({ x: calculateConversationIndex(d), y: y * 64 }); }
+            const xVal = calculateConversationIndex(d);
+            if (activeYAxisSource === "nosum") {
+                const noObj = calculateNOSum(d, "expected");
+                if (noObj.subjects > 0) {
+                    scatterData.push({ x: xVal, y: noObj.points });
+                }
+            } else {
+                const meritObj = calculateMerit(d, "expected");
+                if (meritObj.subjects >= 15) {
+                    scatterData.push({ x: xVal, y: meritObj.points });
+                } else {
+                    const gradePt = GRADE_MAP[d.expectedGrade];
+                    if (gradePt !== undefined && gradePt !== null) {
+                        scatterData.push({ x: xVal, y: gradePt * 64 });
+                    }
+                }
+            }
         });
         scatterChart.data.datasets[0].data = scatterData;
+        
+        if (activeYAxisSource === "nosum") {
+            scatterChart.options.scales.y.max = 60;
+            scatterChart.options.scales.y.title.text = 'NO-betygssumma (0-60p)';
+        } else {
+            scatterChart.options.scales.y.max = 340;
+            scatterChart.options.scales.y.title.text = 'Meritvärde (0-340p)';
+        }
         
         if (scatterData.length >= 2) {
             const n = scatterData.length;
             const sumX = scatterData.reduce((a, p) => a + p.x, 0), sumY = scatterData.reduce((a, p) => a + p.y, 0), sumXY = scatterData.reduce((a, p) => a + (p.x * p.y), 0), sumXX = scatterData.reduce((a, p) => a + (p.x * p.x), 0);
             const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
             const intercept = (sumY - slope * sumX) / n;
-            scatterChart.data.datasets[1].data = [{ x: 4, y: Math.max(0, Math.min(340, slope * 4 + intercept)) }, { x: 20, y: Math.max(0, Math.min(340, slope * 20 + intercept)) }];
+            const maxY = activeYAxisSource === "nosum" ? 60 : 340;
+            scatterChart.data.datasets[1].data = [{ x: 4, y: Math.max(0, Math.min(maxY, slope * 4 + intercept)) }, { x: 20, y: Math.max(0, Math.min(maxY, slope * 20 + intercept)) }];
         } else scatterChart.data.datasets[1].data = [];
         scatterChart.update();
 
