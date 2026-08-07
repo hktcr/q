@@ -1,184 +1,158 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<meta name="description" content="En klickbar och källbelagd systemkarta över vad som avgör hur hårt bensinkostnaden slår mot ett hushåll.">
+<meta name="description" content="En klickbar och vetenskapligt källbelagd systemkarta över när bensinen blir ekonomiskt och subjektivt svår att bära.">
 <meta name="robots" content="index,follow">
-<meta name="theme-color" content="#f4f1e9">
-<title>Vad avgör hur hårt bensinkostnaden slår?</title>
-<style>html,body{margin:0;min-height:100%;background:#f4f1e9}</style>
-</head>
-<body>
-<div id="public-system-map" lang="sv">
-  <style>
-    #public-system-map {
-      --paper: #f4f1e9;
-      --surface: #fffefa;
-      --surface-soft: #ebe8df;
-      --ink: #17201e;
-      --muted: #65706c;
-      --line: #87918d;
-      --line-soft: #c8cfcb;
+<meta name="theme-color" content="#f5f1e8">
+<title>När upplevs bensinen som för dyr?</title>
+<style>html,body{margin:0;min-height:100%;background:#f5f1e8}</style>
+<style>
+    #pris-system {
+      --paper: #f5f1e8;
+      --surface: #fffdf7;
+      --surface-strong: #ffffff;
+      --ink: #17211e;
+      --muted: #5c6762;
+      --line: #7e8a85;
+      --line-soft: #ccd3cf;
       --accent: #006c63;
-      --accent-soft: #d8ece7;
-      --focus: #8b4f00;
-      --shadow: 0 18px 60px rgba(28, 39, 36, 0.13);
+      --accent-dark: #004f49;
+      --accent-soft: #d9ece7;
+      --warm: #8a5426;
+      --warm-soft: #f3e5d5;
+      --focus: #784300;
+      --danger: #8b2f26;
+      --shadow: 0 20px 70px rgba(34, 47, 42, 0.14);
+      min-height: 100vh;
       color: var(--ink);
       background: var(--paper);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      min-height: 100vh;
       line-height: 1.5;
       color-scheme: light;
     }
 
-    #public-system-map * {
+    #pris-system * {
       box-sizing: border-box;
     }
 
-    #public-system-map button,
-    #public-system-map a,
-    #public-system-map [tabindex="0"] {
+    #pris-system button,
+    #pris-system a {
       -webkit-tap-highlight-color: transparent;
     }
 
-    #public-system-map button {
+    #pris-system button {
       font: inherit;
     }
 
-    #public-system-map .psm-shell {
-      width: min(1440px, 100%);
+    #pris-system :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    #pris-system .ps-shell {
+      width: min(1480px, 100%);
       margin: 0 auto;
-      padding: clamp(24px, 4vw, 60px) clamp(16px, 4vw, 56px) 32px;
+      padding: clamp(24px, 4vw, 64px) clamp(12px, 3.8vw, 56px) 32px;
     }
 
-    #public-system-map .psm-header {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 20px 36px;
-      align-items: end;
-      margin: 0 auto clamp(20px, 3vw, 34px);
+    #pris-system .ps-header {
       max-width: 1180px;
+      margin: 0 auto clamp(22px, 3.5vw, 40px);
     }
 
-    #public-system-map .psm-kicker {
-      display: inline-flex;
+    #pris-system .ps-kicker {
+      display: flex;
       align-items: center;
-      gap: 9px;
-      margin: 0 0 10px;
+      gap: 10px;
+      margin: 0 0 12px;
       color: var(--accent);
       font-size: 0.76rem;
-      font-weight: 760;
+      font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
-    #public-system-map .psm-kicker::before {
+    #pris-system .ps-kicker::before {
       content: "";
-      width: 28px;
+      width: 30px;
       height: 2px;
       border-radius: 99px;
       background: currentColor;
     }
 
-    #public-system-map h1 {
-      max-width: 900px;
+    #pris-system h1 {
+      max-width: 960px;
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.05rem, 4.2vw, 4rem);
+      font-size: clamp(2.15rem, 4.6vw, 4.7rem);
       font-weight: 500;
-      letter-spacing: -0.045em;
+      letter-spacing: -0.048em;
       line-height: 0.98;
       text-wrap: balance;
     }
 
-    #public-system-map .psm-lead {
-      max-width: 820px;
-      margin: 18px 0 0;
-      color: #384440;
-      font-size: clamp(1rem, 1.6vw, 1.18rem);
-      line-height: 1.62;
+    #pris-system .ps-lead {
+      max-width: 860px;
+      margin: 20px 0 0;
+      color: #35423d;
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      line-height: 1.65;
       text-wrap: pretty;
     }
 
-    #public-system-map .psm-header-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-start;
-      padding-bottom: 4px;
+    #pris-system .ps-thesis {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 8px 12px;
+      border-left: 3px solid var(--accent);
+      background: rgba(217, 236, 231, 0.48);
+      color: #25423b;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1rem;
     }
 
-    #public-system-map .psm-button {
-      min-height: 44px;
-      border: 1px solid #aeb6b2;
-      border-radius: 999px;
-      padding: 10px 16px;
-      background: rgba(255, 254, 250, 0.76);
-      color: var(--ink);
-      cursor: pointer;
-      font-size: 0.92rem;
-      font-weight: 690;
-      transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
-    }
-
-    #public-system-map .psm-button:hover {
-      border-color: var(--accent);
-      background: var(--surface);
-    }
-
-    #public-system-map .psm-button:active {
-      transform: translateY(1px);
-    }
-
-    #public-system-map .psm-button[aria-expanded="true"] {
-      color: #ffffff;
-      border-color: var(--accent);
-      background: var(--accent);
-    }
-
-    #public-system-map :focus-visible {
-      outline: 3px solid var(--focus);
-      outline-offset: 3px;
-    }
-
-    #public-system-map .psm-map-card {
+    #pris-system .ps-map-card {
       position: relative;
-      min-height: 640px;
+      max-width: 1340px;
+      min-height: 730px;
+      margin: 0 auto;
       overflow: hidden;
-      border: 1px solid rgba(111, 123, 118, 0.32);
+      border: 1px solid #c6cfca;
       border-radius: clamp(20px, 3vw, 34px);
       background:
-        radial-gradient(circle at 78% 22%, rgba(0, 108, 99, 0.07), transparent 26%),
-        linear-gradient(145deg, rgba(255, 254, 250, 0.98), rgba(249, 247, 240, 0.98));
-      box-shadow: 0 12px 42px rgba(40, 52, 48, 0.09);
+        radial-gradient(circle at 78% 18%, rgba(0, 108, 99, 0.07), transparent 25%),
+        radial-gradient(circle at 13% 78%, rgba(138, 84, 38, 0.07), transparent 24%),
+        linear-gradient(145deg, #fffefa, #faf7ef);
+      box-shadow: 0 14px 48px rgba(37, 50, 45, 0.09);
       isolation: isolate;
     }
 
-    #public-system-map .psm-instruction {
-      position: absolute;
+    #pris-system .ps-map-top {
+      position: relative;
       z-index: 5;
-      top: 18px;
-      left: 18px;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 11px;
-      max-width: 420px;
-      min-height: 50px;
-      padding: 10px 14px 10px 11px;
-      border: 1px solid rgba(92, 107, 101, 0.23);
-      border-radius: 16px;
-      background: rgba(255, 254, 250, 0.91);
-      box-shadow: 0 8px 26px rgba(35, 48, 44, 0.08);
-      color: #34413d;
-      font-size: 0.87rem;
-      line-height: 1.35;
-      backdrop-filter: blur(10px);
+      justify-content: space-between;
+      gap: 12px 20px;
+      padding: 16px 18px 8px;
     }
 
-    #public-system-map .psm-instruction-icon {
+    #pris-system .ps-instruction {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 470px;
+      color: #34413c;
+      font-size: 0.87rem;
+      line-height: 1.4;
+    }
+
+    #pris-system .ps-instruction-mark {
       display: grid;
       flex: 0 0 30px;
       width: 30px;
@@ -186,267 +160,556 @@
       place-items: center;
       border-radius: 50%;
       background: var(--accent-soft);
-      color: var(--accent);
+      color: var(--accent-dark);
       font-weight: 800;
     }
 
-
-    #public-system-map .psm-map-wrap {
-      width: 100%;
-      min-height: 680px;
-      padding: 70px 18px 12px;
+    #pris-system .ps-lenses {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
     }
 
-    #public-system-map .psm-map {
+    #pris-system .ps-lens-context {
+      position: relative;
+      z-index: 4;
+      display: grid;
+      gap: 9px;
+      padding: 2px 18px 8px;
+    }
+
+    #pris-system .ps-lens-note {
+      margin: 0;
+      color: #53605a;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    #pris-system .ps-loopbar,
+    #pris-system .ps-policybar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    #pris-system .ps-loopbar[hidden],
+    #pris-system .ps-policybar[hidden] {
+      display: none;
+    }
+
+    #pris-system .ps-loop-choice,
+    #pris-system .ps-policy-choice {
+      min-height: 38px;
+      border: 1px solid #aeb8b3;
+      border-radius: 12px;
+      padding: 7px 11px;
+      background: #fffdf7;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 760;
+    }
+
+    #pris-system .ps-loop-choice:hover,
+    #pris-system .ps-loop-choice:focus-visible,
+    #pris-system .ps-policy-choice:hover,
+    #pris-system .ps-policy-choice:focus-visible {
+      border-color: var(--warm);
+      background: var(--warm-soft);
+    }
+
+    #pris-system .ps-loop-choice[aria-pressed="true"],
+    #pris-system .ps-policy-choice[aria-pressed="true"] {
+      border-color: var(--warm);
+      background: var(--warm);
+      color: #ffffff;
+    }
+
+    #pris-system .ps-loop-summary,
+    #pris-system .ps-policy-summary {
+      max-width: 960px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--warm);
+      border-radius: 0 10px 10px 0;
+      background: rgba(243, 229, 213, 0.72);
+      color: #4a3828;
+      font-size: 0.79rem;
+      line-height: 1.5;
+    }
+
+    #pris-system .ps-loop-summary[hidden],
+    #pris-system .ps-policy-summary[hidden] {
+      display: none;
+    }
+
+    #pris-system .ps-loop-summary strong,
+    #pris-system .ps-policy-summary strong {
+      color: #653b18;
+    }
+
+    #pris-system .ps-lens,
+    #pris-system .ps-action {
+      min-height: 42px;
+      border: 1px solid #aeb8b3;
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: rgba(255, 253, 247, 0.9);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 700;
+      transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+    }
+
+    #pris-system .ps-lens:hover,
+    #pris-system .ps-action:hover {
+      border-color: var(--accent);
+      background: var(--surface-strong);
+    }
+
+    #pris-system .ps-lens:active,
+    #pris-system .ps-action:active {
+      transform: translateY(1px);
+    }
+
+    #pris-system .ps-lens[aria-pressed="true"],
+    #pris-system .ps-action[aria-expanded="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    #pris-system .ps-map-wrap {
+      width: 100%;
+      padding: 0 10px 6px;
+    }
+
+    #pris-system .ps-map {
       display: block;
       width: 100%;
       height: auto;
-      min-height: 570px;
+      min-height: 640px;
       overflow: visible;
     }
 
-    #public-system-map .psm-edge,
-    #public-system-map .psm-node {
+    #pris-system .ps-edge,
+    #pris-system .ps-node {
       cursor: pointer;
-      transition: opacity 170ms ease;
+      transition: opacity 160ms ease;
     }
 
-    #public-system-map .psm-edge-visible {
+    #pris-system .ps-edge-line {
       fill: none;
       stroke: var(--line);
-      stroke-width: 2.2;
-      marker-end: url(#psm-arrow);
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      marker-end: url(#ps-arrow);
       vector-effect: non-scaling-stroke;
-      transition: stroke 170ms ease, stroke-width 170ms ease, opacity 170ms ease;
+      transition: stroke 160ms ease, stroke-width 160ms ease, opacity 160ms ease;
     }
 
-    #public-system-map .psm-edge.is-conditional .psm-edge-visible {
+    #pris-system .ps-edge.is-conditional .ps-edge-line,
+    #pris-system .ps-edge.is-feedback .ps-edge-line {
       stroke-dasharray: 7 6;
     }
 
-    #public-system-map .psm-edge-hit {
+    #pris-system .ps-edge.is-feedback .ps-edge-line {
+      stroke: #8b725d;
+    }
+
+    #pris-system .ps-edge.is-loop .ps-edge-line {
+      stroke: var(--warm);
+      stroke-width: 3.5;
+      marker-end: url(#ps-arrow-loop);
+    }
+
+    #pris-system .ps-edge-hit {
       fill: none;
       stroke: transparent;
-      stroke-width: 44;
+      stroke-width: 36;
       pointer-events: stroke;
       vector-effect: non-scaling-stroke;
     }
 
-    #public-system-map .psm-edge:hover .psm-edge-visible,
-    #public-system-map .psm-edge:focus-visible .psm-edge-visible,
-    #public-system-map .psm-edge.is-active .psm-edge-visible {
+    #pris-system .ps-edge:hover .ps-edge-line,
+    #pris-system .ps-edge:focus-visible .ps-edge-line,
+    #pris-system .ps-edge.is-active .ps-edge-line {
       stroke: var(--accent);
-      stroke-width: 4.2;
-      marker-end: url(#psm-arrow-active);
+      stroke-width: 4;
+      marker-end: url(#ps-arrow-active);
     }
 
-    #public-system-map .psm-node circle {
+    #pris-system .ps-polarity circle {
       fill: var(--surface);
-      stroke: #6f7b77;
-      stroke-width: 1.8;
+      stroke: #87928d;
+      stroke-width: 1.2;
       vector-effect: non-scaling-stroke;
-      filter: drop-shadow(0 8px 12px rgba(32, 43, 39, 0.09));
-      transition: fill 170ms ease, stroke 170ms ease, stroke-width 170ms ease, filter 170ms ease;
     }
 
-    #public-system-map .psm-node text {
+    #pris-system .ps-polarity text {
+      fill: #4e5b56;
+      font-size: 14px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    #pris-system .ps-node rect {
+      fill: var(--surface);
+      stroke: #77847e;
+      stroke-width: 1.7;
+      vector-effect: non-scaling-stroke;
+      filter: drop-shadow(0 7px 12px rgba(37, 49, 45, 0.1));
+      transition: fill 160ms ease, stroke 160ms ease, stroke-width 160ms ease, filter 160ms ease;
+    }
+
+    #pris-system .ps-node text {
       fill: var(--ink);
-      font-size: 15px;
-      font-weight: 720;
+      font-size: 16px;
+      font-weight: 700;
       text-anchor: middle;
       pointer-events: none;
       user-select: none;
     }
 
-    #public-system-map .psm-node.is-outcome circle {
+    #pris-system .ps-node .ps-node-note {
+      fill: #5c6762;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    #pris-system .ps-node.is-outcome rect {
       fill: var(--accent);
       stroke: var(--accent);
-      filter: drop-shadow(0 12px 20px rgba(0, 92, 84, 0.22));
+      filter: drop-shadow(0 11px 18px rgba(0, 86, 78, 0.2));
     }
 
-    #public-system-map .psm-node.is-outcome text {
+    #pris-system .ps-node.is-outcome text,
+    #pris-system .ps-node.is-outcome .ps-node-note {
       fill: #ffffff;
-      font-size: 16px;
     }
 
-    #public-system-map .psm-node:hover circle,
-    #public-system-map .psm-node:focus-visible circle,
-    #public-system-map .psm-node.is-active circle {
+    #pris-system .ps-node.is-system rect {
+      fill: #fff9f1;
+      stroke: #9a795c;
+    }
+
+    #pris-system .ps-node.is-gap rect {
+      fill: #fff8e8;
+      stroke: var(--warm);
+      stroke-dasharray: 7 5;
+    }
+
+    #pris-system .ps-node:hover rect,
+    #pris-system .ps-node:focus-visible rect,
+    #pris-system .ps-node.is-active rect {
       fill: var(--accent-soft);
       stroke: var(--accent);
-      stroke-width: 4;
-      filter: drop-shadow(0 12px 18px rgba(0, 92, 84, 0.18));
+      stroke-width: 3.5;
+      filter: drop-shadow(0 12px 18px rgba(0, 86, 78, 0.17));
     }
 
-    #public-system-map .psm-node.is-outcome:hover circle,
-    #public-system-map .psm-node.is-outcome:focus-visible circle,
-    #public-system-map .psm-node.is-outcome.is-active circle {
-      fill: #004f49;
+    #pris-system .ps-node.is-outcome:hover rect,
+    #pris-system .ps-node.is-outcome:focus-visible rect,
+    #pris-system .ps-node.is-outcome.is-active rect {
+      fill: var(--accent-dark);
       stroke: #003f3a;
     }
 
-    #public-system-map .psm-node.is-dim,
-    #public-system-map .psm-edge.is-dim {
-      opacity: 0.16;
+    #pris-system .ps-node.is-dim:not(:hover):not(:focus-visible) rect,
+    #pris-system .ps-node.is-lens-muted:not(:hover):not(:focus-visible) rect {
+      fill: #eeeee9;
+      stroke: #77847e;
+      stroke-dasharray: 5 4;
+      filter: none;
     }
 
-    #public-system-map .psm-node.is-neighbor circle {
+    #pris-system .ps-node.is-dim text,
+    #pris-system .ps-node.is-lens-muted text {
+      fill: #4e5b56;
+    }
+
+    #pris-system .ps-node.is-dim .ps-node-note,
+    #pris-system .ps-node.is-lens-muted .ps-node-note {
+      fill: #5c6762;
+    }
+
+    #pris-system .ps-node.is-outcome.is-dim:hover text,
+    #pris-system .ps-node.is-outcome.is-dim:focus-visible text,
+    #pris-system .ps-node.is-outcome.is-lens-muted:hover text,
+    #pris-system .ps-node.is-outcome.is-lens-muted:focus-visible text,
+    #pris-system .ps-node.is-outcome.is-dim:hover .ps-node-note,
+    #pris-system .ps-node.is-outcome.is-dim:focus-visible .ps-node-note,
+    #pris-system .ps-node.is-outcome.is-lens-muted:hover .ps-node-note,
+    #pris-system .ps-node.is-outcome.is-lens-muted:focus-visible .ps-node-note {
+      fill: #ffffff;
+    }
+
+    #pris-system .ps-node.is-loop-node rect {
+      stroke: var(--warm);
+      stroke-width: 2.8;
+    }
+
+    #pris-system .ps-node.is-neighbor rect {
       stroke: var(--accent);
     }
 
-    #public-system-map .psm-panel-scrim {
-      position: absolute;
-      z-index: 8;
-      inset: 0;
-      background: rgba(25, 34, 31, 0.14);
-      display: none;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 200ms ease;
+    #pris-system .ps-map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      align-items: center;
+      padding: 0 20px 18px;
+      color: #53605a;
+      font-size: 0.76rem;
     }
 
-    #public-system-map .psm-panel-scrim.is-open {
+    #pris-system .ps-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #pris-system .ps-sign {
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border: 1px solid #9aa49f;
+      border-radius: 50%;
+      background: var(--surface);
+      color: #39453f;
+      font-weight: 800;
+    }
+
+    #pris-system .ps-dash {
+      width: 28px;
+      height: 0;
+      border-top: 2px dashed #8b725d;
+    }
+
+    #pris-system .ps-reading-panel {
+      position: absolute;
+      z-index: 10;
+      top: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      width: min(450px, calc(100% - 24px));
+      overflow: hidden;
+      border: 1px solid #c5cdc9;
+      border-radius: 24px;
+      background: rgba(255, 253, 247, 0.985);
+      box-shadow: var(--shadow);
+      transform: translateX(calc(100% + 28px));
+      transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    #pris-system .ps-reading-panel.is-open {
+      transform: translateX(0);
+    }
+
+    #pris-system .ps-panel-inner {
+      width: 100%;
+      overflow-y: auto;
+      padding: 24px 24px 30px;
+      scrollbar-width: thin;
+    }
+
+    #pris-system .ps-panel-scrim {
+      position: absolute;
+      z-index: 9;
+      inset: 0;
+      display: none;
+      background: rgba(23, 33, 30, 0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease;
+    }
+
+    #pris-system .ps-panel-scrim.is-open {
       opacity: 1;
       pointer-events: auto;
     }
 
-    #public-system-map .psm-map-card.has-panel .psm-map-wrap {
-      padding-right: min(440px, 42%);
-    }
-
-    #public-system-map .psm-below-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      max-width: 1180px;
-      margin: 14px auto 0;
-    }
-
-    #public-system-map .psm-reading-panel {
-      position: absolute;
-      z-index: 9;
-      top: 14px;
-      right: 14px;
-      bottom: 14px;
-      display: flex;
-      width: min(410px, calc(100% - 28px));
-      overflow: hidden;
-      border: 1px solid rgba(89, 104, 98, 0.25);
-      border-radius: 24px;
-      background: rgba(255, 254, 250, 0.98);
-      box-shadow: var(--shadow);
-      transform: translateX(calc(100% + 30px));
-      transition: transform 220ms cubic-bezier(.2, .8, .2, 1);
-    }
-
-    #public-system-map .psm-reading-panel.is-open {
-      transform: translateX(0);
-    }
-
-    #public-system-map .psm-panel-inner {
-      width: 100%;
-      overflow-y: auto;
-      padding: 24px 24px 28px;
-      scrollbar-width: thin;
-    }
-
-    #public-system-map .psm-panel-top {
+    #pris-system .ps-panel-top {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
     }
 
-    #public-system-map .psm-evidence-tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
+    #pris-system .ps-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-bottom: 11px;
-      padding: 5px 10px;
+    }
+
+    #pris-system .ps-tag {
+      display: inline-flex;
+      min-height: 26px;
+      align-items: center;
+      padding: 4px 9px;
       border-radius: 999px;
       background: var(--accent-soft);
-      color: #005a53;
-      font-size: 0.72rem;
-      font-weight: 780;
+      color: var(--accent-dark);
+      font-size: 0.69rem;
+      font-weight: 800;
       letter-spacing: 0.035em;
       text-transform: uppercase;
     }
 
-    #public-system-map .psm-panel-close {
+    #pris-system .ps-tag.is-warm {
+      background: var(--warm-soft);
+      color: #6f3e17;
+    }
+
+    #pris-system .ps-panel-close {
       display: grid;
       flex: 0 0 44px;
       width: 44px;
       height: 44px;
       place-items: center;
-      border: 1px solid #bdc4c0;
+      border: 1px solid #b8c1bd;
       border-radius: 50%;
       background: transparent;
       color: var(--ink);
       cursor: pointer;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       line-height: 1;
     }
 
-    #public-system-map .psm-panel-close:hover {
+    #pris-system .ps-panel-close:hover {
       border-color: var(--accent);
       background: var(--accent-soft);
     }
 
-    #public-system-map .psm-panel-title {
-      margin: 0 0 20px;
+    #pris-system .ps-panel-title {
+      margin: 0 0 18px;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.7rem, 3vw, 2.35rem);
+      font-size: clamp(1.65rem, 2.8vw, 2.25rem);
       font-weight: 500;
-      letter-spacing: -0.025em;
-      line-height: 1.07;
+      letter-spacing: -0.028em;
+      line-height: 1.08;
     }
 
-    #public-system-map .psm-panel-section {
-      padding: 15px 0;
-      border-top: 1px solid #e1e4df;
+    #pris-system .ps-panel-section {
+      padding: 14px 0;
+      border-top: 1px solid #dde2de;
     }
 
-    #public-system-map .psm-panel-section h3 {
-      margin: 0 0 5px;
-      color: #5e6965;
-      font-size: 0.72rem;
-      font-weight: 790;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-    }
-
-    #public-system-map .psm-panel-section p {
-      margin: 0;
-      color: #293531;
-      font-size: 0.96rem;
-      line-height: 1.58;
-    }
-
-    #public-system-map .psm-reflection {
-      margin-top: 18px;
-      padding: 15px 16px;
-      border-left: 3px solid var(--accent);
-      border-radius: 0 13px 13px 0;
-      background: #eef5f2;
-    }
-
-    #public-system-map .psm-reflection h3 {
-      margin: 0 0 5px;
-      color: var(--accent);
-      font-size: 0.72rem;
+    #pris-system .ps-panel-section h3,
+    #pris-system .ps-reflection h3 {
+      margin: 0 0 6px;
+      color: #56625d;
+      font-size: 0.7rem;
       font-weight: 800;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.085em;
       text-transform: uppercase;
     }
 
-    #public-system-map .psm-reflection p {
+    #pris-system .ps-panel-section p {
+      margin: 0;
+      color: #28342f;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    #pris-system .ps-components {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 3px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #pris-system .ps-components li {
+      padding: 5px 8px;
+      border: 1px solid #d1d8d4;
+      border-radius: 9px;
+      background: #faf8f2;
+      color: #3d4944;
+      font-size: 0.78rem;
+    }
+
+    #pris-system .ps-subsystems {
+      display: grid;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    #pris-system .ps-subsystem {
+      border: 1px solid #d1d8d4;
+      border-radius: 11px;
+      background: #faf8f2;
+    }
+
+    #pris-system .ps-subsystem summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 11px;
+      color: #26342e;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 760;
+      list-style: none;
+    }
+
+    #pris-system .ps-subsystem summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #pris-system .ps-subsystem summary::after {
+      content: "+";
+      color: var(--accent-dark);
+      font-size: 1.05rem;
+    }
+
+    #pris-system .ps-subsystem[open] summary::after {
+      content: "×";
+    }
+
+    #pris-system .ps-subsystem-body {
+      padding: 0 11px 11px;
+      color: #34403b;
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    #pris-system .ps-subsystem-body p {
+      margin: 0;
+    }
+
+    #pris-system .ps-reflection {
+      margin: 16px 0 2px;
+      padding: 14px 15px;
+      border-left: 3px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      background: #edf5f2;
+    }
+
+    #pris-system .ps-reflection h3 {
+      color: var(--accent-dark);
+    }
+
+    #pris-system .ps-reflection p {
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.05rem;
-      line-height: 1.48;
+      font-size: 1.03rem;
+      line-height: 1.5;
     }
 
-    #public-system-map .psm-citations {
+    #pris-system .ps-citations {
       display: inline-flex;
       gap: 3px;
       vertical-align: super;
@@ -456,12 +719,12 @@
       line-height: 1;
     }
 
-    #public-system-map .psm-citations a {
-      color: var(--accent);
+    #pris-system .ps-citations a {
+      color: var(--accent-dark);
       text-decoration: none;
     }
 
-    #public-system-map .psm-source-list {
+    #pris-system .ps-source-list {
       display: grid;
       gap: 9px;
       margin: 8px 0 0;
@@ -469,113 +732,129 @@
       list-style: none;
     }
 
-    #public-system-map .psm-source-list a {
+    #pris-system .ps-source-list a {
       display: grid;
-      grid-template-columns: 26px minmax(0, 1fr);
+      grid-template-columns: 28px minmax(0, 1fr);
       gap: 8px;
-      align-items: start;
-      min-height: 44px;
-      padding: 9px 10px;
-      border: 1px solid #d7dcd8;
+      min-height: 48px;
+      padding: 10px;
+      border: 1px solid #d1d8d4;
       border-radius: 12px;
       color: var(--ink);
       text-decoration: none;
-      transition: border-color 150ms ease, background 150ms ease;
+      transition: border-color 140ms ease, background 140ms ease;
     }
 
-    #public-system-map .psm-source-list a:hover {
+    #pris-system .ps-source-list a:hover {
       border-color: var(--accent);
-      background: #f2f8f6;
+      background: #f0f7f4;
     }
 
-    #public-system-map .psm-source-index {
-      color: var(--accent);
-      font-size: 0.79rem;
+    #pris-system .ps-source-index {
+      color: var(--accent-dark);
+      font-size: 0.78rem;
       font-weight: 800;
     }
 
-    #public-system-map .psm-source-title {
+    #pris-system .ps-source-title {
       display: block;
-      font-size: 0.83rem;
-      font-weight: 720;
-      line-height: 1.3;
+      font-size: 0.82rem;
+      font-weight: 750;
+      line-height: 1.32;
     }
 
-    #public-system-map .psm-source-meta {
+    #pris-system .ps-source-meta,
+    #pris-system .ps-source-support {
       display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 0.74rem;
-      line-height: 1.3;
+      margin-top: 3px;
+      color: #5b6661;
+      font-size: 0.73rem;
+      line-height: 1.38;
     }
 
-    #public-system-map .psm-caveat {
+    #pris-system .ps-source-support {
+      color: #37433e;
+    }
+
+    #pris-system .ps-below {
+      max-width: 1180px;
+      margin: 14px auto 0;
+    }
+
+    #pris-system .ps-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    #pris-system .ps-caveat {
       display: flex;
       gap: 10px;
       align-items: flex-start;
-      max-width: 1180px;
-      margin: 16px auto 0;
-      color: #56615d;
-      font-size: 0.83rem;
-      line-height: 1.48;
+      margin: 15px 0 0;
+      color: #52605a;
+      font-size: 0.82rem;
+      line-height: 1.52;
     }
 
-    #public-system-map .psm-caveat::before {
+    #pris-system .ps-caveat::before {
       content: "i";
       display: grid;
       flex: 0 0 24px;
       width: 24px;
       height: 24px;
       place-items: center;
-      border: 1px solid #9da7a3;
+      border: 1px solid #949f99;
       border-radius: 50%;
       font-family: Georgia, serif;
       font-weight: 700;
     }
 
-    #public-system-map .psm-text-view {
+    #pris-system .ps-deep {
       max-width: 1180px;
-      margin: 26px auto 0;
-      padding: clamp(18px, 4vw, 36px);
-      border: 1px solid #cfd5d1;
+      margin: 24px auto 0;
+      padding: clamp(18px, 4vw, 34px);
+      border: 1px solid #cbd2ce;
       border-radius: 24px;
       background: var(--surface);
     }
 
-    #public-system-map .psm-text-view[hidden] {
+    #pris-system .ps-deep[hidden] {
       display: none;
     }
 
-    #public-system-map .psm-text-view > h2 {
+    #pris-system .ps-deep > h2 {
       margin: 0 0 8px;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-size: clamp(1.7rem, 3vw, 2.55rem);
       font-weight: 500;
+      letter-spacing: -0.025em;
     }
 
-    #public-system-map .psm-text-intro {
-      max-width: 760px;
+    #pris-system .ps-deep-intro {
+      max-width: 800px;
       margin: 0 0 22px;
-      color: var(--muted);
+      color: #53605a;
     }
 
-    #public-system-map .psm-text-group {
+    #pris-system .ps-text-group {
       margin-top: 28px;
     }
 
-    #public-system-map .psm-text-group h3 {
+    #pris-system .ps-text-group h3 {
       margin: 0 0 10px;
-      color: var(--accent);
-      font-size: 0.78rem;
-      letter-spacing: 0.1em;
+      color: var(--accent-dark);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.095em;
       text-transform: uppercase;
     }
 
-    #public-system-map .psm-text-item {
-      border-top: 1px solid #e0e4e0;
+    #pris-system .ps-text-item {
+      border-top: 1px solid #dde2de;
     }
 
-    #public-system-map .psm-text-item summary {
+    #pris-system .ps-text-item summary {
       display: flex;
       min-height: 54px;
       align-items: center;
@@ -583,64 +862,95 @@
       gap: 14px;
       padding: 11px 4px;
       cursor: pointer;
-      font-weight: 720;
+      font-weight: 730;
       list-style: none;
     }
 
-    #public-system-map .psm-text-item summary::-webkit-details-marker {
+    #pris-system .ps-text-item summary::-webkit-details-marker {
       display: none;
     }
 
-    #public-system-map .psm-text-item summary::after {
+    #pris-system .ps-text-item summary::after {
       content: "+";
-      color: var(--accent);
+      color: var(--accent-dark);
       font-size: 1.25rem;
     }
 
-    #public-system-map .psm-text-item[open] summary::after {
+    #pris-system .ps-text-item[open] summary::after {
       content: "×";
     }
 
-    #public-system-map .psm-text-body {
-      max-width: 760px;
-      padding: 2px 4px 20px;
-      color: #34403c;
-      font-size: 0.93rem;
+    #pris-system .ps-text-body {
+      max-width: 840px;
+      padding: 2px 4px 22px;
+      color: #34403b;
+      font-size: 0.92rem;
     }
 
-    #public-system-map .psm-text-body p {
-      margin: 8px 0;
+    #pris-system .ps-text-body p {
+      margin: 9px 0;
     }
 
-    #public-system-map .psm-text-kind {
-      color: var(--muted);
-      font-size: 0.74rem;
+    #pris-system .ps-text-kind {
+      margin-left: auto;
+      color: #5d6863;
+      font-size: 0.73rem;
       font-weight: 650;
+      text-align: right;
     }
 
-    #public-system-map .psm-footer {
-      display: flex;
+    #pris-system .ps-all-sources {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #pris-system .ps-all-sources a {
+      display: block;
+      height: 100%;
+      padding: 13px;
+      border: 1px solid #d2d9d5;
+      border-radius: 13px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    #pris-system .ps-all-sources a:hover {
+      border-color: var(--accent);
+      background: #f0f7f4;
+    }
+
+    #pris-system .ps-source-scope {
+      display: inline-block;
+      margin-top: 7px;
+      color: #5a6660;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    #pris-system .ps-footer {
       max-width: 1180px;
       margin: 28px auto 0;
       padding-top: 18px;
-      border-top: 1px solid #d4d8d4;
-      color: #626c68;
+      border-top: 1px solid #ced5d1;
+      color: #5e6964;
       font-size: 0.76rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     @media (max-width: 1024px) {
-      #public-system-map .psm-map-card.has-panel .psm-map-wrap {
-        padding-right: 0;
-      }
-
-      #public-system-map .psm-panel-scrim {
+      #pris-system .ps-panel-scrim {
         position: fixed;
         z-index: 18;
         display: block;
       }
 
-      #public-system-map .psm-reading-panel {
+      #pris-system .ps-reading-panel {
         position: fixed;
         z-index: 19;
         top: auto;
@@ -648,203 +958,468 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        max-height: 78vh;
+        max-height: 82vh;
         border-right: 0;
         border-bottom: 0;
         border-left: 0;
         border-radius: 24px 24px 0 0;
-        transform: translateY(calc(100% + 30px));
+        transform: translateY(calc(100% + 28px));
       }
 
-      #public-system-map .psm-reading-panel.is-open {
+      #pris-system .ps-reading-panel.is-open {
         transform: translateY(0);
       }
 
-      #public-system-map .psm-panel-inner {
-        padding: 20px 18px 26px;
+      #pris-system .ps-panel-inner {
+        padding: 20px 18px 28px;
+      }
+
+      #pris-system .ps-map text {
+        font-size: 18px;
+      }
+
+      #pris-system .ps-map .ps-node-note {
+        font-size: 12px;
       }
     }
 
-    @media (max-width: 560px) {
-      #public-system-map .psm-shell {
-        padding-inline: 12px;
-      }
-
-      #public-system-map .psm-header {
-        grid-template-columns: 1fr;
-      }
-
-      #public-system-map .psm-header-actions {
-        justify-content: flex-start;
-      }
-
-      #public-system-map .psm-map-card,
-      #public-system-map .psm-map-wrap {
+    @media (max-width: 700px) {
+      #pris-system .ps-map-card {
         min-height: auto;
-      }
-
-      #public-system-map .psm-map-card {
         border-radius: 22px;
       }
 
-      #public-system-map .psm-map-wrap {
-        padding: 82px 0 8px;
+      #pris-system .ps-map-top {
+        align-items: flex-start;
+        padding: 14px 12px 4px;
       }
 
-      #public-system-map .psm-map {
+      #pris-system .ps-instruction {
+        width: 100%;
+      }
+
+      #pris-system .ps-lenses {
+        width: 100%;
+      }
+
+      #pris-system .ps-lens {
+        flex: 1 1 auto;
+        padding-inline: 10px;
+      }
+
+      #pris-system .ps-map-wrap {
+        padding: 0 2px;
+      }
+
+      #pris-system .ps-map {
         min-height: auto;
       }
 
-      #public-system-map .psm-node text,
-      #public-system-map .psm-node.is-outcome text {
-        font-size: 15px;
+      #pris-system .ps-map-legend {
+        padding: 4px 12px 16px;
       }
 
-      #public-system-map .psm-instruction {
-        right: 12px;
-        left: 12px;
-        top: 12px;
-        max-width: none;
-        font-size: 0.82rem;
-      }
-
-    }
-
-    @media (min-width: 561px) and (max-width: 820px) {
-      #public-system-map .psm-node text {
-        font-size: 21px;
-      }
-
-      #public-system-map .psm-node.is-outcome text {
-        font-size: 22px;
+      #pris-system .ps-all-sources {
+        grid-template-columns: 1fr;
       }
     }
 
-    @media (min-width: 821px) and (max-width: 1024px) {
-      #public-system-map .psm-node text {
-        font-size: 17px;
+    @media (max-width: 420px) {
+      #pris-system .ps-shell {
+        padding-inline: 10px;
       }
 
-      #public-system-map .psm-node.is-outcome text {
-        font-size: 18px;
-      }
-    }
-
-    @media (max-width: 440px) {
-      #public-system-map h1 {
+      #pris-system h1 {
         font-size: 2.35rem;
       }
 
-      #public-system-map .psm-header-actions {
-        display: grid;
-        grid-template-columns: 1fr;
+      #pris-system .ps-thesis {
+        font-size: 0.94rem;
       }
 
-      #public-system-map .psm-button {
-        width: 100%;
+      #pris-system .ps-lens {
+        min-height: 40px;
+        font-size: 0.8rem;
+      }
+
+      #pris-system .ps-map text {
+        font-size: 16px;
+      }
+
+      #pris-system .ps-map .ps-node-note {
+        font-size: 12px;
+      }
+
+      #pris-system .ps-map-legend {
+        gap: 7px 12px;
+        font-size: 0.7rem;
+      }
+
+      #pris-system .ps-text-item summary {
+        align-items: flex-start;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      #public-system-map *,
-      #public-system-map *::before,
-      #public-system-map *::after {
+      #pris-system *,
+      #pris-system *::before,
+      #pris-system *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
       }
     }
-
   </style>
-
-  <main class="psm-shell">
-    <header class="psm-header">
-      <div>
-        <h1>Vad avgör hur hårt bensinkostnaden slår?</h1>
-        <p class="psm-lead">Literpriset spelar roll. Men kostnaden beror också på hur långt man kör, bilens förbrukning, hushållets ekonomi och vilka realistiska alternativ som finns.</p>
-      </div>
+</head>
+<body>
+<div id="pris-system" lang="sv">
+  <main class="ps-shell">
+    <header class="ps-header">
+      <p class="ps-kicker">En fråga sedd som ett system</p>
+      <h1>När upplevs bensinen som för dyr?</h1>
+      <p class="ps-lead">Priset vid pump är en del av svaret. Men samma literpris kan vara hanterbart för ett hushåll och mycket svårt för ett annat. Det beror på vardagens bilberoende, använda liter, ekonomiskt handlingsutrymme, möjligheten att ställa om och hur politiken utformas. Kartan skiljer också materiell utsatthet från den upplevda börda som ännu saknar ett samlat svenskt mått.</p>
+      <p class="ps-thesis">Det systemet behöver lösa är människors tillgänglighet, inte deras bensinförbrukning.</p>
     </header>
 
-    <section class="psm-map-card" aria-label="Interaktiv systemkarta">
-      <div class="psm-instruction">
-        <span>Tryck på en cirkel eller linje för en kort förklaring och källor.</span>
+    <section class="ps-map-card" aria-label="Interaktiv systemkarta">
+      <div class="ps-map-top">
+        <div class="ps-instruction">
+          <span class="ps-instruction-mark" aria-hidden="true">1</span>
+          <span>Välj ett perspektiv. Klicka sedan på en nod eller koppling för förklaring, osäkerhet och kontrollerade källor.</span>
+        </div>
+        <div class="ps-lenses" role="group" aria-label="Perspektiv på systemet">
+          <button class="ps-lens" type="button" data-lens="core" aria-pressed="true">Kärnan</button>
+          <button class="ps-lens" type="button" data-lens="household" aria-pressed="false">Hushållet</button>
+          <button class="ps-lens" type="button" data-lens="policy" aria-pressed="false">Politiken och tiden</button>
+          <button class="ps-lens" type="button" data-lens="loops" aria-pressed="false">Återkopplingarna</button>
+          <button class="ps-lens" type="button" data-lens="all" aria-pressed="false">Alla samband</button>
+        </div>
       </div>
-      <div class="psm-map-wrap">
-        <svg class="psm-map" role="group" aria-label="Karta över vad som formar bensinens ekonomiska börda"></svg>
+
+      <div class="ps-lens-context">
+        <p class="ps-lens-note" aria-live="polite">Kärnan visar hushållets direkta kostnadskedja. Tonade noder hör till systemet men deras samband öppnas i andra perspektiv.</p>
+        <div class="ps-loopbar" role="group" aria-label="Välj återkopplingsslinga" hidden>
+          <button class="ps-loop-choice" type="button" data-loop="transition" aria-pressed="true">B1 Långsiktig omställning</button>
+          <button class="ps-loop-choice" type="button" data-loop="lockin" aria-pressed="false">R1 Bilberoendets inlåsning</button>
+        </div>
+        <div class="ps-loop-summary" aria-live="polite" hidden></div>
+        <div class="ps-policybar" role="group" aria-label="Välj politisk åtgärdsgren" hidden>
+          <button class="ps-policy-choice" type="button" data-policy-branch="price-down" aria-pressed="true">Pris ned</button>
+          <button class="ps-policy-choice" type="button" data-policy-branch="price-up" aria-pressed="false">Pris upp</button>
+          <button class="ps-policy-choice" type="button" data-policy-branch="compensation" aria-pressed="false">Kompensation</button>
+          <button class="ps-policy-choice" type="button" data-policy-branch="transition" aria-pressed="false">Omställning</button>
+          <button class="ps-policy-choice" type="button" data-policy-branch="access" aria-pressed="false">Tillgänglighet</button>
+        </div>
+        <div class="ps-policy-summary" aria-live="polite" hidden></div>
       </div>
-      <div class="psm-panel-scrim" data-action="close-panel" aria-hidden="true"></div>
-      <aside class="psm-reading-panel" role="dialog" aria-label="Fördjupning" aria-hidden="true" aria-modal="false">
-        <div class="psm-panel-inner"></div>
+
+      <div class="ps-map-wrap">
+        <svg class="ps-map" role="group" aria-label="Systemkarta över varför bensin kan bli ekonomiskt och subjektivt svår att bära">
+          <title>Systemet bakom upplevelsen att bensinen är för dyr</title>
+          <desc>Nio klickbara noder, sjutton riktade samband och två återkopplingsslingor kopplar samman pumppris, bilberoende, använda liter, ekonomiskt handlingsutrymme, omställningsmöjlighet, ekonomisk utsatthet, upplevd bensinkostnadsbörda, politik och kostnader utanför pumpen.</desc>
+        </svg>
+      </div>
+
+      <div class="ps-map-legend" role="group" aria-label="Teckenförklaring">
+        <span class="ps-legend-item"><span class="ps-sign">+</span> förstärker</span>
+        <span class="ps-legend-item"><span class="ps-sign">−</span> dämpar</span>
+        <span class="ps-legend-item"><span class="ps-sign">±</span> beror på utformning</span>
+        <span class="ps-legend-item"><span class="ps-dash"></span> villkorat eller fördröjt</span>
+      </div>
+
+      <div class="ps-panel-scrim" data-action="close-panel" aria-hidden="true"></div>
+      <aside class="ps-reading-panel" role="dialog" aria-label="Fördjupning" aria-hidden="true" aria-modal="false" inert>
+        <div class="ps-panel-inner"></div>
       </aside>
     </section>
 
-    <div class="psm-below-actions" aria-label="Visningsalternativ">
-      <button class="psm-button" type="button" data-action="about">Om urvalet</button>
-      <button class="psm-button" type="button" data-action="text-view" aria-expanded="false" aria-controls="psm-text-view">Läs som text</button>
+    <div class="ps-below">
+      <div class="ps-actions" role="group" aria-label="Fördjupning och alternativa läsvyer">
+        <button class="ps-action" type="button" data-action="about">Så är modellen avgränsad</button>
+        <button class="ps-action" type="button" data-action="text-view" aria-expanded="false" aria-controls="ps-text-view">Kartan som text</button>
+        <button class="ps-action" type="button" data-action="sources-view" aria-expanded="false" aria-controls="ps-sources-view">Alla källor</button>
+      </div>
+      <p class="ps-caveat">Systemgränsen är svenska hushålls användning av bensindrivna personbilar. Godstransporter, diesel, hela statsbudgeten och den fullständiga makroekonomin ligger utanför huvudbilden. Kartan visar en evidensprövad orienteringsmodell, inte ett anspråk på varje möjlig faktor eller vad varje enskild person upplever.</p>
     </div>
 
-    <p class="psm-caveat">Kartan visar ett urval av de starkaste sambanden. Den är inte en fullständig modell av transportsystemet och beskriver gruppmönster, inte varje enskilt hushåll. Citatet ”bensinen är för dyr” behandlas därför som en fråga att undersöka, inte som ett verifierat påstående om vad människor tycker.</p>
-
-    <section class="psm-text-view" id="psm-text-view" hidden aria-labelledby="psm-text-title">
-      <h2 id="psm-text-title">Kartan i text</h2>
-      <p class="psm-text-intro">Samma innehåll i linjär form. Öppna en rubrik för att läsa förklaringen och nå källorna.</p>
-      <div class="psm-text-content"></div>
+    <section class="ps-deep" id="ps-text-view" hidden aria-labelledby="ps-text-title">
+      <h2 id="ps-text-title">Kartan som text</h2>
+      <p class="ps-deep-intro">Samma modell i linjär form. Öppna en rubrik för att läsa vad påståendet betyder, vilken evidens som stöder det och vad som fortfarande är osäkert.</p>
+      <div class="ps-text-content"></div>
     </section>
 
-    <footer class="psm-footer">Faktagranskad 6 augusti 2026. Sidan använder inga kakor, ingen analyskod och ingen lokal lagring. Källänkar öppnas utan hänvisningsinformation.</footer>
+    <section class="ps-deep" id="ps-sources-view" hidden aria-labelledby="ps-sources-title">
+      <h2 id="ps-sources-title">Källor och spårbarhet</h2>
+      <p class="ps-deep-intro">Varje källa anges med vad den används för och vilken geografisk eller metodisk avgränsning som gäller. Analytiska identiteter, fysikaliska relationer, empiriska studier och systemsynteser hålls isär.</p>
+      <div class="ps-source-content"></div>
+    </section>
+
+    <footer class="ps-footer">Källor och länkar kontrollerade 7 augusti 2026. Sidan använder inga kakor, ingen analyskod och ingen lokal lagring. Webbhotellet kan föra vanliga tekniska serverloggar. Källänkar öppnas utan hänvisningsinformation.</footer>
   </main>
 
   <script>
     (() => {
-      const root = document.getElementById("public-system-map");
+      const root = document.getElementById("pris-system");
       if (!root) return;
 
       const sources = {
-        ki91: {
+        transportGoals: {
+          title: "Mål för transporter och infrastruktur",
+          meta: "Regeringskansliet, transportpolitiska mål",
+          scope: "Sverige, normativ systemfunktion",
+          support: "Stöder att transportsystemets funktion är tillgänglighet och användbarhet, inte bränsleförbrukning i sig.",
+          url: "https://www.regeringen.se/regeringens-politik/transporter-och-infrastruktur/mal-for-transporter-och-infrastruktur/"
+        },
+        ipcc5: {
+          title: "AR6 WGIII, Chapter 5: Demand, services and social aspects of mitigation",
+          meta: "IPCC, 2022, vetenskaplig bedömningsrapport",
+          scope: "Global forskningssyntes",
+          support: "Stöder tjänsteperspektivet på mobilitet och att efterfrågan formas av infrastruktur, teknik och sociala förhållanden.",
+          url: "https://www.ipcc.ch/report/ar6/wg3/chapter/chapter-5/"
+        },
+        kiPrice: {
           title: "Drivmedelsprisernas utveckling",
-          meta: "Konjunkturinstitutet, 2023, myndighetsrapport",
+          meta: "Konjunkturinstitutet, Specialstudie 91, 2023",
+          scope: "Svensk prisbildning för bensin och diesel",
+          support: "Identifierar produktkostnad, raffinering och distribution, marginaler, punktskatter och moms och analyserar prisutvecklingen 2018 till 2022.",
           url: "https://www.konj.se/media/ts3j22ju/specialstudie-091-drivmedelsprisernas-utveckling.pdf"
         },
-        ki111: {
-          title: "Slutredovisning av regeringsuppdraget: Analys av drivmedelspriser",
-          meta: "Konjunkturinstitutet, 2024, myndighetsrapport",
-          url: "https://www.konj.se/media/wr1bnjnc/specialstudie-111-slutredovisning-drivmedelsuppdrag.pdf"
+        competition: {
+          title: "Hur påverkar konkurrensen priserna på bensin och diesel?",
+          meta: "Konkurrensverket, Rapport 2024:6",
+          scope: "Sverige, lokal konkurrens och drivmedelsmarknad",
+          support: "Stöder att marknadsstruktur och lokal konkurrens påverkar stationspriser, men ger inte en enda nationell konkurrenspremie.",
+          url: "https://www.konkurrensverket.se/informationsmaterial/rapportlista/hur-paverkar-konkurrensen-priserna-pa-bensin-och-diesel/"
         },
-        ki102: {
-          title: "Elasticiteter inom miljö-, klimat- och energiområdet",
-          meta: "Konjunkturinstitutet, 2024, forskningsöversikt",
-          url: "https://www.konj.se/media/fsedffr1/specialstudie-102-elasticiteter-inom-miljo-klimat-och-energiomradet.pdf"
+        kiTax: {
+          title: "Skatteförändringar och bensinpriset",
+          meta: "Konjunkturinstitutet, Specialstudie 93, 2023",
+          scope: "Sverige, skatteförändringar under 2022",
+          support: "Stöder fullt och symmetriskt genomslag på bensinpriset för de studerade skatteförändringarna. Resultatet är reformspecifikt.",
+          url: "https://www.konj.se/publikationer/specialstudier/2023-11-01-skatteforandringar-och-bensinpriset/"
         },
-        eliasson2018: {
-          title: "Distributional effects of taxes on car fuel, use, ownership and purchases",
-          meta: "Eliasson, Pyddoke och Swärdh, 2018, sakkunniggranskad artikel",
-          url: "https://doi.org/10.1016/j.ecotra.2018.03.001"
+        kiBlend: {
+          title: "Priseffekten av den förändrade reduktionsplikten 2025",
+          meta: "Konjunkturinstitutet, Specialstudie 121, 2025",
+          scope: "Sverige, reformen den 1 juli 2025",
+          support: "Stöder att reduktionsplikt, elkrediter och skattejusteringar hade motverkande effekter på pumppriset i den studerade reformen.",
+          url: "https://www.konj.se/publikationer/specialstudier/2025-12-03-priseffekten-av-den-forandrade-reduktionsplikten-2025/"
         },
-        trafa: {
-          title: "Resvanor i Sverige",
-          meta: "Trafikanalys, officiell statistik och metodbeskrivning",
-          url: "https://www.trafa.se/transportmonster/RVU-Sverige/"
-        },
-        scb: {
-          title: "Hushållens utgifter, HUT",
-          meta: "Statistiska centralbyrån, officiell statistik",
-          url: "https://www.scb.se/hitta-statistik/statistik-efter-amne/hushallens-ekonomi/hushallens-utgifter/hushallens-utgifter-hut/"
-        },
-        trafikverket: {
-          title: "Transporternas klimatpåverkan",
-          meta: "Trafikverket, kunskapsunderlag, hämtat 2026",
-          url: "https://bransch.trafikverket.se/for-dig-i-branschen/miljo---for-dig-i-branschen/minskad-klimatpaverkan/transporternas-klimatpaverkan/"
-        },
-        euoil: {
+        euOil: {
           title: "Weekly Oil Bulletin",
-          meta: "Europeiska kommissionen, officiell prisstatistik",
+          meta: "Europeiska kommissionen, officiell veckostatistik",
+          scope: "EU-länder, priser med och utan skatt",
+          support: "Ger jämförbar officiell statistik över konsumentpriser på petroleumprodukter. Den förklarar inte ensam orsakerna till priset.",
           url: "https://energy.ec.europa.eu/data-and-analysis/weekly-oil-bulletin_en"
         },
         skatteverket: {
-          title: "Skattesatser på bränslen 2026",
-          meta: "Skatteverket, rättslig vägledning",
-          url: "https://www4.skatteverket.se/rattsligvagledning/edition/2026.12/323440.html"
+          title: "Skatt på bränsle",
+          meta: "Skatteverket, löpande skattesatser",
+          scope: "Sverige, gällande och beslutade perioder",
+          support: "Verifierar energi och koldioxidskatt per bränsleslag och period. Moms och andra priskomponenter behöver separata underlag.",
+          url: "https://www.skatteverket.se/foretag/skatterochavdrag/punktskatter/energiskatter/skattpabransle.4.15532c7b1442f256bae5e56.html"
+        },
+        kiElastic: {
+          title: "Elasticiteter inom klimat- och energiområdet, uppdaterad litteraturöversikt 2025",
+          meta: "Konjunkturinstitutet, Specialstudie 102, 2025",
+          scope: "Forskningsöversikt, flera länder och tidshorisonter",
+          support: "Stöder att efterfrågan på vägtransportbränsle i genomsnitt minskar när priset stiger och att långsiktig respons ofta är större än kortsiktig.",
+          url: "https://www.konj.se/publikationer/nyheter/2025-12-12-uppdaterad-litteraturoversikt-om-elasticiteter/"
+        },
+        trafaAccess: {
+          title: "Perspektiv på resor och möjligheter att resa",
+          meta: "Trafikanalys, Rapport 2018:17",
+          scope: "Sverige, regioner och socioekonomiska grupper",
+          support: "Stöder att möjligheten att nå bostäder, arbete och aktiviteter varierar mellan regioner och grupper och formas av flera transportvillkor.",
+          url: "https://www.trafa.se/etiketter/transportovergripande/fordjupat-underlag-for-persontransporter-7413/"
+        },
+        trafaRvu: {
+          title: "Resvanor i Sverige",
+          meta: "Trafikanalys, officiell statistik",
+          scope: "Sverige, dagligt resande, färdsätt och ärenden",
+          support: "Beskriver hur, när och varför människor reser. Statistiken är deskriptiv och etablerar inte ensam kausala samband.",
+          url: "https://www.trafa.se/transportmonster/RVU-Sverige/"
+        },
+        trafaPoverty: {
+          title: "Transportfattigdom och utsatta transportanvändare",
+          meta: "Trafikanalys, PM 2025:10",
+          scope: "Sverige, tolkning och operationalisering av EU:s definitioner",
+          support: "Visar att transportfattigdom omfattar ekonomi, kollektivtrafikutbud, tid, familjevillkor och funktionsnedsättning och inte bara bil eller bränsleutgift.",
+          url: "https://www.trafa.se/etiketter/transportovergripande/transportfattigdom-och--utsatta-transportanvandare---tolkning-och-operationalisering-av--eus-definitioner-15696/"
+        },
+        euPoverty: {
+          title: "Recommendation (EU) 2025/1021 on transport poverty",
+          meta: "Europeiska kommissionen, 2025",
+          scope: "EU, definitioner och indikatorer",
+          support: "Den officiella definitionen omfattar betalbarhet, tillgång och tillgänglighet. Rekommendationen beskriver också ändamålsenlighet eller användbarhet som en nyttig fjärde analysdimension utanför själva definitionen.",
+          url: "https://eur-lex.europa.eu/eli/reco/2025/1021/oj/eng"
+        },
+        ipccUrban: {
+          title: "AR6 WGIII, Figure 8.16: Urban form and GHG emissions",
+          meta: "IPCC, 2022, forskningssyntes",
+          scope: "Global litteratur om bebyggelse och transport",
+          support: "Stöder att utspridd bilorienterad bebyggelse hänger samman med längre resor, svårare färdmedelsbyte och långvarig inlåsning.",
+          url: "https://www.ipcc.ch/report/ar6/wg3/figures/chapter-8/figure-8-16/"
+        },
+        mattioli: {
+          title: "Vulnerability to fuel price increases in the UK: A household level analysis",
+          meta: "Mattioli, Wadud och Lucas, 2018, sakkunniggranskad artikel",
+          scope: "Storbritannien, hushållsdata och simulering",
+          support: "Skiljer mellan exponering, känslighet och anpassningsförmåga och visar att låg respons kan innebära undanträngning av andra utgifter.",
+          url: "https://doi.org/10.1016/j.tra.2018.04.002"
+        },
+        carPolitical: {
+          title: "The political economy of car dependence: A systems of provision approach",
+          meta: "Mattioli, Roberts, Steinberger och Brown, 2020, sakkunniggranskad översikt",
+          scope: "Internationell tvärvetenskaplig litteratur om bilberoende och inlåsning",
+          support: "Identifierar hur bilinfrastruktur, utspridd bebyggelse, kollektivtrafik, industri och bilkultur bildar återkopplingar som kan reproducera bilberoende.",
+          url: "https://doi.org/10.1016/j.erss.2020.101486"
+        },
+        rebound: {
+          title: "The rebound effect in road transport: A meta-analysis of empirical studies",
+          meta: "Dimitropoulos, Oueslati och Sintek, 2018, metaanalys av 74 studier",
+          scope: "Internationell vägtransport, stor variation mellan metoder och sammanhang",
+          support: "Stöder att lägre bränslekostnad per kilometer efter effektivisering kan öka körningen och därmed motverka en del av den beräknade energibesparingen.",
+          url: "https://doi.org/10.1016/j.eneco.2018.07.021"
+        },
+        scbHut: {
+          title: "Hushållens utgifter, HUT",
+          meta: "Statistiska centralbyrån, officiell statistik",
+          scope: "Sverige, senast fullständiga HUT avser 2021",
+          support: "Visar hushållens utgiftsstruktur och att transport behöver förstås tillsammans med boende och andra utgifter. 2021 var ett pandemiår.",
+          url: "https://www.scb.se/hitta-statistik/statistik-efter-amne/hushallens-ekonomi/hushallens-utgifter/hushallens-utgifter-hut/"
+        },
+        scbDistribution: {
+          title: "Sveriges ekonomi, december 2025: hushållens konsumtion och sparande",
+          meta: "Statistiska centralbyrån, experimentella hushållsfördelningsräkenskaper",
+          scope: "Sverige, huvudsakligen referensår 2021",
+          support: "Visar skillnader i konsumtion och sparandeflöden mellan inkomstgrupper. Sparande är inte samma sak som ett hushålls likvida buffert.",
+          url: "https://www.scb.se/hitta-statistik/statistik-efter-amne/nationalrakenskaper/amnesovergripande-statistik/sveriges-ekonomi-statistiskt-perspektiv/produktrelaterat/rapporter/sveriges-ekonomi-statistiskt-perspektiv-december-2025/"
+        },
+        scbLiquidity: {
+          title: "Sparbarometern, fjärde kvartalet 2025",
+          meta: "Statistiska centralbyrån, finansräkenskaper publicerade 2026",
+          scope: "Svenska hushållssektorn sammantaget, inte fördelning mellan enskilda hushåll",
+          support: "Redovisar hushållssektorns sparande, lån och tillgångskategorier. Tillgångsmåttet innehåller även bostadsrättsandelar och fritidshus utomlands och är därför inte ett mått på likvid buffert.",
+          url: "https://www.scb.se/hitta-statistik/statistik-efter-amne/nationalrakenskaper/finansrakenskaper/sparbarometern/pong/statistiknyhet/sparbarometern-4e-kvartalet-2025/"
+        },
+        ki109: {
+          title: "Effekter av prishöjningar med anledning av EU:s nya utsläppshandelssystem",
+          meta: "Konjunkturinstitutet, Specialstudie 109, 2024",
+          scope: "Sverige, modellberäkningar för ETS2 och transportfattigdom",
+          support: "Analyserar sannolika effekter på utsatta hushåll och transportanvändare. Resultaten är scenario och modellberoende.",
+          url: "https://www.konj.se/publikationer/specialstudier/2024-10-31-effekter-av-prishojningar-med-anledning-av-inforandet-av-eus-nya-utslappshandelssystem/"
+        },
+        eliasson: {
+          title: "Distributional effects of taxes on car fuel, use, ownership and purchases",
+          meta: "Eliasson, Pyddoke och Swärdh, 2018, sakkunniggranskad artikel",
+          scope: "Sverige, registerdata från 2011 på individ och registrerad bilägare",
+          support: "Visar stor variation inom grupper, högre bördor utanför centrala städer och att intäktsåterföring kan ändra den samlade fördelningseffekten.",
+          url: "https://doi.org/10.1016/j.ecotra.2018.03.001"
+        },
+        levin: {
+          title: "Reference dependence in the demand for gasoline",
+          meta: "Levin, Lewis och Wolak, 2022, sakkunniggranskad artikel",
+          scope: "USA, dagliga priser och betalningar 2006 till 2014",
+          support: "Visar att efterfrågeresponsen var starkare när priset låg över föregående års genomsnitt. Studien mäter beteende, inte svensk självrapporterad dyrhet.",
+          url: "https://doi.org/10.1016/j.jebo.2022.03.003"
+        },
+        ewald: {
+          title: "Understanding the resistance to carbon taxes",
+          meta: "Ewald, Sterner och Sterner, 2022, sakkunniggranskad artikel",
+          scope: "Sverige, nationell webbpanel och självselekterade skatteprotestdeltagare 2021",
+          support: "Visar samband mellan skatteacceptans och bland annat tillit, bostadsgeografi och förståelse av styrmekanismen. Studien mäter acceptans, inte kostnadsbörda.",
+          url: "https://doi.org/10.1016/j.reseneeco.2022.101331"
+        },
+        ewaldThesis: {
+          title: "Opposition to Carbon Pricing: Beliefs, Revenues, and Protesters",
+          meta: "Ewald, 2025, doktorsavhandling, Göteborgs universitet",
+          scope: "Sverige och Europa, surveyexperiment och svensk geografisk regressionsdiskontinuitet",
+          support: "Avhandlingen visar bland annat att exponering för kraftigt högre elpriser ökade motstånd mot koldioxidskatt och påverkade uppfattningar om kostnad och rättvisa. Resultatet gäller energiprisexponering, inte bensinpris isolerat.",
+          url: "https://hdl.handle.net/2077/86500"
+        },
+        jagers: {
+          title: "The impact of compensatory measures on public support for carbon taxation",
+          meta: "Jagers, Martinsson och Matti, 2019, randomiserat svenskt surveyexperiment",
+          scope: "Sverige, hypotetisk koldioxidskatt på bensin",
+          support: "Stöder att upplevd rättvisa och kompensation påverkar policystöd, med variation efter politisk orientering.",
+          url: "https://doi.org/10.1080/14693062.2018.1470963"
+        },
+        buchs: {
+          title: "Public opposition to fuel taxes in Europe: how important is social disadvantage and how do welfare regimes compare?",
+          meta: "Büchs, Bastianelli och Schnepf, 2024, sakkunniggranskad jämförande studie",
+          scope: "20 europeiska länder, observerade samband och självrapporterade mått",
+          support: "Visar samband mellan social nackdel och motstånd mot bränsleskatter, med betydande variation mellan länder och välfärdsregimer. Sambanden är inte kausala effekter.",
+          url: "https://doi.org/10.1177/09589287241270942"
+        },
+        godek: {
+          title: "Effects of spikes in the price of gasoline on behavioral intentions: a mental accounting explanation",
+          meta: "Godek och Murray, 2012, tre experiment i en sakkunniggranskad artikel",
+          scope: "Internationell beteendeevidens, inte ett svenskt befolkningsmått",
+          support: "Stöder att bensinprisspikar kan påverka uppfattningen om den samlade levnadskostnaden och det ekonomiska välbefinnandet. Studien mäter inte svensk vardagsdyrhet.",
+          url: "https://doi.org/10.1002/bdm.735"
+        },
+        churchill: {
+          title: "Transport poverty and subjective wellbeing",
+          meta: "Churchill och Smyth, 2019, sakkunniggranskad longitudinell hushållsstudie",
+          scope: "Australien, tolv panelvågor och breda mått på transportfattigdom och välbefinnande",
+          support: "Stöder att transportfattigdomens betalbarhets- och tillgänglighetsdimensioner hänger samman med lägre subjektivt välbefinnande. Utfallet är bredare än upplevd bensindyrhet.",
+          url: "https://doi.org/10.1016/j.tra.2019.03.004"
+        },
+        ergon: {
+          title: "Modelling policy packages with combined climate, social, and macroeconomic goals: the Swedish case",
+          meta: "Ergon med flera, 2025, sakkunniggranskad modellstudie",
+          scope: "Sverige, modellerade policyalternativ",
+          support: "Visar att samma budgetbelopp kan ge olika klimat och fördelningseffekter beroende på om det används till skattesänkning, transferering, välfärd eller fordonsstöd.",
+          url: "https://doi.org/10.1080/14693062.2025.2531098"
+        },
+        naturvard: {
+          title: "Utsläpp av växthusgaser från inrikes transporter",
+          meta: "Naturvårdsverket, officiell utsläppsstatistik och analys",
+          scope: "Sverige, territoriella utsläpp från inrikes transporter",
+          support: "Stöder att trafikarbete, energieffektivitet, elektrifiering och biodrivmedel formar vägtrafikens utsläpp. Livscykelutsläpp kräver annan systemgräns.",
+          url: "https://www.naturvardsverket.se/data-och-statistik/klimat/vaxthusgaser-utslapp-fran-inrikes-transporter/"
+        },
+        trafikverketClimate: {
+          title: "Transporternas klimatpåverkan",
+          meta: "Trafikverket, kunskapsunderlag",
+          scope: "Sverige, faktorer bakom vägtrafikens energianvändning och utsläpp",
+          support: "Stöder faktoridentiteten mellan trafikarbete, energianvändning per kilometer och bränslets fossila del. Det är inte en full livscykelanalys.",
+          url: "https://bransch.trafikverket.se/for-dig-i-branschen/miljo---for-dig-i-branschen/minskad-klimatpaverkan/transporternas-klimatpaverkan/"
+        },
+        euRealWorld: {
+          title: "Real-world CO2 emissions and fuel consumption of cars and vans",
+          meta: "Europeiska kommissionen, 2024, fordonsdata från 2022",
+          scope: "EU, nya bensin- och dieselbilar med datatäckningsbegränsningar",
+          support: "Stöder att verklig förbrukning kan avvika från typgodkänd WLTP-förbrukning. Resultatet är inte ett svenskt flottgenomsnitt.",
+          url: "https://climate.ec.europa.eu/news-other-reads/news/publication-real-world-co2-emissions-and-fuel-consumption-cars-and-vans-collected-2022-2024-07-26_en"
+        },
+        trafaVehicles: {
+          title: "Fordon 2025",
+          meta: "Trafikanalys, officiell fordonsstatistik",
+          scope: "Sverige, fordonsbestånd och förändringar under 2025",
+          support: "Gör det möjligt att skilja hela fordonsbeståndet från nyregistreringarnas egenskaper. Beståndet är ett lager som förändras genom flera flöden.",
+          url: "https://www.trafa.se/vagtrafik/fordon/fordon-2025-15976/"
+        },
+        ipccLifecycle: {
+          title: "AR6 WGIII, Figure 10.1: Global and regional transport greenhouse gas emissions trends",
+          meta: "IPCC, 2022, vetenskaplig bedömningsrapport",
+          scope: "Global transport och livscykelperspektiv",
+          support: "Figurtexten anger uttryckligen att sektorssumman utesluter bränsleproduktion, fordonstillverkning och infrastruktur och därmed inte är full livscykel.",
+          url: "https://www.ipcc.ch/report/ar6/wg3/figures/chapter-10/figure-10-1/"
+        },
+        trafaExternal: {
+          title: "Transportsektorns samhällsekonomiska kostnader för 2025",
+          meta: "Trafikanalys, Rapport 2026:3",
+          scope: "Sverige, marginalkostnader och internalisering",
+          support: "Redovisar externa effekter som klimat, olyckor och slitage och visar att kostnaderna varierar med trafikmiljö och fordon.",
+          url: "https://www.trafa.se/etiketter/transportovergripande/transportsektorns-samhallsekonomiska-kostander-2025-16034/"
+        },
+        kiBusiness: {
+          title: "Drivmedelsprisernas betydelse för företagens kostnader",
+          meta: "Konjunkturinstitutet, Specialstudie 100, 2024",
+          scope: "Sverige, modellanalys av branscher och konsumentpriser",
+          support: "Stöder att högre drivmedelspriser också kan påverka andra varor och tjänster via företagens direkta och indirekta kostnader.",
+          url: "https://www.konj.se/publikationer/specialstudier/2024-01-31-okade-drivmedelspriser-leder-till-liten-kostnadsokning-for-de-flesta-naringslivsbranscher/"
         }
       };
 
@@ -852,193 +1427,530 @@
         {
           id: "price",
           label: "Pris vid pump",
-          lines: ["Pris vid", "pump"],
-          kind: "Observerbart mått",
-          desktop: [235, 155], mobile: [75, 105],
-          radius: 68, mobileRadius: 52,
-          summary: "Literpriset är den synliga kostnaden när bilen tankas. Det formas bland annat av råvarupriser, kronkurs, skatter och bränsleregler, men säger inte ensamt hur stor hushållets börda blir.",
-          evidence: "Konjunkturinstitutet pekar ut råoljepris och växelkurs som centrala drivkrafter bakom prisförändringar. De studerade bensinskatteförändringarna 2022 fick fullt genomslag på pumppriset. För diesel har reduktionspliktens priseffekt varierat, vilket inte utan vidare kan överföras till bensin.",
-          evidenceSources: ["ki91", "ki111"],
-          uncertainty: "Ett nationellt genomsnitt döljer variation mellan stationer och tidpunkter. Raffinering, lager, konkurrens, biokomponenter och tidsförskjutningar påverkar också.",
-          reflection: "Vilken del av priset och dess förändring kan svensk politik påverka direkt, och vilken del kommer utifrån?",
-          sourceIds: ["euoil", "ki91", "ki111", "skatteverket"]
+          lines: ["Pris vid pump"],
+          mobileLines: ["Pris vid", "pump"],
+          note: "kronor per liter",
+          systemRole: "Prissignal",
+          evidenceType: "Mätbart utfall",
+          desktop: [390, 92], mobile: [92, 78],
+          size: [174, 72], mobileSize: [132, 68],
+          components: ["råolja", "kronkurs", "raffinering", "distribution", "marginaler", "skatter och moms", "reduktionsplikt", "tidsfördröjning"],
+          summary: "Literpriset är det synligaste talet, men det är resultatet av en kedja från världsmarknad och växelkurs till svensk skatt, bränslereglering, distribution och lokal prissättning.",
+          evidence: "Konjunkturinstitutet analyserar internationella priser, växelkurs och svenska styrmedel som centrala prisdelar. De studerade skatteförändringarna 2022 fick fullt genomslag på bensinpriset, medan reduktionsplikt och skattejustering motverkade varandra i reformen 2025.",
+          evidenceSources: ["kiPrice", "kiTax", "kiBlend"],
+          uncertainty: "Genomslaget är inte en tidlös konstant. Det kan variera mellan reformer, marknadslägen, stationer och tidsperioder. Kartan visar därför ingen universell procentfördelning av priset.",
+          reflection: "Vilken del av dagens pris kan svensk politik påverka direkt, vilken del kommer utifrån och över vilken tid?",
+          sourceIds: ["kiPrice", "competition", "kiTax", "kiBlend", "euOil", "skatteverket"]
         },
         {
-          id: "travel",
-          label: "Resbehov och alternativ",
-          lines: ["Resbehov", "och alternativ"],
-          mobileLines: ["Resbehov", "och", "alternativ"],
-          tabletLines: ["Resbehov", "och", "alternativ"],
-          kind: "Systemsyntes",
-          desktop: [165, 440], mobile: [80, 285],
-          radius: 70, mobileRadius: 53,
-          summary: "Avstånd, arbete, service, familjeliv och tillgång till andra färdsätt påverkar hur långt bilen används. Bostadsort är därför inte en enkel etikett för bilberoende.",
-          evidence: "Resvaneundersökningen mäter hur, när och varför människor reser. Fördelningsstudier visar gruppskillnader, men också stor variation mellan hushåll i samma inkomstgrupp och geografiska grupp.",
-          evidenceSources: ["trafa", "ki111"],
-          uncertainty: "Sambandet är villkorat. Kartan säger inte att alla utanför större städer kör långt eller att alla i städer har goda alternativ.",
-          reflection: "Vilka resor går faktiskt att förändra på kort sikt, och vilka kräver förändrad infrastruktur eller livsplanering?",
-          sourceIds: ["trafa", "ki111", "eliasson2018"]
+          id: "dependence",
+          label: "Vardagens bilberoende",
+          lines: ["Vardagens", "bilberoende"],
+          note: "ett långsamt lager",
+          systemRole: "Strukturellt lager",
+          evidenceType: "Empirisk syntes",
+          desktop: [137, 196], mobile: [92, 246],
+          size: [196, 84], mobileSize: [142, 76],
+          components: ["avstånd", "arbete och service", "omsorgsansvar", "arbetstider", "bebyggelse", "bostadsmarknad", "kollektivtrafik", "funktionsförmåga", "institutionell inlåsning"],
+          summary: "Bilberoende betyder att viktiga vardagsmål inte rimligen kan nås utan bil. Det handlar alltså om tillgänglighet, inte om en enkel motsättning mellan stad och landsbygd eller mellan behov och val.",
+          evidence: "Trafikanalys visar att möjligheten att resa skiljer sig mellan regioner och grupper. EU:s definition av transportfattigdom skiljer betalbarhet, tillgång och tillgänglighet. Rekommendationen nämner ändamålsenlighet eller användbarhet som en nyttig fjärde analysdimension, men inte som del av definitionen. IPCC och en tvärvetenskaplig översikt beskriver hur bebyggelse, infrastruktur, marknader och institutioner kan låsa in längre resor och färre alternativ.",
+          evidenceSources: ["trafaAccess", "euPoverty", "ipccUrban", "carPolitical"],
+          uncertainty: "Områdestyp är bara en grov indikator. Två hushåll på samma ort kan ha helt olika arbetstider, omsorgsansvar, funktionsförmåga och tillgång till bil eller kollektivtrafik.",
+          reflection: "Vilka resor är nödvändiga därför att samhället är organiserat så, och vilka kan förändras utan att tillgängligheten försämras?",
+          sourceIds: ["transportGoals", "trafaAccess", "trafaRvu", "trafaPoverty", "euPoverty", "ipccUrban", "carPolitical"]
         },
         {
-          id: "efficiency",
-          label: "Bilens förbrukning",
-          lines: ["Bilens", "förbrukning"],
-          mobileLines: ["Liter per", "kilometer"],
-          tabletLines: ["Liter per", "kilometer"],
-          kind: "Mätbar faktor",
-          desktop: [390, 565], mobile: [95, 520],
-          radius: 62, mobileRadius: 52,
-          summary: "Bränsle per kilometer avgör hur många liter som behövs för en given körsträcka. Fordonets teknik, vikt, hastighet och körsätt spelar in.",
-          evidence: "Trafikverket anger körsträcka, energianvändning per kilometer och fossil andel som tre centrala faktorer för vägtrafikens klimatpåverkan.",
-          evidenceSources: ["trafikverket"],
-          uncertainty: "Deklarerad och verklig förbrukning kan skilja sig. Temperatur, last, väg och körmönster påverkar utfallet.",
-          reflection: "Vilka hushåll har ekonomisk möjlighet att byta till ett effektivare fordon?",
-          sourceIds: ["trafikverket"]
+          id: "transition",
+          label: "Möjlighet att ställa om",
+          lines: ["Möjlighet att", "ställa om"],
+          note: "faktiska alternativ",
+          systemRole: "Anpassningskapacitet",
+          evidenceType: "Systemsyntes",
+          desktop: [137, 474], mobile: [92, 430],
+          size: [196, 84], mobileSize: [142, 76],
+          components: ["kapital för bilbyte", "laddning", "kollektivtrafik", "gång och cykel", "samåkning", "flexibelt arbete", "tid och kunskap", "möjlighet att flytta"],
+          subsystems: [{
+            title: "Ojämn omställningskapacitet",
+            summary: "Två hushåll med samma bensinutgift kan ha helt olika möjlighet att svara. Kapital, infrastruktur, arbetstider och tillgänglighet avgör om anpassningen blir ett fungerande byte eller ett ofrivilligt avstående.",
+            evidenceSources: ["mattioli", "euPoverty"]
+          }],
+          summary: "Vilja och möjlighet är inte samma sak. Ett hushåll kan vilja minska bensinanvändningen men sakna kapital, laddning, fungerande kollektivtrafik, tidsmarginal eller möjlighet att byta bostad och arbete.",
+          evidence: "Forskning om bränsleprissårbarhet skiljer mellan exponering, känslighet och anpassningsförmåga. IPCC och EU:s transportfattigdomsram visar att teknik, infrastruktur, ekonomi och faktisk tillgänglighet tillsammans formar handlingsalternativen.",
+          evidenceSources: ["mattioli", "ipcc5", "euPoverty"],
+          uncertainty: "Kartan värderar inte ett visst alternativ som realistiskt för alla. Kollektivtrafikens närvaro på en karta säger exempelvis inte att den fungerar med arbetstid, barn eller funktionsnedsättning.",
+          reflection: "Vem kan investera sig ur en hög löpande kostnad, och vem måste fortsätta betala därför att investeringen ligger utom räckhåll?",
+          sourceIds: ["mattioli", "ipcc5", "euPoverty", "eliasson"]
         },
         {
           id: "fuel",
-          label: "Bränsleanvändning",
-          lines: ["Bränsle-", "användning"],
-          mobileLines: ["Använda", "liter"],
-          tabletLines: ["Använda", "liter"],
-          kind: "Analytisk definition",
-          desktop: [535, 405], mobile: [185, 330],
-          radius: 66, mobileRadius: 51,
-          summary: "I kartans förenklade modell är använda liter körsträcka multiplicerad med bränsle per kilometer. Det kopplar ihop resmönster och fordonets egenskaper.",
-          evidence: "Detta är en beräkningsrelation, inte en skattad kausal modell. Trafikverkets faktormodell använder samma grundstruktur mellan trafikarbete och energi per kilometer.",
-          evidenceSources: ["trafikverket"],
-          uncertainty: "Modellen fångar inte alla variationer i verklig körning, tankning eller bränsleblandning.",
-          reflection: "Vilken faktor är lättast att förändra: antalet kilometer, liter per kilometer eller själva energislaget?",
-          sourceIds: ["trafikverket"]
+          label: "Använda liter bensin",
+          lines: ["Använda liter", "bensin"],
+          note: "km × verklig liter/km",
+          systemRole: "Flöde",
+          evidenceType: "Analytisk identitet",
+          desktop: [390, 286], mobile: [270, 330],
+          size: [184, 82], mobileSize: [142, 76],
+          components: ["körda kilometer", "verklig förbrukning", "fordonets vikt", "hastighet", "temperatur och last", "körsätt", "fordonsbestånd"],
+          subsystems: [{
+            title: "Rebound efter effektivisering",
+            summary: "När en effektivare bil sänker bränslekostnaden per kilometer kan körningen öka. En internationell metaanalys finner en genomsnittlig direkt rebound, men också stor variation mellan tidshorisonter, metoder och sammanhang. Effekten motverkar därför en del av den möjliga besparingen, inte nödvändigtvis hela.",
+            evidenceSources: ["rebound"]
+          }],
+          summary: "Använda liter är körda kilometer multiplicerat med bilens verkliga liter per kilometer. Bensinutgiften är i sin tur pumppris multiplicerat med använda liter.",
+          evidence: "Det första sambandet är en beräkningsidentitet. Trafikverket skiljer trafikarbete från energi per kilometer. EU:s verklig körning-data visar att typgodkänd och faktisk förbrukning kan skilja sig. Prisresponsen behöver däremot skattas empiriskt och skiljer sig mellan kort och lång sikt.",
+          evidenceSources: ["trafikverketClimate", "euRealWorld", "kiElastic"],
+          uncertainty: "Verklig förbrukning beror på fordon, körning och miljö. Nyregistreringarnas egenskaper är inte samma sak som hela fordonsbeståndet. Färre köpta liter kan spegla effektivitet eller ofrivilligt avstående.",
+          reflection: "Minskar en åtgärd kilometer, liter per kilometer eller bara möjligheten att göra resan?",
+          sourceIds: ["trafikverketClimate", "euRealWorld", "trafaVehicles", "kiElastic", "trafaRvu", "rebound"]
         },
         {
-          id: "income",
-          label: "Hushållets ekonomi",
-          lines: ["Hushållets", "ekonomi"],
-          kind: "Observerbart mått",
-          desktop: [850, 145], mobile: [285, 105],
-          radius: 65, mobileRadius: 52,
-          summary: "Disponibel inkomst är ett mått på hushållets ekonomiska utrymme efter skatter och transfereringar. Samma bränsleutgift väger tyngre när utrymmet är mindre.",
-          evidence: "Konjunkturinstitutets fördelningsanalys jämför drivmedelskostnader med disponibel inkomst. SCB:s hushållsstatistik visar hur utgifter kan fördelas mellan olika hushållsgrupper.",
-          evidenceSources: ["ki111", "scb"],
-          uncertainty: "Inkomst fångar inte hela betalningsförmågan. Boendekostnader, skulder, förmögenhet och hushållets storlek påverkar också.",
-          reflection: "Bör stöd utgå från literpris, faktisk kostnadsbörda eller hushållets samlade ekonomi?",
-          sourceIds: ["ki111", "scb"]
+          id: "margin",
+          label: "Ekonomiskt handlingsutrymme",
+          lines: ["Ekonomiskt", "handlingsutrymme"],
+          note: "efter nödvändiga utgifter",
+          systemRole: "Kapacitetslager",
+          evidenceType: "Sammansatt mått",
+          desktop: [390, 526], mobile: [92, 610],
+          size: [218, 88], mobileSize: [142, 82],
+          components: ["disponibel inkomst", "hushållsstorlek", "boende", "mat och energi", "räntor och lån", "tillgänglig likviditet", "bilens fasta kostnader"],
+          subsystems: [{
+            title: "Buffertuttömning efter en prischock",
+            summary: "Om löpande inkomster inte räcker till en oväntad kostnadsökning måste hushållet minska annan konsumtion, låna eller använda likvida tillgångar. Detta är en budgetmekanism. SCB:s sektorsdata visar sparande och lån sammantaget men avslöjar inte vilket hushåll som har en användbar buffert.",
+            evidenceSources: ["scbHut", "scbLiquidity"]
+          }],
+          summary: "Disponibel inkomst behövs, men räcker inte. Om en prischock går att bära beror också på nödvändiga utgifter, hushållets storlek, räntor, lån och tillgänglig likviditet.",
+          evidence: "SCB:s hushållsstatistik visar att transport ingår i en större utgiftsstruktur och att konsumtion och sparandeflöden skiljer sig mellan inkomstgrupper. Finansräkenskaperna redovisar tillgångskategorier och lån, men tillgångsmåttet innehåller också bostadsrättsandelar och fritidshus utomlands. Inget av aggregaten är därför ett direkt mått på ett enskilt hushålls likvida buffert.",
+          evidenceSources: ["scbHut", "scbDistribution", "scbLiquidity"],
+          uncertainty: "Ett enda nationellt mått kan inte fånga hushållsspecifika nödvändiga utgifter, tillgångars likviditet eller informell hjälp. HUT:s senaste fullständiga data avser 2021, som var ett pandemiår.",
+          reflection: "Vilket stöd träffar den faktiska marginalen bäst: lägre literpris för alla eller hjälp till hushåll vars handlingsutrymme är litet?",
+          sourceIds: ["scbHut", "scbDistribution", "scbLiquidity", "ki109"]
         },
         {
-          id: "burden",
-          label: "Hur hårt kostnaden slår",
-          lines: ["Hur hårt", "kostnaden", "slår"],
-          kind: "Analytisk definition",
-          desktop: [830, 355], mobile: [300, 300],
-          radius: 84, mobileRadius: 58,
+          id: "vulnerability",
+          label: "Ekonomisk utsatthet",
+          lines: ["Ekonomisk", "utsatthet"],
+          note: "materiellt utfall",
+          systemRole: "Emergent utfall",
+          evidenceType: "Flera indikatorer",
+          desktop: [670, 286], mobile: [270, 560],
+          size: [202, 98], mobileSize: [150, 88],
           outcome: true,
-          summary: "Kartans centrala utfall är bränsleutgiften i relation till hushållets disponibla inkomst: literpris gånger använda liter, delat med disponibel inkomst.",
-          evidence: "Bland bilhushåll påverkas lägre inkomstgrupper i genomsnitt mer av höga drivmedelspriser. Studierna visar samtidigt stor spridning inom både inkomstgrupper och geografiska grupper.",
-          evidenceSources: ["ki111", "eliasson2018"],
-          uncertainty: "Måttet är en förenkling. Det beskriver inte hur nödvändiga resorna är eller vilka andra kostnader hushållet kan minska.",
-          reflection: "Är problemet främst ett högt pris, hög användning, liten inkomst eller en kombination?",
-          sourceIds: ["ki111", "eliasson2018", "scb"]
+          components: ["bensinutgift", "relativ utgiftsandel", "nödvändiga resor", "undanträngd konsumtion", "ofrivilligt avstående", "låg anpassningsförmåga", "variation inom grupper"],
+          subsystems: [{
+            title: "Materiell utsatthet är inte samma sak som upplevd börda",
+            summary: "Transportfattigdom kan sänka subjektivt välbefinnande, och experiment visar att bensinprisspikar kan påverka uppfattningen om levnadskostnaden. Men dessa resultat gör inte materiell utsatthet och upplevd bensindyrhet till samma variabel.",
+            evidenceSources: ["churchill", "godek"]
+          }],
+          summary: "Utsatthet uppstår när bensinutgiften eller bristande transportmöjligheter hotar nödvändig konsumtion och tillgänglighet. Utgiftsandelen är ett exponeringsmått, inte en fullständig välfärdsmätning.",
+          evidence: "EU:s transportfattigdomsram omfattar både kostnad och tillgång till nödvändiga aktiviteter. Hushållsstudier visar att låg anpassningsförmåga kan innebära att andra utgifter minskas i stället. Svensk registerforskning visar stor variation inom inkomst och geografiska grupper.",
+          evidenceSources: ["euPoverty", "trafaPoverty", "mattioli", "eliasson"],
+          uncertainty: "Alla hushåll, bilägande hushåll, individer och registrerade bilägare är olika populationer. Personer utan bil kan vara transportfattiga utan direkt exponering för pumppriset. Gruppgenomsnitt beskriver inte varje hushåll.",
+          reflection: "Är en låg bensinutgift ett gott utfall, eller har någon tvingats avstå från arbete, vård eller socialt liv?",
+          sourceIds: ["euPoverty", "trafaPoverty", "mattioli", "ki109", "eliasson", "churchill", "godek"]
         },
         {
-          id: "climate",
-          label: "Klimatutsläpp",
-          lines: ["Klimat-", "utsläpp"],
-          kind: "Empiriskt belagt",
-          desktop: [850, 570], mobile: [285, 520],
-          radius: 65, mobileRadius: 52,
-          summary: "När fossil bensin förbränns bildas koldioxid. Därför har mängden bränsle, bränslets fossila andel och systemgränsen betydelse för klimatpåverkan.",
-          evidence: "Trafikverket beskriver ett direkt fysikaliskt samband mellan förbränning av fossil bensin eller diesel och koldioxidutsläpp.",
-          evidenceSources: ["trafikverket"],
-          uncertainty: "Utsläppets storlek beror på fossil andel och på om analysen avser avgasröret eller hela livscykeln.",
-          reflection: "Hur kan hushållens sårbarhet minska utan att utsläppskostnaden flyttas till framtiden?",
-          sourceIds: ["trafikverket"]
+          id: "perception",
+          label: "Upplevd bensinkostnadsbörda",
+          lines: ["Upplevd", "bensinkostnadsbörda"],
+          mobileLines: ["Upplevd", "kostnadsbörda"],
+          note: "en svensk mätlucka",
+          gap: true,
+          systemRole: "Subjektivt utfall och mätlucka",
+          evidenceType: "Närliggande internationell evidens",
+          desktop: [950, 212], mobile: [270, 735],
+          size: [224, 96], mobileSize: [152, 88],
+          components: ["självrapporterad dyrhet", "upplevd ekonomisk press", "jämförelsepris", "förväntningar", "synlighet vid pump"],
+          summary: "Att bensinkostnaden upplevs som tung är ett subjektivt utfall. Det är varken samma sak som materiell utsatthet eller som motstånd mot bensin- och koldioxidskatt.",
+          evidence: "Experimentell forskning visar att bensinprisspikar kan påverka uppfattningen om levnadskostnaden och ekonomiskt välbefinnande. Forskning om transportfattigdom visar samband med bredare subjektivt välbefinnande. Svenska studier i kartan mäter i stället skatteacceptans, rättvisa och tillit. De konstrukten får inte användas som ersättning för upplevd bensinkostnadsbörda.",
+          evidenceSources: ["godek", "churchill", "ewald", "jagers"],
+          uncertainty: "Det saknas i underlaget en svensk studie som samtidigt mäter upplevd bensindyrhet, faktisk bensinutgift, ekonomiskt handlingsutrymme, bilberoende och senare politisk respons. Därför har noden inga kausalpilar.",
+          reflection: "Vilken ny svensk mätning behövs för att skilja ekonomisk press från referenspris, rättvisa och allmänt missnöje?",
+          sourceIds: ["godek", "churchill", "levin", "ewald", "ewaldThesis", "jagers", "buchs"]
+        },
+        {
+          id: "external",
+          label: "Kostnader utanför pumpen",
+          lines: ["Kostnader utanför", "pumpen"],
+          note: "betalas på andra sätt och tider",
+          systemRole: "Externt utfall",
+          evidenceType: "Fysik och värdering",
+          desktop: [690, 566], mobile: [92, 848],
+          size: [224, 88], mobileSize: [150, 82],
+          system: true,
+          components: ["klimat", "luftföroreningar", "buller", "olyckor", "vägslitage", "trängsel", "markanvändning", "framtida generationer"],
+          summary: "Pumppriset är inte samma sak som biltrafikens fulla samhällskostnad. Klimatpåverkan beror på bränslets fossila del och vald livscykelgräns. Olyckor, buller, slitage och trängsel följer främst trafikarbete, fordon, plats och tid.",
+          evidence: "Naturvårdsverket redovisar territoriella växthusgasutsläpp. Trafikanalys beräknar flera externa marginalkostnader och visar stora skillnader mellan trafikmiljöer och fordon. IPCC:s figurtext anger uttryckligen vilka uppströms och livscykelrelaterade utsläpp som ligger utanför sektorssumman.",
+          evidenceSources: ["naturvard", "trafaExternal", "ipccLifecycle"],
+          uncertainty: "Monetär värdering beror på metod och antaganden. Trafikanalys rapporterar att trängsel och kapacitetsbrist inte ingår i de aktuella beräkningarna. Tillgänglighetens nytta får inte automatiskt kvittas mot externa kostnader.",
+          reflection: "Vilka kostnader syns på kvittot, vilka hamnar i vården eller statsbudgeten och vilka skjuts till framtiden?",
+          sourceIds: ["naturvard", "trafaExternal", "ipccLifecycle", "kiBusiness"]
+        },
+        {
+          id: "policy",
+          label: "Politik, investeringar och kompensation",
+          lines: ["Politik, investeringar", "och kompensation"],
+          note: "flera skilda verktyg",
+          systemRole: "Institutionell kontroll",
+          evidenceType: "Policy och modell",
+          desktop: [1010, 528], mobile: [270, 906],
+          size: [252, 94], mobileSize: [154, 86],
+          system: true,
+          components: ["pris upp: skatt och regelkrav", "pris ned: skattesänkning", "marginal: riktad transferering", "omställning: infrastruktur och fordonsstöd", "beroende ned: tillgänglighetsplanering", "beroende upp: bilorienterad planering"],
+          summary: "Politik är inte en enda pil. Skatter och regler kan påverka priset, riktad kompensation kan påverka hushållets marginal och investeringar kan förändra alternativen. Effekterna har olika riktning och tidsfördröjning.",
+          evidence: "Svenska studier visar reformspecifikt genomslag från skatt och reduktionsplikt till pris. Modellstudier visar att samma budgetbelopp kan ge olika klimat och fördelningseffekter beroende på användning. Intäktsåterföringen är därför en del av systemet.",
+          evidenceSources: ["kiTax", "kiBlend", "ergon", "eliasson"],
+          uncertainty: "Kartan pekar inte ut ett optimalt styrmedel. Verkan beror på design, finansiering, träffsäkerhet, beteenderespons och hur snabbt infrastruktur och fordonsflotta kan ändras.",
+          reflection: "Löser åtgärden orsaken till utsattheten, eller dämpar den bara det synliga priset under en begränsad tid?",
+          sourceIds: ["kiTax", "kiBlend", "ergon", "eliasson", "jagers", "carPolitical", "ipccUrban"]
         }
       ];
 
       const edges = [
         {
-          id: "price_burden", from: "price", to: "burden", label: "Högre literpris ökar bördan, om allt annat är lika", kind: "Analytisk definition",
-          summary: "När använda liter och inkomst hålls oförändrade ger ett högre literpris en större relativ kostnadsbörda.",
-          evidence: "Detta följer av kartans definition: pris gånger liter, delat med disponibel inkomst. Fördelningsstudier använder motsvarande relativa kostnadsmått.", evidenceSources: ["ki111", "eliasson2018"],
-          uncertainty: "I verkligheten kan hushåll anpassa körning, bil eller andra utgifter. Därför är villkoret 'allt annat lika' viktigt.",
-          reflection: "Hur skiljer sig den omedelbara effekten från hushållets möjliga anpassning över flera år?", sourceIds: ["ki111", "eliasson2018"]
+          id: "dependence_fuel",
+          from: "dependence", to: "fuel",
+          label: "Större bilberoende tenderar att öka använda liter",
+          polarity: "+", time: "Månader till år", kind: "Villkorad systemsyntes", conditional: true,
+          lenses: ["core", "household", "all"], bend: -18, mobileBend: -22,
+          summary: "När viktiga vardagsmål bara kan nås rimligt med bil blir körsträckan svårare att minska. Fler bilkilometer ger fler använda liter när fordonets förbrukning hålls konstant.",
+          evidence: "Trafikanalys beskriver hur möjligheten att resa varierar med transportsystem, geografi och individuella villkor. Resvaneundersökningen beskriver körning och resändamål, men den exakta kausala styrkan varierar mellan hushåll.",
+          evidenceSources: ["trafaAccess", "trafaRvu"],
+          uncertainty: "Bilberoende och faktisk körning är inte samma variabel. Ett bilberoende hushåll kan tvingas avstå från resor, och ett hushåll med goda alternativ kan ändå välja att köra mycket.",
+          reflection: "Är det användningen eller beroendet som åtgärden förändrar?",
+          sourceIds: ["trafaAccess", "trafaRvu", "euPoverty"]
         },
         {
-          id: "travel_fuel", from: "travel", to: "fuel", label: "Resbehov och alternativ kan påverka hur många liter som används", kind: "Systemsyntes", conditional: true,
-          summary: "Fler eller längre bilresor kräver mer bränsle när bilens förbrukning hålls konstant. Vilka resor som görs formas både av behov, alternativ och val.",
-          evidence: "Resvanestatistik beskriver färdsätt, ärenden och resmönster. Trafikverket skiljer mellan trafikarbete och energi per kilometer i sin faktormodell.", evidenceSources: ["trafa", "trafikverket"],
-          uncertainty: "Körsträcka är både ett resultat av behov och val. Orsakernas relativa betydelse varierar mellan hushåll och över tid.",
-          reflection: "Vilka kilometer är nödvändiga, och vilka kan ersättas eller samordnas?", sourceIds: ["trafa", "trafikverket"]
+          id: "transition_fuel",
+          from: "transition", to: "fuel",
+          label: "Större omställningsmöjlighet kan minska använda liter",
+          polarity: "−", time: "Månader till år", kind: "Villkorad systemsyntes", conditional: true,
+          lenses: ["core", "household", "all"], bend: 18, mobileBend: 24,
+          summary: "Fungerande alternativ, annan bil eller förändrade resmönster kan minska bensinanvändningen utan att nödvändig tillgänglighet försvinner.",
+          evidence: "IPCC:s tjänsteperspektiv visar att teknik, infrastruktur och sociala villkor formar möjligheten att byta färdsätt eller energislag. EU:s rekommendation lyfter användbarhet som en nyttig kompletterande analysdimension utanför den formella definitionen av transportfattigdom. Sambandet är villkorat av att alternativen verkligen fungerar.",
+          evidenceSources: ["ipcc5", "euPoverty"],
+          uncertainty: "En investering garanterar inte användning. Restid, pris, tillförlitlighet, omsorgsansvar och funktionsförmåga kan begränsa effekten. Om effektivisering sänker kostnaden per kilometer kan rebound genom mer körning motverka en del av minskningen.",
+          reflection: "Minskar bensinen därför att mobiliteten blivit bättre organiserad, eller därför att människor reser mindre än de behöver?",
+          sourceIds: ["ipcc5", "euPoverty", "mattioli", "rebound"]
         },
         {
-          id: "efficiency_fuel", from: "efficiency", to: "fuel", label: "Högre förbrukning kräver fler liter för samma sträcka", kind: "Analytisk definition",
-          summary: "När körsträckan hålls konstant ger fler liter per kilometer större bränsleanvändning.",
-          evidence: "Trafikverkets faktormodell skiljer mellan mängden trafik och energianvändningen per kilometer.", evidenceSources: ["trafikverket"],
-          uncertainty: "Ett effektivare fordon kan sänka literanvändningen, men inköpskostnaden och möjligheten att byta bil är ojämnt fördelade.",
-          reflection: "Vem kan investera sig ur en hög löpande kostnad, och vem kan inte?", sourceIds: ["trafikverket", "ki111"]
+          id: "price_fuel",
+          from: "price", to: "fuel",
+          label: "Högre pris minskar i genomsnitt efterfrågan över tid",
+          polarity: "−", time: "Dagar till år; responsen växer ofta över tid", kind: "Empiriskt skattat", conditional: true,
+          lenses: ["household", "all"], bend: 0, mobileBend: 0,
+          summary: "När bensinpriset stiger minskar efterfrågan i genomsnitt. På kort sikt finns färre anpassningar. På längre sikt kan körning, bil, bostad eller färdsätt ändras.",
+          evidence: "Konjunkturinstitutets uppdaterade litteraturöversikt sammanställer negativa priselasticiteter för vägtransportbränsle och skiljer kort från lång sikt. Resultaten är genomsnitt, inte en prognos för varje hushåll.",
+          evidenceSources: ["kiElastic"],
+          uncertainty: "Responsen beror på inkomst, bilberoende, fordonsbestånd och alternativ. Minskad efterfrågan kan vara frivillig effektivisering eller ofrivilligt avstående.",
+          reflection: "Vem kan svara på priset genom att ställa om, och vem svarar genom att minska annat?",
+          sourceIds: ["kiElastic", "mattioli", "eliasson"]
         },
         {
-          id: "fuel_burden", from: "fuel", to: "burden", label: "Fler använda liter ökar bördan, om allt annat är lika", kind: "Analytisk definition",
-          summary: "När literpris och inkomst hålls oförändrade ökar bränsleutgiften med antalet använda liter.",
-          evidence: "Detta följer av kartans kostnadsdefinition. Empiriska fördelningsstudier visar att användning och inkomst behöver analyseras tillsammans.", evidenceSources: ["ki111", "eliasson2018"],
-          uncertainty: "Literanvändning säger inte ensam hur nödvändiga resorna är eller hur snabbt den kan ändras.",
-          reflection: "Skulle en åtgärd minska själva användningen, eller bara dess kostnad för stunden?", sourceIds: ["ki111", "eliasson2018"]
+          id: "margin_transition",
+          from: "margin", to: "transition",
+          label: "Större ekonomiskt handlingsutrymme ökar ofta omställningskapaciteten",
+          polarity: "+", time: "Månader till år", kind: "Systemsyntes", conditional: true,
+          lenses: ["household", "all"], bend: 0, mobileBend: -26,
+          summary: "Buffert, kreditutrymme och stabil inkomst kan göra det möjligt att bära övergångskostnader, byta bil eller välja en annan bostads och arbetslösning.",
+          evidence: "Forskning om bränsleprissårbarhet behandlar anpassningsförmåga som skild från exponering. EU:s transportfattigdomsram rekommenderar indikatorer som kombinerar kostnad, tillgänglighet och hushållens villkor.",
+          evidenceSources: ["mattioli", "euPoverty"],
+          uncertainty: "Pengar skapar inte automatiskt kollektivtrafik, laddning eller ledig tid. Sambandet är därför positivt i många fall men inte tillräckligt i sig.",
+          reflection: "Vilken omställning kräver privat kapital, och vilken kräver gemensam infrastruktur?",
+          sourceIds: ["mattioli", "euPoverty", "scbDistribution"]
         },
         {
-          id: "income_burden", from: "income", to: "burden", label: "Större ekonomiskt utrymme dämpar den relativa bördan", kind: "Analytisk definition",
-          summary: "Samma bränsleutgift utgör en mindre andel av ekonomin när den disponibla inkomsten är högre.",
-          evidence: "Bland hushåll med bil finner Konjunkturinstitutet att lägre inkomstgrupper i genomsnitt påverkas mer av höga drivmedelspriser.", evidenceSources: ["ki111"],
-          uncertainty: "Disponibel inkomst är inte hela hushållsbudgeten. Fasta kostnader och hushållets storlek kan förändra den faktiska pressen.",
-          reflection: "Vilket mått fångar bäst förmågan att bära en kostnad?", sourceIds: ["ki111", "scb"]
+          id: "dependence_transition",
+          from: "dependence", to: "transition",
+          label: "Strukturellt bilberoende begränsar omställningsmöjligheten",
+          polarity: "−", time: "År till årtionden", kind: "Systemsyntes", conditional: true,
+          lenses: ["household", "all"], bend: 34, mobileBend: -34,
+          summary: "Ju mer arbete, service och omsorg är organiserade kring bilresor, desto färre kortsiktiga alternativ har hushållet även om viljan att förändra finns.",
+          evidence: "Trafikanalys beskriver regionala skillnader i möjligheten att resa. IPCC visar hur utspridd bebyggelse och separerade målpunkter ökar resavstånd och försvårar färdmedelsbyte.",
+          evidenceSources: ["trafaAccess", "ipccUrban"],
+          uncertainty: "Sambandet är strukturellt och varierar lokalt. Digital service, distansarbete, samåkning och individuella nätverk kan ändra utfallet.",
+          reflection: "Hur lång tid tar det att förändra den struktur som gjorde bilen nödvändig?",
+          sourceIds: ["trafaAccess", "ipccUrban", "euPoverty"]
         },
         {
-          id: "price_fuel", from: "price", to: "fuel", label: "Högre pris kan dämpa användningen över tid", kind: "Empiriskt belagt", conditional: true,
-          summary: "När bensin blir dyrare minskar efterfrågan i genomsnitt. Anpassningen kan ske genom färre resor, annan bil, annat färdsätt eller förändrad lokalisering.",
-          evidence: "Konjunkturinstitutets forskningsöversikt visar en negativ genomsnittlig priselasticitet för vägtransportbränslen, vanligen större på lång än på kort sikt.", evidenceSources: ["ki102"],
-          uncertainty: "Responsen varierar kraftigt mellan hushåll, platser och tidshorisonter. En genomsnittlig elasticitet beskriver inte varje hushåll.",
-          reflection: "Vilka kan anpassa sig när priset ändras, och vilka blir kvar med kostnaden?", sourceIds: ["ki102"]
+          id: "price_vulnerability",
+          from: "price", to: "vulnerability",
+          label: "Högre literpris ökar exponeringen och kan öka utsattheten",
+          polarity: "+", time: "Direkt utgift, följder över tid", kind: "Identitet följd av villkorad relation", conditional: true,
+          lenses: ["core", "household", "all"], bend: -36, mobileBend: -26,
+          mobileStart: [162, 78], mobileEnd: [352, 560],
+          mobileRoute: [[358, 78], [358, 560]], mobileLabel: [342, 450],
+          summary: "Bensinutgiften är pumppris multiplicerat med använda liter. Ett högre pris höjer därför utgiftsexponeringen när liter hålls konstanta. Om detta blir materiell utsatthet beror sedan på handlingsutrymme, resornas nödvändighet och anpassningsförmåga.",
+          evidence: "Pris till utgift är en bokföringsidentitet. Steget från utgift till utsatthet är villkorat och stöds av forskning som skiljer exponering, känslighet och anpassningsförmåga.",
+          evidenceSources: ["kiElastic", "mattioli"],
+          uncertainty: "Pilen betyder inte att varje prisökning gör varje hushåll utsatt. Identiteten slutar vid bensinutgiften. Resten är en villkorad systemrelation.",
+          reflection: "Hur skiljer sig den omedelbara räkneeffekten från hushållets möjliga svar efter ett år?",
+          sourceIds: ["kiElastic", "mattioli", "ki109"]
         },
         {
-          id: "fuel_climate", from: "fuel", to: "climate", label: "Fossil bränsleanvändning ger koldioxidutsläpp", kind: "Empiriskt belagt",
-          summary: "När fossil bensin förbränns frigörs fossil koldioxid. Mer fossil bränsleanvändning ger därför mer utsläpp, om övriga förhållanden är lika.",
-          evidence: "Trafikverket beskriver sambandet som fysikaliskt direkt och anger fossil andel som en avgörande faktor.", evidenceSources: ["trafikverket"],
-          uncertainty: "Total klimatpåverkan beror på bränsleblandning och vald systemgräns, exempelvis avgasrör eller livscykel.",
-          reflection: "Vilken åtgärd minskar både hushållets sårbarhet och fossil användning?", sourceIds: ["trafikverket"]
+          id: "fuel_vulnerability",
+          from: "fuel", to: "vulnerability",
+          label: "Fler använda liter ökar exponeringen och kan öka utsattheten",
+          polarity: "+", time: "Direkt utgift, följder över tid", kind: "Identitet följd av villkorad relation", conditional: true,
+          lenses: ["core", "household", "all"], bend: 0, mobileBend: 0,
+          summary: "När pumppriset hålls konstant blir bensinutgiften större ju fler liter som används. Om detta blir utsatthet beror på varför literna behövs, hushållets marginal och vilka anpassningar som är möjliga.",
+          evidence: "Liter till utgift följer av utgiftsidentiteten. Svensk fördelningsforskning visar samtidigt att hög användning och låg betalningsförmåga inte är samma sak och att variationen inom grupper är stor.",
+          evidenceSources: ["eliasson", "mattioli"],
+          uncertainty: "Identiteten slutar vid utgiften. Många liter kan vara valbara eller nödvändiga. Få liter kan spegla effektivitet eller ofrivilligt avstående.",
+          reflection: "Vad förklarar literna: avstånd, bilens förbrukning, goda alternativ eller frånvaron av dem?",
+          sourceIds: ["eliasson", "trafaRvu", "mattioli"]
         },
         {
-          id: "climate_price", from: "climate", to: "price", label: "Utsläpp kan leda till styrmedel som påverkar priset", kind: "Systemsyntes", conditional: true, feedback: true,
-          summary: "Klimatutsläpp kan skapa politiska skäl för skatter, regler och investeringar som i sin tur påverkar priset. Detta är en institutionell återkoppling, inte en automatisk naturlag.",
-          evidence: "Konjunkturinstitutet beskriver klimatstyrmedel som en del av drivmedelsprisets utveckling och diskuterar behovet av styrning för klimatmålen.", evidenceSources: ["ki111"],
-          uncertainty: "Vilka styrmedel som väljs är ett politiskt och normativt beslut. Kartan säger inte att ett visst instrument är bäst.",
-          reflection: "Hur kan styrmedel kombineras med omställning och fördelningspolitik så att bördan inte bara flyttas?", sourceIds: ["ki111"]
+          id: "margin_vulnerability",
+          from: "margin", to: "vulnerability",
+          label: "Större ekonomiskt handlingsutrymme dämpar utsattheten",
+          polarity: "−", time: "Direkt till månader", kind: "Analytisk relation och systemsyntes",
+          lenses: ["core", "household", "all"], bend: 38, mobileBend: 22,
+          summary: "Samma bensinutgift är lättare att bära när hushållet har mer kvar efter nödvändiga utgifter och en större buffert.",
+          evidence: "Kvoten bensinutgift genom inkomst faller mekaniskt när nämnaren ökar. SCB:s utgifts, fördelnings och finansstatistik visar varför inkomst, nödvändiga utgifter, sparandeflöde, likviditet och lån behöver hållas isär.",
+          evidenceSources: ["scbHut", "scbDistribution", "scbLiquidity"],
+          uncertainty: "Handlingsutrymme är sammansatt och kan inte observeras perfekt i en enda statistikserie. De nationella finansräkenskaperna visar inte fördelningen av användbar likviditet mellan hushåll.",
+          reflection: "Mäter vi inkomsten, den faktiska marginalen eller möjligheten att klara en oväntad prischock?",
+          sourceIds: ["scbHut", "scbDistribution", "scbLiquidity", "ki109"]
+        },
+        {
+          id: "fuel_external",
+          from: "fuel", to: "external",
+          label: "Mer trafik och fossil bränsleanvändning ökar olika externa kostnader",
+          polarity: "+", time: "Direkt och kumulativt", kind: "Villkorad samlingspil", conditional: true,
+          lenses: ["policy", "all"], bend: 28, mobileBend: 20,
+          labelShift: [55, 25], mobileLabelShift: [7, 45],
+          summary: "Fler fossila liter ökar koldioxidutsläppen vid avgasröret. Olyckor, buller, slitage och trängsel följer främst kilometer, fordon, plats och tid. Pilen samlar därför två mekanismer som hålls isär i texten.",
+          evidence: "Naturvårdsverket redovisar sambandet mellan vägtrafik, energieffektivitet, bränslen och territoriella utsläpp. Trafikanalys beräknar flera externa marginalkostnader och skiljer mellan trafikmiljöer.",
+          evidenceSources: ["naturvard", "trafaExternal"],
+          uncertainty: "Noden använda liter avser såld bensinblandning, inte fossila liter. Bränslets reduktionskrav är inte en volymandel. Avgasrör, territoriell bokföring och livscykel är olika gränser. Aktuella externa kostnadsberäkningar saknar trängsel.",
+          reflection: "Vilka effekter följer literna, och vilka följer själva trafikmängden och platsen?",
+          sourceIds: ["naturvard", "trafaExternal"]
+        },
+        {
+          id: "external_policy",
+          from: "external", to: "policy",
+          label: "Dokumenterade samhällskostnader kan motivera politisk styrning",
+          polarity: "+", time: "År till valcykler", kind: "Institutionell återkoppling", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: 0, mobileBend: -16,
+          summary: "Klimatmål och dokumenterade externa kostnader kan skapa motiv för skatt, regler, investeringar eller annan styrning. Återkopplingen sker genom institutioner och politiska beslut.",
+          evidence: "Sveriges transportpolitiska mål och klimatstyrningen ger en normativ och institutionell länk. Trafikanalys redovisar kostnader som kan användas i beslutsunderlag.",
+          evidenceSources: ["transportGoals", "trafaExternal"],
+          uncertainty: "Det finns ingen automatisk naturlag från kostnad till beslut. Vilket problem som prioriteras och vilket styrmedel som väljs är politiskt.",
+          reflection: "Vilka kostnader får en tydlig prislapp i politiken, och vilka förblir osynliga?",
+          sourceIds: ["transportGoals", "trafaExternal"]
+        },
+        {
+          id: "policy_price_up",
+          from: "policy", to: "price",
+          label: "Skatt eller dyrare regelkrav kan höja pumppriset",
+          polarity: "+", time: "Dagar till månader", kind: "Reformspecifik mekanism", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: 220, mobileBend: -96,
+          mobileLabelShift: [15, -15],
+          summary: "Högre bränsleskatt eller ett regelkrav som ökar leverantörens kostnad kan höja pumppriset. Genomslaget måste analyseras för varje reform.",
+          evidence: "KI finner fullt genomslag för de studerade bensinskatteförändringarna 2022 och skattar priseffekter av den förändrade reduktionsplikten 2025.",
+          evidenceSources: ["kiTax", "kiBlend"],
+          uncertainty: "Ett reduktionskrav för växthusgasminskning är inte samma sak som en bestämd volymandel biodrivmedel. Marknadsläge och policykombination påverkar utfallet.",
+          reflection: "Vilken del av prisökningen är avsedd styrsignal och vilken del är en oavsedd eller extern kostnad?",
+          sourceIds: ["kiTax", "kiBlend", "skatteverket"]
+        },
+        {
+          id: "policy_price_down",
+          from: "policy", to: "price",
+          label: "Skattesänkning kan sänka pumppriset",
+          polarity: "−", time: "Dagar till veckor", kind: "Reformspecifik mekanism", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: 278, mobileBend: -142,
+          summary: "En skattesänkning kan sänka det pris konsumenten möter om förändringen förs vidare genom priskedjan.",
+          evidence: "De svenska bensinskatteförändringar KI studerade under 2022 fick fullt och symmetriskt genomslag på pumppriset.",
+          evidenceSources: ["kiTax"],
+          uncertainty: "Resultatet gäller de studerade förändringarna och ska inte generaliseras mekaniskt till varje stöd eller marknadsläge. Lägre skatteintäkt påverkar också statsbudgeten, men fortsatt användning är ett politiskt val.",
+          reflection: "Hur länge varar prislättnaden, vem får störst total nytta och vad finansierar den uteblivna intäkten?",
+          sourceIds: ["kiTax", "ergon", "eliasson"]
+        },
+        {
+          id: "policy_margin",
+          from: "policy", to: "margin",
+          label: "Riktad kompensation kan öka hushållets handlingsutrymme",
+          polarity: "+", time: "Veckor till månader", kind: "Institutionell och analytisk relation", feedback: true,
+          lenses: ["policy", "all"], bend: -54, mobileBend: 56,
+          labelShift: [0, 90], mobileLabelShift: [-72, 0],
+          summary: "En transferering ökar mottagarens ekonomiska marginal allt annat lika. Fördelningseffekten beror på vilka som omfattas och hur stödet finansieras.",
+          evidence: "Svenska modell och registerstudier visar att intäktsåterföring och riktade transfereringar kan ge andra fördelningseffekter än en generell drivmedelsskattesänkning.",
+          evidenceSources: ["ergon", "eliasson"],
+          uncertainty: "Modellresultat beror på antaganden och inkomstgrupper döljer bilberoende hushåll med avvikande exponering. Träffsäkerhet och administration spelar roll.",
+          reflection: "Ska stödet följa liter, geografi, inkomst, faktisk utsatthet eller en kombination?",
+          sourceIds: ["ergon", "eliasson", "jagers"]
+        },
+        {
+          id: "policy_transition",
+          from: "policy", to: "transition",
+          label: "Investeringar kan öka möjligheten att ställa om",
+          polarity: "+", time: "År", kind: "Villkorad systemsyntes", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: -126, mobileBend: 86,
+          desktopStart: [1010, 579], desktopEnd: [246, 474],
+          desktopRoute: [[900, 630], [260, 630], [260, 474]], desktopLabel: [560, 630],
+          mobileStart: [351, 906], mobileEnd: [174, 430],
+          mobileRoute: [[358, 906], [358, 210], [180, 210], [180, 430]], mobileLabel: [342, 650],
+          summary: "Kollektivtrafik, laddning, gång och cykel, fordonsstöd och andra investeringar kan göra fler alternativ praktiskt möjliga.",
+          evidence: "IPCC:s syntes visar att infrastrukturella och beteendenära åtgärder behöver kombineras. Svenska modellstudier visar att policybudgetar ger olika klimat och sociala utfall beroende på användning.",
+          evidenceSources: ["ipcc5", "ergon"],
+          uncertainty: "Ledtiderna är långa och nyttan är platsberoende. En fysisk investering räcker inte om pris, tidtabell eller användbarhet fortfarande är fel.",
+          reflection: "Vilken investering gör ett alternativ verkligt användbart för just dem som i dag är mest låsta?",
+          sourceIds: ["ipcc5", "ergon", "euPoverty"]
+        },
+        {
+          id: "policy_dependence_down",
+          from: "policy", to: "dependence",
+          label: "Tillgänglighetsorienterad planering kan minska bilberoendet",
+          polarity: "−", time: "Flera år till årtionden", kind: "Långsam systemsyntes", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: -210, mobileBend: 128,
+          mobileLabelShift: [-64, 0],
+          summary: "Markanvändning, serviceplacering och sammanhängande transportalternativ kan på lång sikt minska behovet av bensinbil för vardagens tillgänglighet.",
+          evidence: "IPCC beskriver hur samlokalisering och flera färdsätt kan minska resavstånd och hur utspridd bilorienterad utveckling skapar långvarig inlåsning.",
+          evidenceSources: ["ipccUrban"],
+          uncertainty: "Åtgärderna har långa ledtider och kan inte ersätta kortsiktigt skydd för redan utsatta hushåll. Effekten beror på lokal planering och bostadsmarknad.",
+          reflection: "Vilka beslut i dag formar människors valmöjligheter om tio eller tjugo år?",
+          sourceIds: ["ipccUrban", "trafaAccess", "transportGoals", "carPolitical"]
+        },
+        {
+          id: "dependence_policy_lockin",
+          from: "dependence", to: "policy",
+          label: "Utbrett bilberoende kan stärka bilorienterad policyåterkoppling",
+          polarity: "+", time: "År till valcykler", kind: "Villkorad politisk systemsyntes", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: 154, mobileBend: -106,
+          desktopRoute: [[260, 25], [820, 25], [820, 350], [1010, 350]], mobileRoute: [[180, 300], [180, 895], [120, 906]],
+          desktopLabel: [540, 25], mobileLabel: [180, 510],
+          desktopStart: [239, 196], desktopEnd: [1010, 470], mobileStart: [167, 246], mobileEnd: [182, 906],
+          summary: "När vardagens tillgänglighet har byggts runt bilen kan fler hushåll, företag och institutioner få ett intresse av att bevara låga bilkostnader och befintlig bilinfrastruktur.",
+          evidence: "Den tvärvetenskapliga översikten över bilberoendets politiska ekonomi beskriver kopplingar mellan infrastruktur, urban utglesning, industri, offentlig styrning och bilkultur som upprätthåller systemet.",
+          evidenceSources: ["carPolitical"],
+          uncertainty: "Detta är en systemsyntes, inte en skattad svensk väljareffekt. Bilberoende kan också skapa efterfrågan på bättre alternativ, vilket skulle ge en annan policygren.",
+          reflection: "När blir dagens beroende ett argument för att bevara strukturen som skapade det?",
+          sourceIds: ["carPolitical", "ipccUrban"]
+        },
+        {
+          id: "policy_dependence_up",
+          from: "policy", to: "dependence",
+          label: "Bilorienterad planering kan förstärka bilberoendet",
+          polarity: "+", time: "Flera år till årtionden", kind: "Långsam inlåsningsmekanism", conditional: true, feedback: true,
+          lenses: ["policy", "all"], bend: -254, mobileBend: 160,
+          desktopRoute: [[900, 650], [520, 650], [20, 650], [20, 100], [137, 100]], mobileRoute: [[355, 840], [355, 120], [92, 120]],
+          desktopLabel: [520, 650], mobileLabel: [346, 500],
+          desktopStart: [1010, 579], desktopEnd: [137, 143], mobileStart: [351, 906], mobileEnd: [92, 197],
+          summary: "Mer vägutrymme, utspridd markanvändning och service som förutsätter bil kan göra bilen nödvändig för fler vardagsresor och därmed förstärka det strukturella beroendet.",
+          evidence: "IPCC:s syntes och översikten över bilberoendets politiska ekonomi beskriver bilorienterad bebyggelse, infrastruktur och institutionell återkoppling som långvariga inlåsningsmekanismer.",
+          evidenceSources: ["ipccUrban", "carPolitical"],
+          uncertainty: "Pilen gäller den bilorienterade policygrenen. Samma politiknod innehåller också en motsatt tillgänglighetsorienterad gren som kan minska beroendet.",
+          reflection: "Vilka investeringar gör framtida bilresor mer nödvändiga, även om de löser ett kortsiktigt problem?",
+          sourceIds: ["ipccUrban", "carPolitical"]
+        }
+      ];
+
+      const loops = [
+        {
+          id: "transition",
+          code: "B1",
+          label: "Långsiktig omställning",
+          classification: "Villkorad balanserande slinga",
+          negativeCount: 1,
+          time: "År till årtionden",
+          edgeIds: ["fuel_external", "external_policy", "policy_transition", "transition_fuel"],
+          path: "använda liter och trafik → kostnader utanför pumpen → investeringsgren → omställningsmöjlighet → använda liter",
+          mechanism: "Dokumenterade klimat- och samhällskostnader kan motivera styrning. Om styrningen förbättrar fungerande alternativ kan bensinanvändningen minska, vilket i sin tur minskar vissa externa kostnader. En negativ pil ger en balanserande slinga.",
+          uncertainty: "Kostnad leder inte automatiskt till beslut. Ledtiderna är långa, investeringar garanterar inte användning och rebound kan motverka en del av effektivitetsvinsten. Pilen från liter till externa kostnader samlar två mekanismer som hålls isär i sin förklaring.",
+          sourceIds: ["naturvard", "trafaExternal", "transportGoals", "ergon", "ipcc5", "euPoverty", "rebound"]
+        },
+        {
+          id: "lockin",
+          code: "R1",
+          label: "Bilberoendets inlåsning",
+          classification: "Villkorad förstärkande slinga",
+          negativeCount: 0,
+          time: "År till årtionden",
+          edgeIds: ["dependence_policy_lockin", "policy_dependence_up"],
+          path: "vardagens bilberoende → bilorienterad policyåterkoppling → bilorienterad struktur → vardagens bilberoende",
+          mechanism: "När många aktiviteter redan kräver bil kan det befintliga systemet få större politisk och ekonomisk tyngd. Om styrningen fortsätter prioritera bilorienterad markanvändning och infrastruktur kan beroendet växa ytterligare. Noll negativa pilar ger en förstärkande slinga.",
+          uncertainty: "Slingan är en internationellt grundad systemsyntes, inte en skattad svensk väljarmodell. Bilberoende kan också skapa tryck för alternativ, vilket hör till en annan policygren.",
+          sourceIds: ["carPolitical", "ipccUrban"]
+        }
+      ];
+
+      const policyBranches = [
+        {
+          id: "price-down",
+          label: "Pris ned",
+          edgeIds: ["policy_price_down", "price_vulnerability"],
+          summary: "En skattesänkning kan sänka pumppriset. Det minskar utgiftsexponeringen, men träff och finansiering behöver bedömas separat.",
+          sourceIds: ["kiTax", "mattioli", "eliasson"]
+        },
+        {
+          id: "price-up",
+          label: "Pris upp",
+          edgeIds: ["policy_price_up", "price_vulnerability"],
+          summary: "Skatt eller dyrare regelkrav kan höja pumppriset. Högre pris ökar utgiftsexponeringen när använda liter hålls konstanta.",
+          sourceIds: ["kiTax", "kiBlend", "mattioli"]
+        },
+        {
+          id: "compensation",
+          label: "Kompensation",
+          edgeIds: ["policy_margin", "margin_vulnerability"],
+          summary: "Riktad kompensation kan stärka handlingsutrymmet, vilket kan dämpa utsattheten. Detta är en åtgärdskedja, inte en belagd opinionsslinga.",
+          sourceIds: ["ergon", "eliasson", "scbHut"]
+        },
+        {
+          id: "transition",
+          label: "Omställning",
+          edgeIds: ["policy_transition", "transition_fuel"],
+          summary: "Investeringar kan göra fungerande alternativ möjliga. Om de faktiskt används kan bensinanvändningen minska, vanligen med lång ledtid.",
+          sourceIds: ["ipcc5", "ergon", "euPoverty"]
+        },
+        {
+          id: "access",
+          label: "Tillgänglighet",
+          edgeIds: ["policy_dependence_down", "dependence_transition"],
+          summary: "Tillgänglighetsorienterad planering kan på sikt minska bilberoendet och därmed öka hushållens faktiska möjlighet att ställa om.",
+          sourceIds: ["ipccUrban", "trafaAccess", "transportGoals"]
         }
       ];
 
       const about = {
         id: "about",
-        label: "Om kartans urval",
-        kind: "Metod och avgränsning",
-        summary: "Kartan undersöker vardagspåståendet ”bensinen är för dyr” genom en mer precis fråga: vad avgör hur hårt bensinkostnaden slår mot ett hushåll? Den skiljer mellan priset, användningen, hushållets resurser och följder utanför hushållsbudgeten.",
-        evidence: "Sju noder och åtta samband har valts för att bevara systemöverblicken utan att göra anspråk på en fullständig transportmodell. Varje empiriskt påstående länkas till myndighetsunderlag eller sakkunniggranskad forskning.",
-        evidenceSources: ["ki91", "ki111", "eliasson2018"],
-        uncertainty: "Urvalet lämnar bland annat bilägande, bostadsmarknad, arbetsmarknad, företagens kostnader, lokal luftkvalitet och alternativa energislag utanför huvudbilden.",
-        reflection: "Vilken ny nod skulle ändra slutsatsen, inte bara göra kartan större?",
-        sourceIds: ["ki91", "ki111", "ki102", "eliasson2018"]
+        label: "Så är modellen avgränsad",
+        systemRole: "Metod",
+        evidenceType: "Systemsyntes med spårbar evidens",
+        components: ["dagar: pris", "veckor till månader: hushållsbudget och kompensation", "år: bilbyte och alternativ", "årtionden: bebyggelse och klimat"],
+        summary: "Modellen gäller svenska hushålls användning av bensindrivna personbilar. Dess systemfunktion är tillgänglighet till arbete, utbildning, service, omsorg och socialt liv. Pumppriset behandlas som en del av systemet, inte som hela problemet.",
+        evidence: "Nio huvudnoder skiljer pris, strukturellt bilberoende, bränsleflöde, ekonomisk kapacitet, anpassningsförmåga, materiell utsatthet, subjektiv kostnadsbörda, samhällskostnader och institutionell styrning. Två namngivna slingor visar långsiktig omställning och bilberoendets inlåsning. Ingen kortsiktig opinionsslinga visas, eftersom underlaget inte belägger hela den kausala vägen. Analytiska identiteter, fysik, empiriska skattningar och villkorade synteser märks var för sig.",
+        evidenceSources: ["transportGoals", "ipcc5", "euPoverty"],
+        uncertainty: "Detta är en kausal orienteringskarta, inte en numerisk prognos. Godstransporter, diesel, hela statsbudgeten, makroekonomin och energisystemet ingår bara där de direkt ändrar den avgränsade frågan.",
+        reflection: "Vilken slutsats förändras när vi byter systemgräns, utfallsmått eller tidshorisont?",
+        sourceIds: ["transportGoals", "ipcc5", "euPoverty", "kiPrice", "trafaExternal", "carPolitical"]
       };
 
       const nodeById = Object.fromEntries(nodes.map(node => [node.id, node]));
       const edgeById = Object.fromEntries(edges.map(edge => [edge.id, edge]));
-      const map = root.querySelector(".psm-map");
-      const panel = root.querySelector(".psm-reading-panel");
-      const panelInner = root.querySelector(".psm-panel-inner");
-      const scrim = root.querySelector(".psm-panel-scrim");
-      const mapCard = root.querySelector(".psm-map-card");
-      const textView = root.querySelector(".psm-text-view");
-      const textContent = root.querySelector(".psm-text-content");
+      const loopById = Object.fromEntries(loops.map(loop => [loop.id, loop]));
+      const policyBranchById = Object.fromEntries(policyBranches.map(branch => [branch.id, branch]));
+      const map = root.querySelector(".ps-map");
+      const mapCard = root.querySelector(".ps-map-card");
+      const panel = root.querySelector(".ps-reading-panel");
+      const panelInner = root.querySelector(".ps-panel-inner");
+      const scrim = root.querySelector(".ps-panel-scrim");
+      const textView = root.querySelector("#ps-text-view");
+      const sourcesView = root.querySelector("#ps-sources-view");
+      const textContent = root.querySelector(".ps-text-content");
+      const sourceContent = root.querySelector(".ps-source-content");
       const textButton = root.querySelector('[data-action="text-view"]');
-      const compactMapMedia = window.matchMedia("(max-width: 560px)");
-      const modalPanelMedia = window.matchMedia("(max-width: 1024px)");
+      const sourcesButton = root.querySelector('[data-action="sources-view"]');
+      const lensNote = root.querySelector(".ps-lens-note");
+      const loopbar = root.querySelector(".ps-loopbar");
+      const loopSummary = root.querySelector(".ps-loop-summary");
+      const policybar = root.querySelector(".ps-policybar");
+      const policySummary = root.querySelector(".ps-policy-summary");
+      const mobileMedia = window.matchMedia("(max-width: 700px)");
+      const modalMedia = window.matchMedia("(max-width: 1024px)");
+      let lens = "core";
+      let activeLoopId = "transition";
+      let activePolicyBranchId = "price-down";
       let selected = null;
       let returnFocus = null;
 
@@ -1046,249 +1958,433 @@
         return String(value).replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
       }
 
-      function citations(ids) {
-        if (!ids || !ids.length) return "";
-        return `<span class="psm-citations" aria-label="Källhänvisningar">${ids.map((id, index) => {
+      function unique(ids) {
+        return [...new Set(ids || [])];
+      }
+
+      function citations(ids, referenceIds = ids) {
+        const clean = unique(ids);
+        const reference = unique(referenceIds);
+        if (!clean.length) return "";
+        return `<span class="ps-citations" aria-label="Källhänvisningar">${clean.map((id, index) => {
           const source = sources[id];
-          return `<a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="Källa ${index + 1}: ${esc(source.title)}">[${index + 1}]</a>`;
+          const referenceIndex = reference.indexOf(id);
+          const number = referenceIndex >= 0 ? referenceIndex + 1 : index + 1;
+          return `<a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" aria-label="Källa ${number}: ${esc(source.title)}">[${number}]</a>`;
         }).join("")}</span>`;
       }
 
       function sourceList(ids) {
-        return `<ul class="psm-source-list">${ids.map((id, index) => {
+        return `<ul class="ps-source-list">${unique(ids).map((id, index) => {
           const source = sources[id];
-          return `<li><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"><span class="psm-source-index">[${index + 1}]</span><span><span class="psm-source-title">${esc(source.title)}</span><span class="psm-source-meta">${esc(source.meta)}</span></span></a></li>`;
+          return `<li><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+            <span class="ps-source-index">[${index + 1}]</span>
+            <span>
+              <span class="ps-source-title">${esc(source.title)}</span>
+              <span class="ps-source-meta">${esc(source.meta)} · ${esc(source.scope)}</span>
+              <span class="ps-source-support"><strong>Används för:</strong> ${esc(source.support)}</span>
+            </span>
+          </a></li>`;
         }).join("")}</ul>`;
       }
 
-      function panelMarkup(item) {
+      function polarityLabel(value) {
+        if (value === "+") return "Förstärkande samband +";
+        if (value === "−") return "Dämpande samband −";
+        return "Riktningen beror på utformning ±";
+      }
+
+      function panelMarkup(item, type) {
+        const tags = type === "edge"
+          ? `<span class="ps-tag">${esc(polarityLabel(item.polarity))}</span><span class="ps-tag is-warm">${esc(item.time)}</span><span class="ps-tag">${esc(item.kind)}</span>`
+          : `<span class="ps-tag">${esc(item.systemRole)}</span><span class="ps-tag is-warm">${esc(item.evidenceType)}</span>`;
+        const components = item.components?.length
+          ? `<section class="ps-panel-section"><h3>Detta ryms i noden</h3><ul class="ps-components">${item.components.map(value => `<li>${esc(value)}</li>`).join("")}</ul></section>`
+          : "";
+        const subsystems = item.subsystems?.length
+          ? `<section class="ps-panel-section"><h3>Klickbara delmekanismer</h3><div class="ps-subsystems">${item.subsystems.map(subsystem => `<details class="ps-subsystem"><summary>${esc(subsystem.title)}</summary><div class="ps-subsystem-body"><p>${esc(subsystem.summary)}${citations(subsystem.evidenceSources, item.sourceIds)}</p></div></details>`).join("")}</div></section>`
+          : "";
         return `
-          <div class="psm-panel-top">
-            <div><span class="psm-evidence-tag">${esc(item.kind)}</span></div>
-            <button class="psm-panel-close" type="button" data-action="close-panel" aria-label="Stäng fördjupningen">×</button>
+          <div class="ps-panel-top">
+            <div class="ps-tags">${tags}</div>
+            <button class="ps-panel-close" type="button" data-action="close-panel" aria-label="Stäng fördjupningen">×</button>
           </div>
-          <h2 class="psm-panel-title" aria-live="polite" aria-atomic="true">${esc(item.label)}</h2>
-          <section class="psm-panel-section">
-            <h3>Vad det betyder</h3>
+          <h2 class="ps-panel-title" id="ps-detail" aria-live="polite" aria-atomic="true">${esc(item.label)}</h2>
+          <section class="ps-panel-section">
+            <h3>Kort sagt</h3>
             <p>${esc(item.summary)}</p>
           </section>
-          <section class="psm-panel-section">
+          ${components}
+          ${subsystems}
+          <section class="ps-panel-section">
             <h3>Vad underlaget visar</h3>
-            <p>${esc(item.evidence)}${citations(item.evidenceSources)}</p>
+            <p>${esc(item.evidence)}${citations(item.evidenceSources, item.sourceIds)}</p>
           </section>
-          <section class="psm-panel-section">
-            <h3>Viktig osäkerhet</h3>
+          <section class="ps-panel-section">
+            <h3>Viktig gräns eller osäkerhet</h3>
             <p>${esc(item.uncertainty)}</p>
           </section>
-          <div class="psm-reflection">
-            <h3>Tänk vidare</h3>
+          <div class="ps-reflection">
+            <h3>Fråga att bära med sig</h3>
             <p>${esc(item.reflection)}</p>
           </div>
-          <section class="psm-panel-section">
-            <h3>Källor</h3>
+          <section class="ps-panel-section">
+            <h3>Källor och exakt användning</h3>
             ${sourceList(item.sourceIds)}
           </section>`;
       }
 
       function point(node) {
-        return compactMapMedia.matches ? node.mobile : node.desktop;
+        return mobileMedia.matches ? node.mobile : node.desktop;
       }
 
-      function nodeRadius(node) {
-        return compactMapMedia.matches ? node.mobileRadius : node.radius;
+      function nodeSize(node) {
+        return mobileMedia.matches ? node.mobileSize : node.size;
       }
 
-      function lineEnd(a, b, radius) {
-        const dx = b[0] - a[0];
-        const dy = b[1] - a[1];
-        const length = Math.hypot(dx, dy) || 1;
-        return [a[0] + dx * radius / length, a[1] + dy * radius / length];
+      function boundaryPoint(from, to, size, padding) {
+        const dx = to[0] - from[0];
+        const dy = to[1] - from[1];
+        const halfW = size[0] / 2 + padding;
+        const halfH = size[1] / 2 + padding;
+        const scaleX = dx === 0 ? Infinity : halfW / Math.abs(dx);
+        const scaleY = dy === 0 ? Infinity : halfH / Math.abs(dy);
+        const scale = Math.min(scaleX, scaleY);
+        return [from[0] + dx * scale, from[1] + dy * scale];
       }
 
-      function standardPath(edge) {
+      function edgeGeometry(edge) {
         const fromNode = nodeById[edge.from];
         const toNode = nodeById[edge.to];
-        const a0 = point(fromNode);
-        const b0 = point(toNode);
-        const a = lineEnd(a0, b0, nodeRadius(fromNode) + 5);
-        const b = lineEnd(b0, a0, nodeRadius(toNode) + 10);
+        const fromCenter = point(fromNode);
+        const toCenter = point(toNode);
+        const fixedStart = mobileMedia.matches ? edge.mobileStart : edge.desktopStart;
+        const fixedEnd = mobileMedia.matches ? edge.mobileEnd : edge.desktopEnd;
+        const start = fixedStart || boundaryPoint(fromCenter, toCenter, nodeSize(fromNode), 4);
+        const end = fixedEnd || boundaryPoint(toCenter, fromCenter, nodeSize(toNode), 11);
+        const route = mobileMedia.matches ? edge.mobileRoute : edge.desktopRoute;
+        const fixedLabel = mobileMedia.matches ? edge.mobileLabel : edge.desktopLabel;
+        if (route?.length) {
+          const points = [start, ...route, end];
+          return {
+            d: points.map((value, index) => `${index === 0 ? "M" : "L"} ${value[0].toFixed(1)} ${value[1].toFixed(1)}`).join(" "),
+            label: fixedLabel || route[Math.floor(route.length / 2)]
+          };
+        }
+        const dx = end[0] - start[0];
+        const dy = end[1] - start[1];
+        const length = Math.hypot(dx, dy) || 1;
+        const bend = mobileMedia.matches ? (edge.mobileBend ?? edge.bend ?? 0) : (edge.bend ?? 0);
+        const mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+        const control = [mid[0] + (-dy / length) * bend, mid[1] + (dx / length) * bend];
+        const label = [
+          0.25 * start[0] + 0.5 * control[0] + 0.25 * end[0],
+          0.25 * start[1] + 0.5 * control[1] + 0.25 * end[1]
+        ];
+        const labelShift = mobileMedia.matches ? (edge.mobileLabelShift || [0, 0]) : (edge.labelShift || [0, 0]);
+        label[0] += labelShift[0];
+        label[1] += labelShift[1];
+        return {
+          d: `M ${start[0].toFixed(1)} ${start[1].toFixed(1)} Q ${control[0].toFixed(1)} ${control[1].toFixed(1)} ${end[0].toFixed(1)} ${end[1].toFixed(1)}`,
+          label
+        };
+      }
 
-        if (edge.id === "price_burden") {
-          return compactMapMedia.matches
-            ? `M ${a[0]} ${a[1]} C 150 145, 230 225, ${b[0]} ${b[1]}`
-            : `M ${a[0]} ${a[1]} C 540 170, 690 240, ${b[0]} ${b[1]}`;
+      function edgeIsVisible(edge) {
+        if (lens === "loops") return loopById[activeLoopId].edgeIds.includes(edge.id);
+        if (lens === "policy") return policyBranchById[activePolicyBranchId].edgeIds.includes(edge.id);
+        if (selected?.type === "edge" && selected.id === edge.id) return true;
+        if (selected?.type === "node" && (edge.from === selected.id || edge.to === selected.id)) return true;
+        return edge.lenses.includes(lens);
+      }
+
+      function updateLensContext() {
+        const notes = {
+          core: "Kärnan visar hushållets direkta kostnadskedja. Tonade noder hör till systemet men deras samband öppnas i andra perspektiv.",
+          household: "Hushållsperspektivet visar exponering, ekonomisk marginal, anpassning och attitydmått. Politikens långsamma grenar är tonade.",
+          policy: "Välj en politisk gren i taget. Pris, kompensation, omställning och tillgänglighetsplanering verkar genom olika kedjor och över olika lång tid.",
+          loops: "Välj en slinga. Endast dess kompletta väg tillbaka till startnoden visas. B betyder balanserande och R förstärkande.",
+          all: "Alla sjutton samband visas samtidigt. Använd denna vy för kontroll, inte som rekommenderad första läsning."
+        };
+        lensNote.textContent = notes[lens];
+        const showLoops = lens === "loops";
+        const showPolicy = lens === "policy";
+        loopbar.hidden = !showLoops;
+        loopSummary.hidden = !showLoops;
+        policybar.hidden = !showPolicy;
+        policySummary.hidden = !showPolicy;
+        if (showLoops) {
+          const loop = loopById[activeLoopId];
+          loopSummary.innerHTML = `<strong>${esc(loop.code)} ${esc(loop.label)} · ${esc(loop.classification)}.</strong> ${esc(loop.mechanism)} <strong>Väg:</strong> ${esc(loop.path)}. <strong>Tid:</strong> ${esc(loop.time)}. <strong>Viktig gräns:</strong> ${esc(loop.uncertainty)} ${citations(loop.sourceIds)}`;
+          loopbar.querySelectorAll("[data-loop]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.loop === activeLoopId)));
         }
-        if (edge.id === "price_fuel") {
-          return compactMapMedia.matches
-            ? `M ${a[0]} ${a[1]} C 118 170, 146 250, ${b[0]} ${b[1]}`
-            : `M ${a[0]} ${a[1]} C 410 325, 500 405, ${b[0]} ${b[1]}`;
+        if (showPolicy) {
+          const branch = policyBranchById[activePolicyBranchId];
+          policySummary.innerHTML = `<strong>${esc(branch.label)}.</strong> ${esc(branch.summary)} ${citations(branch.sourceIds)}`;
+          policybar.querySelectorAll("[data-policy-branch]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.policyBranch === activePolicyBranchId)));
         }
-        if (edge.id === "fuel_burden" && compactMapMedia.matches) {
-          return `M ${a[0]} ${a[1]} C 230 300, 252 300, ${b[0]} ${b[1]}`;
-        }
-        if (edge.feedback) {
-          return compactMapMedia.matches
-            ? `M ${a[0]} ${a[1]} C 340 540, 340 607, 270 607 C 140 607, 0 607, 0 500 C 0 380, 0 240, 0 185 C 10 160, 45 150, ${b[0]} ${b[1]}`
-            : `M ${a[0]} ${a[1]} C 1010 570, 1060 450, 1060 260 C 1060 120, 1000 15, 680 15 C 500 10, 340 30, ${b[0]} ${b[1]}`;
-        }
-        return `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`;
       }
 
       function renderMap() {
-        const mobile = compactMapMedia.matches;
-        map.setAttribute("viewBox", mobile ? "0 0 360 620" : "0 0 1080 650");
+        const mobile = mobileMedia.matches;
+        map.setAttribute("viewBox", mobile ? "0 0 360 970" : "0 0 1200 700");
         map.setAttribute("preserveAspectRatio", "xMidYMid meet");
-        const edgeMarkup = edges.map(edge => {
-          const active = selected && selected.type === "edge" && selected.id === edge.id;
-          const conditional = edge.conditional ? " is-conditional" : "";
-          return `<g class="psm-edge${conditional}${active ? " is-active" : ""}" data-edge-id="${edge.id}" role="button" tabindex="0" aria-label="Samband: ${esc(edge.label)}">
+
+        const loopEdgeIds = lens === "loops" ? new Set(loopById[activeLoopId].edgeIds) : new Set();
+        const visibleNodeIds = new Set();
+        edges.filter(edgeIsVisible).forEach(edge => {
+          visibleNodeIds.add(edge.from);
+          visibleNodeIds.add(edge.to);
+        });
+
+        const edgeMarkup = edges.filter(edgeIsVisible).map(edge => {
+          const geometry = edgeGeometry(edge);
+          const classes = [
+            "ps-edge",
+            edge.conditional ? "is-conditional" : "",
+            edge.feedback ? "is-feedback" : "",
+            loopEdgeIds.has(edge.id) ? "is-loop" : ""
+          ].filter(Boolean).join(" ");
+          return `<a class="${classes}" href="#ps-detail" data-edge-id="${esc(edge.id)}" aria-label="Samband: ${esc(edge.label)}">
             <title>${esc(edge.label)}</title>
-            <path class="psm-edge-hit" d="${standardPath(edge)}"></path>
-            <path class="psm-edge-visible" d="${standardPath(edge)}"></path>
-          </g>`;
+            <path class="ps-edge-hit" d="${geometry.d}"></path>
+            <path class="ps-edge-line" d="${geometry.d}"></path>
+            <g class="ps-polarity" transform="translate(${geometry.label[0].toFixed(1)} ${geometry.label[1].toFixed(1)})" aria-hidden="true">
+              <circle r="12"></circle><text y="0.5">${esc(edge.polarity)}</text>
+            </g>
+          </a>`;
         }).join("");
-        const nodeMarkup = nodes.map(node => {
+
+        const nodeMarkup = nodes.filter(node => !["loops", "policy"].includes(lens) || visibleNodeIds.has(node.id)).map(node => {
           const [x, y] = point(node);
-          const tablet = !mobile && modalPanelMedia.matches;
-          const lines = mobile && node.mobileLines ? node.mobileLines : tablet && node.tabletLines ? node.tabletLines : node.lines;
-          const lineHeight = mobile ? 16 : tablet ? 22 : 18;
-          const start = y - ((lines.length - 1) * lineHeight) / 2 + 5;
-          const tspans = lines.map((line, index) => `<tspan x="${x}" y="${start + index * lineHeight}">${esc(line)}</tspan>`).join("");
-          return `<g class="psm-node${node.outcome ? " is-outcome" : ""}" data-node-id="${node.id}" role="button" tabindex="0" aria-label="Nod: ${esc(node.label)}">
+          const [width, height] = nodeSize(node);
+          const lines = mobile && node.mobileLines ? node.mobileLines : node.lines;
+          const lineHeight = mobile ? 16 : 19;
+          const mainCenter = y - 6;
+          const firstY = mainCenter - ((lines.length - 1) * lineHeight) / 2 + 5;
+          const tspans = lines.map((line, index) => `<tspan x="${x}" y="${firstY + index * lineHeight}">${esc(line)}</tspan>`).join("");
+          const classes = [
+            "ps-node",
+            node.outcome ? "is-outcome" : "",
+            node.system ? "is-system" : "",
+            node.gap ? "is-gap" : "",
+            !visibleNodeIds.has(node.id) && !node.gap ? "is-lens-muted" : "",
+            lens === "loops" && visibleNodeIds.has(node.id) ? "is-loop-node" : ""
+          ].filter(Boolean).join(" ");
+          return `<a class="${classes}" href="#ps-detail" data-node-id="${esc(node.id)}" aria-label="Nod: ${esc(node.label)}">
             <title>${esc(node.label)}</title>
-            <circle cx="${x}" cy="${y}" r="${nodeRadius(node)}"></circle>
-            <text>${tspans}</text>
-          </g>`;
+            <rect x="${x - width / 2}" y="${y - height / 2}" width="${width}" height="${height}" rx="${mobile ? 18 : 22}"></rect>
+            <text>${tspans}<tspan class="ps-node-note" x="${x}" y="${y + height / 2 - 12}">${esc(node.note)}</tspan></text>
+          </a>`;
         }).join("");
+
         map.innerHTML = `
           <defs>
-            <marker id="psm-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#87918d"></path></marker>
-            <marker id="psm-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#006c63"></path></marker>
+            <marker id="ps-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7e8a85"></path></marker>
+            <marker id="ps-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#006c63"></path></marker>
+            <marker id="ps-arrow-loop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8a5426"></path></marker>
           </defs>
-          <g class="psm-edges">${edgeMarkup}</g>
-          <g class="psm-nodes">${nodeMarkup}</g>`;
+          <g class="ps-edges">${edgeMarkup}</g>
+          <g class="ps-nodes">${nodeMarkup}</g>`;
         applySelectionClasses();
+        updateLensContext();
       }
 
       function applySelectionClasses() {
-        const nodeElements = [...map.querySelectorAll(".psm-node")];
-        const edgeElements = [...map.querySelectorAll(".psm-edge")];
-        nodeElements.forEach(el => el.classList.remove("is-active", "is-neighbor", "is-dim"));
-        edgeElements.forEach(el => el.classList.remove("is-active", "is-dim"));
+        const nodeElements = [...map.querySelectorAll(".ps-node")];
+        const edgeElements = [...map.querySelectorAll(".ps-edge")];
+        nodeElements.forEach(element => element.classList.remove("is-active", "is-neighbor", "is-dim"));
+        edgeElements.forEach(element => element.classList.remove("is-active", "is-dim"));
         if (!selected || selected.type === "about") return;
 
         if (selected.type === "node") {
-          const relatedEdges = edges.filter(edge => edge.from === selected.id || edge.to === selected.id);
-          const relatedNodeIds = new Set([selected.id]);
-          relatedEdges.forEach(edge => {
-            relatedNodeIds.add(edge.from);
-            relatedNodeIds.add(edge.to);
+          const related = edges.filter(edge => edge.from === selected.id || edge.to === selected.id);
+          const neighborIds = new Set([selected.id]);
+          related.forEach(edge => {
+            neighborIds.add(edge.from);
+            neighborIds.add(edge.to);
           });
-          nodeElements.forEach(el => {
-            const id = el.dataset.nodeId;
-            if (id === selected.id) el.classList.add("is-active");
-            else if (relatedNodeIds.has(id)) el.classList.add("is-neighbor");
-            else el.classList.add("is-dim");
+          nodeElements.forEach(element => {
+            const id = element.dataset.nodeId;
+            if (id === selected.id) element.classList.add("is-active");
+            else if (neighborIds.has(id)) element.classList.add("is-neighbor");
+            else element.classList.add("is-dim");
           });
-          edgeElements.forEach(el => {
-            if (relatedEdges.some(edge => edge.id === el.dataset.edgeId)) el.classList.add("is-active");
-            else el.classList.add("is-dim");
+          edgeElements.forEach(element => {
+            if (related.some(edge => edge.id === element.dataset.edgeId)) element.classList.add("is-active");
+            else element.classList.add("is-dim");
           });
         }
 
         if (selected.type === "edge") {
           const edge = edgeById[selected.id];
-          nodeElements.forEach(el => {
-            if (el.dataset.nodeId === edge.from || el.dataset.nodeId === edge.to) el.classList.add("is-neighbor");
-            else el.classList.add("is-dim");
+          nodeElements.forEach(element => {
+            if (element.dataset.nodeId === edge.from || element.dataset.nodeId === edge.to) element.classList.add("is-neighbor");
+            else element.classList.add("is-dim");
           });
-          edgeElements.forEach(el => {
-            if (el.dataset.edgeId === selected.id) el.classList.add("is-active");
-            else el.classList.add("is-dim");
+          edgeElements.forEach(element => {
+            if (element.dataset.edgeId === selected.id) element.classList.add("is-active");
+            else element.classList.add("is-dim");
           });
         }
       }
 
       function openItem(type, id, trigger) {
         const item = type === "node" ? nodeById[id] : type === "edge" ? edgeById[id] : about;
-        if (modalPanelMedia.matches && !panel.classList.contains("is-open")) {
-          returnFocus = trigger || document.activeElement;
-        }
-        selected = { type, id };
-        panelInner.innerHTML = panelMarkup(item);
+        if (trigger?.dataset?.nodeId) returnFocus = {selector: `[data-node-id="${trigger.dataset.nodeId}"]`};
+        else if (trigger?.dataset?.edgeId) returnFocus = {selector: `[data-edge-id="${trigger.dataset.edgeId}"]`};
+        else returnFocus = {element: trigger || document.activeElement};
+        selected = {type, id};
+        panelInner.innerHTML = panelMarkup(item, type);
         panel.classList.add("is-open");
+        panel.removeAttribute("inert");
         panel.setAttribute("aria-hidden", "false");
-        panel.setAttribute("aria-modal", String(modalPanelMedia.matches));
-        mapCard.classList.add("has-panel");
-        if (modalPanelMedia.matches) scrim.classList.add("is-open");
-        applySelectionClasses();
-        if (modalPanelMedia.matches) {
-          requestAnimationFrame(() => panel.querySelector(".psm-panel-close")?.focus());
-        }
+        panel.setAttribute("aria-modal", String(modalMedia.matches));
+        if (modalMedia.matches) scrim.classList.add("is-open");
+        renderMap();
+        requestAnimationFrame(() => panel.querySelector(".ps-panel-close")?.focus());
       }
 
       function closePanel() {
-        const focusTarget = returnFocus;
+        const focusDescriptor = returnFocus;
         selected = null;
         panel.classList.remove("is-open");
+        panel.setAttribute("inert", "");
         panel.setAttribute("aria-hidden", "true");
         panel.setAttribute("aria-modal", "false");
         scrim.classList.remove("is-open");
-        mapCard.classList.remove("has-panel");
-        applySelectionClasses();
-        if (modalPanelMedia.matches && focusTarget && document.contains(focusTarget)) {
+        renderMap();
+        const focusTarget = focusDescriptor?.selector ? root.querySelector(focusDescriptor.selector) : focusDescriptor?.element;
+        if (focusTarget && document.contains(focusTarget)) {
           requestAnimationFrame(() => focusTarget.focus());
         }
         returnFocus = null;
       }
 
-      function textItem(item) {
-        return `<details class="psm-text-item">
-          <summary><span>${esc(item.label)}</span><span class="psm-text-kind">${esc(item.kind)}</span></summary>
-          <div class="psm-text-body">
-            <p><strong>Vad det betyder:</strong> ${esc(item.summary)}</p>
-            <p><strong>Underlag:</strong> ${esc(item.evidence)}${citations(item.evidenceSources)}</p>
-            <p><strong>Osäkerhet:</strong> ${esc(item.uncertainty)}</p>
-            <p><strong>Tänk vidare:</strong> ${esc(item.reflection)}</p>
+      function textItem(item, type) {
+        const kind = type === "edge" ? `${polarityLabel(item.polarity)} · ${item.time}` : `${item.systemRole} · ${item.evidenceType}`;
+        const components = item.components?.length ? `<p><strong>Innehåller:</strong> ${esc(item.components.join(", "))}.</p>` : "";
+        const subsystems = item.subsystems?.length ? item.subsystems.map(subsystem => `<p><strong>${esc(subsystem.title)}:</strong> ${esc(subsystem.summary)}${citations(subsystem.evidenceSources, item.sourceIds)}</p>`).join("") : "";
+        return `<details class="ps-text-item">
+          <summary><span>${esc(item.label)}</span><span class="ps-text-kind">${esc(kind)}</span></summary>
+          <div class="ps-text-body">
+            <p><strong>Kort sagt:</strong> ${esc(item.summary)}</p>
+            ${components}
+            ${subsystems}
+            <p><strong>Underlag:</strong> ${esc(item.evidence)}${citations(item.evidenceSources, item.sourceIds)}</p>
+            <p><strong>Gräns eller osäkerhet:</strong> ${esc(item.uncertainty)}</p>
+            <p><strong>Fråga:</strong> ${esc(item.reflection)}</p>
             ${sourceList(item.sourceIds)}
+          </div>
+        </details>`;
+      }
+
+      function loopTextItem(loop) {
+        return `<details class="ps-text-item">
+          <summary><span>${esc(loop.code)} ${esc(loop.label)}</span><span class="ps-text-kind">${esc(loop.classification)} · ${esc(loop.time)}</span></summary>
+          <div class="ps-text-body">
+            <p><strong>Väg:</strong> ${esc(loop.path)}.</p>
+            <p><strong>Mekanism:</strong> ${esc(loop.mechanism)}</p>
+            <p><strong>Teckenkontroll:</strong> ${loop.negativeCount === 1 ? "En negativ pil ger en balanserande slinga." : "Noll negativa pilar ger en förstärkande slinga."}</p>
+            <p><strong>Gräns eller osäkerhet:</strong> ${esc(loop.uncertainty)}</p>
+            ${sourceList(loop.sourceIds)}
           </div>
         </details>`;
       }
 
       function renderTextView() {
         textContent.innerHTML = `
-          <div class="psm-text-group"><h3>Noder</h3>${nodes.map(textItem).join("")}</div>
-          <div class="psm-text-group"><h3>Samband</h3>${edges.map(textItem).join("")}</div>`;
+          <div class="ps-text-group"><h3>Nio huvudnoder</h3>${nodes.map(node => textItem(node, "node")).join("")}</div>
+          <div class="ps-text-group"><h3>Två återkopplingsslingor</h3>${loops.map(loopTextItem).join("")}</div>
+          <div class="ps-text-group"><h3>Sjutton riktade samband</h3>${edges.map(edge => textItem(edge, "edge")).join("")}</div>`;
+      }
+
+      function renderAllSources() {
+        sourceContent.innerHTML = `<ul class="ps-all-sources">${Object.values(sources).map(source => `
+          <li><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">
+            <span class="ps-source-title">${esc(source.title)}</span>
+            <span class="ps-source-meta">${esc(source.meta)}</span>
+            <span class="ps-source-support"><strong>Används för:</strong> ${esc(source.support)}</span>
+            <span class="ps-source-scope">${esc(source.scope)}</span>
+          </a></li>`).join("")}</ul>`;
       }
 
       map.addEventListener("click", event => {
-        const node = event.target.closest(".psm-node");
-        const edge = event.target.closest(".psm-edge");
-        if (node) openItem("node", node.dataset.nodeId, node);
-        else if (edge) openItem("edge", edge.dataset.edgeId, edge);
-        else closePanel();
+        const node = event.target.closest(".ps-node");
+        const edge = event.target.closest(".ps-edge");
+        if (node) {
+          event.preventDefault();
+          openItem("node", node.dataset.nodeId, node);
+        } else if (edge) {
+          event.preventDefault();
+          openItem("edge", edge.dataset.edgeId, edge);
+        } else {
+          closePanel();
+        }
       });
 
-      map.addEventListener("keydown", event => {
-        if (event.key !== "Enter" && event.key !== " ") return;
-        const node = event.target.closest(".psm-node");
-        const edge = event.target.closest(".psm-edge");
-        if (!node && !edge) return;
-        event.preventDefault();
-        if (node) openItem("node", node.dataset.nodeId, node);
-        if (edge) openItem("edge", edge.dataset.edgeId, edge);
+      root.querySelector(".ps-lenses").addEventListener("click", event => {
+        const button = event.target.closest("[data-lens]");
+        if (!button) return;
+        lens = button.dataset.lens;
+        selected = null;
+        panel.classList.remove("is-open");
+        panel.setAttribute("inert", "");
+        panel.setAttribute("aria-hidden", "true");
+        panel.setAttribute("aria-modal", "false");
+        scrim.classList.remove("is-open");
+        returnFocus = null;
+        root.querySelectorAll("[data-lens]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+        renderMap();
+      });
+
+      loopbar.addEventListener("click", event => {
+        const button = event.target.closest("[data-loop]");
+        if (!button) return;
+        activeLoopId = button.dataset.loop;
+        selected = null;
+        panel.classList.remove("is-open");
+        panel.setAttribute("inert", "");
+        panel.setAttribute("aria-hidden", "true");
+        panel.setAttribute("aria-modal", "false");
+        scrim.classList.remove("is-open");
+        returnFocus = null;
+        renderMap();
+      });
+
+      policybar.addEventListener("click", event => {
+        const button = event.target.closest("[data-policy-branch]");
+        if (!button) return;
+        activePolicyBranchId = button.dataset.policyBranch;
+        selected = null;
+        panel.classList.remove("is-open");
+        panel.setAttribute("inert", "");
+        panel.setAttribute("aria-hidden", "true");
+        panel.setAttribute("aria-modal", "false");
+        scrim.classList.remove("is-open");
+        returnFocus = null;
+        renderMap();
       });
 
       root.addEventListener("click", event => {
-        const action = event.target.closest("[data-action]")?.dataset.action;
+        const actionElement = event.target.closest("[data-action]");
+        if (!actionElement) return;
+        const action = actionElement.dataset.action;
         if (action === "close-panel") closePanel();
-        if (action === "about") openItem("about", "about", event.target.closest("[data-action]"));
+        if (action === "about") openItem("about", "about", actionElement);
         if (action === "text-view") {
           const willOpen = textView.hidden;
           textView.hidden = !willOpen;
           textButton.setAttribute("aria-expanded", String(willOpen));
-          textButton.textContent = willOpen ? "Dölj textversion" : "Läs som text";
-          if (willOpen) textView.scrollIntoView({ behavior: "smooth", block: "start" });
+          textButton.textContent = willOpen ? "Dölj textversion" : "Kartan som text";
+          if (willOpen) textView.scrollIntoView({behavior: "smooth", block: "start"});
+        }
+        if (action === "sources-view") {
+          const willOpen = sourcesView.hidden;
+          sourcesView.hidden = !willOpen;
+          sourcesButton.setAttribute("aria-expanded", String(willOpen));
+          sourcesButton.textContent = willOpen ? "Dölj källorna" : "Alla källor";
+          if (willOpen) sourcesView.scrollIntoView({behavior: "smooth", block: "start"});
         }
       });
 
@@ -1297,8 +2393,8 @@
           closePanel();
           return;
         }
-        if (event.key === "Tab" && modalPanelMedia.matches && panel.classList.contains("is-open")) {
-          const focusable = [...panel.querySelectorAll('button, a[href]')].filter(element => !element.hasAttribute("disabled"));
+        if (event.key === "Tab" && modalMedia.matches && panel.classList.contains("is-open")) {
+          const focusable = [...panel.querySelectorAll("button, a[href]")].filter(element => !element.hasAttribute("disabled"));
           if (!focusable.length) return;
           const first = focusable[0];
           const last = focusable[focusable.length - 1];
@@ -1312,12 +2408,20 @@
         }
       });
 
-      compactMapMedia.addEventListener("change", () => {
-        closePanel();
+      mobileMedia.addEventListener("change", () => {
+        selected = null;
+        panel.classList.remove("is-open");
+        panel.setAttribute("inert", "");
+        panel.setAttribute("aria-hidden", "true");
+        panel.setAttribute("aria-modal", "false");
+        scrim.classList.remove("is-open");
+        returnFocus = null;
         renderMap();
       });
-      modalPanelMedia.addEventListener("change", closePanel);
+      modalMedia.addEventListener("change", closePanel);
+
       renderTextView();
+      renderAllSources();
       renderMap();
     })();
   </script>
